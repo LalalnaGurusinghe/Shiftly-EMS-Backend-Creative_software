@@ -1,0 +1,2 @@
+# Shiftly-EMS-Backend-Creative_software
+ Shiftly-EMS-Backend-Creative_software is the backend for the Shiftly Employee Management System (EMS), built with Spring Boot. It offers a scalable platform to manage employee data, shift schedules, attendance, and HR tasks. Designed for efficiency and ease of use, it ensures smooth communication between the database and frontend. The backend supports future integrations like payroll and task management, while being optimized for performance and security, making Shiftly EMS a reliable employee management solution.
