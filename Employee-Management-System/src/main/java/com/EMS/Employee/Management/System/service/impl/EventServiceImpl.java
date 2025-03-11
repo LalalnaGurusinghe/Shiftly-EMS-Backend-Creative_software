@@ -34,22 +34,12 @@ public class EventServiceImpl implements EventService {
         List<EventEntity> eventEntities = eventRepo.findAll();
 
         List<EventDTO> eventDTOS = eventEntities
-                .stream().map(eventEntity -> new EventDTO(
-                        eventEntity.getId(),
-                        eventEntity.getTitle(),
-                        eventEntity.getFormUrl(),
-                        eventEntity.getResponseUrl(),
-                        eventEntity.getAudience(),
-                        eventEntity.getEventType(),
-                        eventEntity.getProjects(),
-                        eventEntity.getEnableDateTime(),
-                        eventEntity.getExpireDateTime(),
-                        eventEntity.getCreatedBy(),
-                        eventEntity.getPhoto()
-
-                ))
+                .stream().map(entity ->{
+                    EventDTO eventDTO = new EventDTO();
+                    BeanUtils.copyProperties(entity , eventDTO);
+                    return eventDTO;
+                })
                 .collect(Collectors.toList());
-
 
         return eventDTOS;
     }
