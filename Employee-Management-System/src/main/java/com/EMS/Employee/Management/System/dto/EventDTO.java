@@ -1,10 +1,12 @@
 package com.EMS.Employee.Management.System.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+
 
 @Data
 @AllArgsConstructor
@@ -19,10 +21,9 @@ public class EventDTO {
     private String eventType;
     private String projects;
 
-    private LocalDateTime enableDateTime;
-    private LocalDateTime expireDateTime;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    private LocalDate enableDate;
+    private LocalDate expireDate;
 
-    private String createdBy;
 
-    private byte[] photo;
 }
