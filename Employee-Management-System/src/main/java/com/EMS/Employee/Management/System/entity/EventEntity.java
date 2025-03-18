@@ -5,10 +5,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+
 
 @Entity
-@Table(name = "events")
+@Table(name = "Events")
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
@@ -37,18 +38,11 @@ public class EventEntity {
     @Column(name = "projects")
     private String projects;
 
-    @Column(name = "enable_date_time")
-    private LocalDateTime enableDateTime;
+    @Column(name = "enable_date")
+    private LocalDate enableDate;
 
-    @Column(name = "expire_date_time")
-    private LocalDateTime expireDateTime;
-
-    @Column(name = "created_by")
-    private String createdBy;
-    @Column(name = "event_banner" , columnDefinition = "LONGBLOB")
-    @Lob
-    private byte[] photo;
-
+    @Column(name = "expire_date")
+    private LocalDate expireDate;
 
 
 }

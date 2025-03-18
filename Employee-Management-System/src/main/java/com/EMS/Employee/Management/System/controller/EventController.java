@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/shiftly/ems/event")
+@RequestMapping("/event")
 @CrossOrigin
 public class EventController {
 
@@ -20,38 +20,8 @@ public class EventController {
     private EventService eventService;
 
     @PostMapping("/add")
-    public EventDTO addEvent(
-            @RequestParam("title") String title,
-            @RequestParam("formUrl") String formUrl,
-            @RequestParam("responseUrl") String responseUrl,
-            @RequestParam("audience") String audience,
-            @RequestParam("eventType") String eventType,
-            @RequestParam("projects") String projects,
-            @RequestParam("enableDateTime") String enableDateTime,
-            @RequestParam("expireDateTime") String expireDateTime,
-            @RequestParam("createdBy") String createdBy,
-            @RequestParam(value = "photo", required = false) MultipartFile photo
-
-    ) throws IOException {
-
-        EventDTO eventDTO = new EventDTO();
-        eventDTO.setTitle(title);
-        eventDTO.setFormUrl(formUrl);
-        eventDTO.setResponseUrl(responseUrl);
-        eventDTO.setAudience(audience);
-        eventDTO.setEventType(eventType);
-        eventDTO.setProjects(projects);
-        eventDTO.setEnableDateTime(LocalDateTime.parse(enableDateTime));
-        eventDTO.setExpireDateTime(LocalDateTime.parse(expireDateTime));
-        eventDTO.setCreatedBy(createdBy);
-
-        // Convert image file to byte array if provided
-        if (photo != null && !photo.isEmpty()) {
-            eventDTO.setPhoto(photo.getBytes());
-        }
-
+    public EventDTO addEvent(@RequestBody EventDTO eventDTO) {
         return eventService.addEvent(eventDTO);
-
     }
 
     @GetMapping("/all")

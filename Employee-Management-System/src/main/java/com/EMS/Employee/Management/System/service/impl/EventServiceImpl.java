@@ -23,8 +23,8 @@ public class EventServiceImpl implements EventService {
     public EventDTO addEvent(EventDTO eventDTO) {
         EventEntity eventEntity = new EventEntity();
         BeanUtils.copyProperties(eventDTO, eventEntity);
-        EventEntity saveEntity = eventRepo.save(eventEntity);
-        eventDTO.setId(saveEntity.getId());
+        EventEntity savedEntity = eventRepo.save(eventEntity);
+        eventDTO.setId(savedEntity.getId());
         return eventDTO;
     }
 
@@ -42,10 +42,9 @@ public class EventServiceImpl implements EventService {
                         eventEntity.getAudience(),
                         eventEntity.getEventType(),
                         eventEntity.getProjects(),
-                        eventEntity.getEnableDateTime(),
-                        eventEntity.getExpireDateTime(),
-                        eventEntity.getCreatedBy(),
-                        eventEntity.getPhoto()
+                        eventEntity.getEnableDate(),
+                        eventEntity.getExpireDate()
+
 
                 ))
                 .collect(Collectors.toList());
@@ -115,18 +114,11 @@ public class EventServiceImpl implements EventService {
         if (eventDTO.getProjects() != null) {
             eventEntity.setProjects(eventDTO.getProjects());
         }
-        if (eventDTO.getEnableDateTime() != null) {
-            eventEntity.setEnableDateTime(eventDTO.getEnableDateTime());
+        if (eventDTO.getEnableDate() != null) {
+            eventEntity.setEnableDate(eventDTO.getEnableDate());
         }
-        if (eventDTO.getExpireDateTime() != null) {
-            eventEntity.setExpireDateTime(eventDTO.getExpireDateTime());
-        }
-
-        if (eventDTO.getCreatedBy() != null) {
-            eventEntity.setCreatedBy(eventDTO.getCreatedBy());
-        }
-        if (eventDTO.getPhoto() != null) {
-            eventEntity.setPhoto(eventDTO.getPhoto());
+        if (eventDTO.getExpireDate() != null) {
+            eventEntity.setExpireDate(eventDTO.getExpireDate());
         }
 
         eventRepo.save(eventEntity);
