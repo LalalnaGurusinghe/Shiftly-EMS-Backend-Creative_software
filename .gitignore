@@ -14,7 +14,7 @@
 /Employee-Management-System/.sts4-cache
 
 ### IntelliJ IDEA ###
-/Employee-Management-System/.idea
+.idea
 /Employee-Management-System/*.iws
 /Employee-Management-System/*.iml
 /Employee-Management-System/*.ipr
