@@ -2,13 +2,13 @@ package com.EMS.Employee.Management.System.controller;
 
 import com.EMS.Employee.Management.System.dto.EventDTO;
 import com.EMS.Employee.Management.System.service.EventService;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -16,61 +16,49 @@ import java.util.List;
 @CrossOrigin
 public class EventController {
 
-    @Autowired
-    private EventService eventService;
+    private final EventService eventService;
+
+    public EventController(EventService eventService) {
+        this.eventService = eventService;
+    }
 
     @PostMapping("/add")
-    public EventDTO addEvent(
-            @RequestParam("title") String title,
-            @RequestParam("formUrl") String formUrl,
-            @RequestParam("responseUrl") String responseUrl,
-            @RequestParam("audience") String audience,
-            @RequestParam("eventType") String eventType,
-            @RequestParam("projects") String projects,
-            @RequestParam("enableDateTime") String enableDateTime,
-            @RequestParam("expireDateTime") String expireDateTime,
-            @RequestParam("createdBy") String createdBy,
-            @RequestParam(value = "photo", required = false) MultipartFile photo
-
-    ) throws IOException {
-
-        EventDTO eventDTO = new EventDTO();
-        eventDTO.setTitle(title);
-        eventDTO.setFormUrl(formUrl);
-        eventDTO.setResponseUrl(responseUrl);
-        eventDTO.setAudience(audience);
-        eventDTO.setEventType(eventType);
-        eventDTO.setProjects(projects);
-        eventDTO.setEnableDateTime(LocalDateTime.parse(enableDateTime));
-        eventDTO.setExpireDateTime(LocalDateTime.parse(expireDateTime));
-        eventDTO.setCreatedBy(createdBy);
-
-        // Convert image file to byte array if provided
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<EventDTO> addEvent(
+            @Valid @RequestPart("event") EventDTO eventDTO,
+            @RequestPart(value = "photo", required = false) MultipartFile photo) throws IOException {
         if (photo != null && !photo.isEmpty()) {
+            if (photo.getSize() > 5 * 1024 * 1024) {
+                throw new IllegalArgumentException("Image size exceeds 5MB");
+            }
+            if (!photo.getContentType().startsWith("image/")) {
+                throw new IllegalArgumentException("Only image files are allowed");
+            }
             eventDTO.setPhoto(photo.getBytes());
         }
-
-        return eventService.addEvent(eventDTO);
-
+        EventDTO savedEvent = eventService.addEvent(eventDTO);
+        return ResponseEntity.status(201).body(savedEvent);
     }
 
     @GetMapping("/all")
-    public List<EventDTO> getAllEvent(){
+    public List<EventDTO> getAllEvent() {
         return eventService.getAllEvent();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<EventDTO> getEventById(@PathVariable Long id){
+    public ResponseEntity<EventDTO> getEventById(@PathVariable Long id) {
         return eventService.getEventById(id);
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<EventDTO> deleteEventById(@PathVariable Long id){
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<EventDTO> deleteEventById(@PathVariable Long id) {
         return eventService.deleteEventById(id);
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<EventDTO> updateEventById(@PathVariable Long id , @RequestBody EventDTO eventDTO){
-        return eventService.updateEventById(id , eventDTO);
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<EventDTO> updateEventById(@PathVariable Long id, @Valid @RequestBody EventDTO eventDTO) {
+        return eventService.updateEventById(id, eventDTO);
     }
 }

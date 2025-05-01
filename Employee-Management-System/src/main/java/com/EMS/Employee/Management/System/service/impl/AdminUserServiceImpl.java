@@ -4,6 +4,7 @@ import com.EMS.Employee.Management.System.dto.AdminUserDTO;
 import com.EMS.Employee.Management.System.entity.AdminUserEntity;
 import com.EMS.Employee.Management.System.repo.AdminUserRepo;
 import com.EMS.Employee.Management.System.service.AdminUserService;
+import jakarta.validation.ValidationException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +26,13 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     @Override
     public ResponseEntity<AdminUserDTO> addUser(AdminUserDTO adminUserDTO) {
+        if (adminUserRepo.existsByEmail(adminUserDTO.getEmail())) {
+            throw new ValidationException("Email already exists");
+        }
+        if (adminUserDTO.getEpfNo() != 0 && adminUserRepo.existsByEpfNO(adminUserDTO.getEpfNo())) {
+            throw new ValidationException("EPF number already exists");
+        }
+
         AdminUserEntity adminUserEntity = new AdminUserEntity();
         BeanUtils.copyProperties(adminUserDTO, adminUserEntity);
         AdminUserEntity savedEntity = adminUserRepo.save(adminUserEntity);
@@ -32,7 +40,6 @@ public class AdminUserServiceImpl implements AdminUserService {
         return ResponseEntity.status(HttpStatus.CREATED).body(adminUserDTO);
     }
 
-    //****valuable point
     @Override
     public List<AdminUserDTO> getAll() {
         return adminUserRepo.findAll()
@@ -58,17 +65,12 @@ public class AdminUserServiceImpl implements AdminUserService {
     @Override
     public ResponseEntity<AdminUserDTO> deleteUserById(int id) {
         Optional<AdminUserEntity> optionalAdminUser = adminUserRepo.findById(id);
-
-        if(optionalAdminUser.isEmpty()){
+        if (optionalAdminUser.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
-
         AdminUserDTO adminUserDTO = new AdminUserDTO();
-
-        BeanUtils.copyProperties(optionalAdminUser.get() , adminUserDTO);
-
+        BeanUtils.copyProperties(optionalAdminUser.get(), adminUserDTO);
         adminUserRepo.deleteById(id);
-
         return ResponseEntity.ok(adminUserDTO);
     }
 
@@ -82,8 +84,18 @@ public class AdminUserServiceImpl implements AdminUserService {
         if (adminUserDTO.getGender() != null) entity.setGender(adminUserDTO.getGender());
         if (adminUserDTO.getBirthOfDate() != null) entity.setBirthOfDate(adminUserDTO.getBirthOfDate());
         if (adminUserDTO.getLocation() != null) entity.setLocation(adminUserDTO.getLocation());
-        if (adminUserDTO.getEmail() != null) entity.setEmail(adminUserDTO.getEmail());
-        if (adminUserDTO.getEpfNO() != 0) entity.setEpfNO(adminUserDTO.getEpfNO());
+        if (adminUserDTO.getEmail() != null) {
+            if (!adminUserDTO.getEmail().equals(entity.getEmail()) && adminUserRepo.existsByEmail(adminUserDTO.getEmail())) {
+                throw new ValidationException("Email already exists");
+            }
+            entity.setEmail(adminUserDTO.getEmail());
+        }
+        if (adminUserDTO.getEpfNo() != 0 && adminUserDTO.getEpfNo() != entity.getEpfNO()) {
+            if (adminUserRepo.existsByEpfNO(adminUserDTO.getEpfNo())) {
+                throw new ValidationException("EPF number already exists");
+            }
+            entity.setEpfNO(adminUserDTO.getEpfNo());
+        }
         if (adminUserDTO.getDesignation() != null) entity.setDesignation(adminUserDTO.getDesignation());
         if (adminUserDTO.getDepartment() != null) entity.setDepartment(adminUserDTO.getDepartment());
         if (adminUserDTO.getReportingPerson() != null) entity.setReportingPerson(adminUserDTO.getReportingPerson());
@@ -91,7 +103,6 @@ public class AdminUserServiceImpl implements AdminUserService {
         adminUserRepo.save(entity);
         AdminUserDTO updatedDTO = new AdminUserDTO();
         BeanUtils.copyProperties(entity, updatedDTO);
-
         return ResponseEntity.ok(updatedDTO);
     }
 }

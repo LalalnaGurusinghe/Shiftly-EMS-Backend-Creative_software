@@ -12,7 +12,7 @@ public class CheckLeaveDTO {
     private int checkId;
     private int leaveId;
     private LeaveStatus status;
-    private int adminId;
+    private Long adminId; // Updated to Long
     private String adminName;
-    private RequestLeaveDTO requestLeaveDTO;  // Add the RequestLeaveDTO to include all request leave data
+    private RequestLeaveDTO requestLeaveDTO;
 }

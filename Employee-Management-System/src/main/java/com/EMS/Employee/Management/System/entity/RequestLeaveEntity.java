@@ -15,10 +15,10 @@ public class RequestLeaveEntity {
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         @Column(name = "leave_id")
-        private int leaveId;
+        private Integer leaveId;
 
         @Column(name = "user_id")
-        private int userId;
+        private Long userId; // Updated to Long
 
         @Column(name = "user_name")
         private String userName;
@@ -44,10 +44,7 @@ public class RequestLeaveEntity {
         @Column(name = "reason_for_leave")
         private String reason;
 
-
         @Enumerated(EnumType.STRING)
         @Column(name = "leave_status")
         private LeaveStatus status = LeaveStatus.PENDING;
-
-
 }

@@ -6,11 +6,11 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
-public interface CheckLeaveService{
+public interface CheckLeaveService {
 
-    public List<CheckLeaveDTO> getAll();
+    List<CheckLeaveDTO> getAll();
 
-    public ResponseEntity<CheckLeaveDTO> getLeaveById(int id);
+    ResponseEntity<CheckLeaveDTO> getLeaveById(int id);
 
-    public ResponseEntity<CheckLeaveDTO> updateLeaveStatus(int id , LeaveStatus leaveStatus);
+    ResponseEntity<CheckLeaveDTO> updateLeaveStatus(int id, LeaveStatus leaveStatus, String adminEmail);
 }

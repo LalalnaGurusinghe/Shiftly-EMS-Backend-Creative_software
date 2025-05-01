@@ -6,32 +6,27 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
+@Table(name = "check_leaves")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "check_leaves")
 public class CheckLeaveEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "check_id")
-    private int checkId;
-
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "leave_id", referencedColumnName = "leave_id")
-    private RequestLeaveEntity requestLeave;
-
+    private Integer id;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "leave_status")
-    private LeaveStatus status = LeaveStatus.PENDING;
+    @Column(name = "status", nullable = false)
+    private LeaveStatus status;
 
     @Column(name = "admin_id")
-    private int adminId;
+    private Long adminId;
 
     @Column(name = "admin_name")
     private String adminName;
 
-
+    @OneToOne
+    @JoinColumn(name = "request_leave_id", referencedColumnName = "leave_id") // Updated to match RequestLeaveEntity's primary key column
+    private RequestLeaveEntity requestLeave;
 }

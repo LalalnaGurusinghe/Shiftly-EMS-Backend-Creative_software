@@ -6,12 +6,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
+@Table(name = "admin_users")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "Users")
 public class AdminUserEntity {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "employee_no")
@@ -46,5 +45,4 @@ public class AdminUserEntity {
 
     @Column(name = "reporting_person", nullable = false, length = 100)
     private String reportingPerson;
-
 }

@@ -10,8 +10,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class RequestLeaveDTO {
 
-    private int leaveId;
-    private int userId;
+    private Integer leaveId;
+    private Long userId; // Updated to Long
     private String userName;
     private String leaveType;
     private String leaveFrom;
@@ -22,4 +22,3 @@ public class RequestLeaveDTO {
     private String reason;
     private LeaveStatus status;
 }
-

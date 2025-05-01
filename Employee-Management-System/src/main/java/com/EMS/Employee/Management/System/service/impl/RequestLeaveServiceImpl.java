@@ -29,72 +29,53 @@ public class RequestLeaveServiceImpl implements RequestLeaveService {
 
     @Override
     public List<RequestLeaveDTO> getAllLeaves() {
-
         List<RequestLeaveEntity> requestLeaveEntities = requestLeaveRepo.findAll();
-
-        List<RequestLeaveDTO> requestLeaveDTOs = requestLeaveEntities
-                .stream().map(requestLeaveEntity -> new RequestLeaveDTO(
-                        requestLeaveEntity.getLeaveId(),
-                        requestLeaveEntity.getUserId(),
-                        requestLeaveEntity.getUserName(),
-                        requestLeaveEntity.getLeaveType(),
-                        requestLeaveEntity.getLeaveFrom(),
-                        requestLeaveEntity.getLeaveTo(),
-                        requestLeaveEntity.getDuration(),
-                        requestLeaveEntity.getCoverPerson(),
-                        requestLeaveEntity.getReportTo(),
-                        requestLeaveEntity.getReason(),
-                        requestLeaveEntity.getStatus()
-                ))
+        return requestLeaveEntities
+                .stream()
+                .map(requestLeaveEntity -> {
+                    RequestLeaveDTO requestLeaveDTO = new RequestLeaveDTO();
+                    BeanUtils.copyProperties(requestLeaveEntity, requestLeaveDTO);
+                    return requestLeaveDTO;
+                })
                 .collect(Collectors.toList());
-
-        return requestLeaveDTOs;
     }
 
     @Override
     public ResponseEntity<RequestLeaveDTO> addLeave(RequestLeaveDTO requestLeaveDTO) {
         RequestLeaveEntity requestLeaveEntity = new RequestLeaveEntity();
-
         BeanUtils.copyProperties(requestLeaveDTO, requestLeaveEntity);
-
         RequestLeaveEntity savedEntity = requestLeaveRepo.save(requestLeaveEntity);
 
         // Create CheckLeaveEntity and link it to the saved RequestLeaveEntity
         CheckLeaveEntity checkLeaveEntity = new CheckLeaveEntity();
         checkLeaveEntity.setRequestLeave(savedEntity);
-        checkLeaveEntity.setStatus(LeaveStatus.PENDING);  // Set initial status to PENDING
-        checkLeaveEntity.setAdminId(0);  // Set a default adminId, adjust as needed
-        checkLeaveEntity.setAdminName("Admin");  // Set a default adminName, adjust as needed
+        checkLeaveEntity.setStatus(LeaveStatus.PENDING);
+        checkLeaveEntity.setAdminId(0L); // Updated to Long
+        checkLeaveEntity.setAdminName("Admin");
 
         // Save CheckLeaveEntity
         checkLeaveRepo.save(checkLeaveEntity);
 
         RequestLeaveDTO savedDTO = new RequestLeaveDTO();
         BeanUtils.copyProperties(savedEntity, savedDTO);
-
         return ResponseEntity.ok(savedDTO);
     }
 
     @Override
     public ResponseEntity<RequestLeaveDTO> deleteLeaveById(int id) {
-
         Optional<RequestLeaveEntity> requestLeave = requestLeaveRepo.findById(id);
-
         if (requestLeave.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        } else {
-            RequestLeaveDTO requestLeaveDTO = new RequestLeaveDTO();
-            BeanUtils.copyProperties(requestLeave.get(), requestLeaveDTO);
-            requestLeaveRepo.deleteById(id);
-            return ResponseEntity.ok(requestLeaveDTO);
         }
+        RequestLeaveDTO requestLeaveDTO = new RequestLeaveDTO();
+        BeanUtils.copyProperties(requestLeave.get(), requestLeaveDTO);
+        requestLeaveRepo.deleteById(id);
+        return ResponseEntity.ok(requestLeaveDTO);
     }
 
     @Override
     public ResponseEntity<RequestLeaveDTO> updateLeaveById(RequestLeaveDTO requestLeaveDTO, int id) {
-
         Optional<RequestLeaveEntity> leave = requestLeaveRepo.findById(id);
-
         if (leave.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
@@ -102,7 +83,7 @@ public class RequestLeaveServiceImpl implements RequestLeaveService {
         RequestLeaveEntity requestLeave = leave.get();
 
         // Updating the RequestLeaveEntity fields based on the incoming DTO values
-        if (requestLeaveDTO.getUserId() != 0) {
+        if (requestLeaveDTO.getUserId() != null) {
             requestLeave.setUserId(requestLeaveDTO.getUserId());
         }
         if (requestLeaveDTO.getUserName() != null && !requestLeaveDTO.getUserName().isEmpty()) {
@@ -137,22 +118,17 @@ public class RequestLeaveServiceImpl implements RequestLeaveService {
         requestLeaveRepo.save(requestLeave);
 
         BeanUtils.copyProperties(requestLeave, requestLeaveDTO);
-
         return ResponseEntity.ok(requestLeaveDTO);
     }
 
     @Override
     public ResponseEntity<RequestLeaveDTO> getLeaveById(int id) {
-
         Optional<RequestLeaveEntity> requestLeave = requestLeaveRepo.findById(id);
-
         if (requestLeave.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
-
         RequestLeaveDTO requestLeaveDTO = new RequestLeaveDTO();
         BeanUtils.copyProperties(requestLeave.get(), requestLeaveDTO);
-
         return ResponseEntity.ok(requestLeaveDTO);
     }
 }

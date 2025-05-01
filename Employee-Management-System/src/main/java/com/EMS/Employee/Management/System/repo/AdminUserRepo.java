@@ -5,5 +5,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface AdminUserRepo extends JpaRepository<AdminUserEntity , Integer> {
+public interface AdminUserRepo extends JpaRepository<AdminUserEntity, Integer> {
+
+    boolean existsByEmail(String email);
+
+    boolean existsByEpfNO(int epfNO);
 }
