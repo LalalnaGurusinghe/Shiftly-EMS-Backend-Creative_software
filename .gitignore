@@ -1,33 +1,36 @@
-/Employee-Management-System/HELP.md
-/Employee-Management-System/target/
-/Employee-Management-System/!.mvn/wrapper/maven-wrapper.jar
-/Employee-Management-System/!**/src/main/**/target/
-/Employee-Management-System/!**/src/test/**/target/
+# Ignore HELP.md if it's in the root
+HELP.md
+
+# Spring Boot build and Maven output inside the subproject
+Employee-Management-System/target/
+!Employee-Management-System/.mvn/wrapper/maven-wrapper.jar
+!Employee-Management-System/**/src/main/**/target/
+!Employee-Management-System/**/src/test/**/target/
 
 ### STS ###
-/Employee-Management-System/.apt_generated
-/Employee-Management-System/.classpath
-/Employee-Management-System/.factorypath
-/Employee-Management-System/.project
-/Employee-Management-System/.settings
-/Employee-Management-System/.springBeans
-/Employee-Management-System/.sts4-cache
+Employee-Management-System/.apt_generated
+Employee-Management-System/.classpath
+Employee-Management-System/.factorypath
+Employee-Management-System/.project
+Employee-Management-System/.settings
+Employee-Management-System/.springBeans
+Employee-Management-System/.sts4-cache
 
-### IntelliJ IDEA ###
-.idea
-/Employee-Management-System/*.iws
-/Employee-Management-System/*.iml
-/Employee-Management-System/*.ipr
+### IntelliJ IDEA (root-level .idea and iml files) ###
+.idea/
+*.iws
+*.iml
+*.ipr
 
 ### NetBeans ###
-/Employee-Management-System/nbproject/private/
-/Employee-Management-System/nbbuild/
-/Employee-Management-System/dist/
-/Employee-Management-System/nbdist/
-/Employee-Management-System/.nb-gradle/
-/Employee-Management-Systembuild/
-/Employee-Management-System/!**src/main/**/build/
-/Employee-Management-System/!**src/test/**/build/
+Employee-Management-System/nbproject/private/
+Employee-Management-System/nbbuild/
+Employee-Management-System/dist/
+Employee-Management-System/nbdist/
+Employee-Management-System/.nb-gradle/
+Employee-Management-System/build/
+!Employee-Management-System/**/src/main/**/build/
+!Employee-Management-System/**/src/test/**/build/
 
 ### VS Code ###
-/Employee-Management-System/.vscode/
+.vscode/
