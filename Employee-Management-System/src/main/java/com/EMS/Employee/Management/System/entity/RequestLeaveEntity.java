@@ -11,14 +11,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Table(name = "request_leaves")
 public class RequestLeaveEntity {
-
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         @Column(name = "leave_id")
         private Integer leaveId;
 
         @Column(name = "user_id")
-        private Long userId; // Updated to Long
+        private Long userId;
 
         @Column(name = "user_name")
         private String userName;

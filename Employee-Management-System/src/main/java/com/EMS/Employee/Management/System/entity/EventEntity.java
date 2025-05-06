@@ -9,11 +9,10 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "events")
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
 public class EventEntity {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -45,10 +44,8 @@ public class EventEntity {
 
     @Column(name = "created_by")
     private String createdBy;
-    @Column(name = "event_banner" , columnDefinition = "LONGBLOB")
+
+    @Column(name = "event_banner", columnDefinition = "LONGBLOB")
     @Lob
     private byte[] photo;
-
-
-
 }

@@ -7,10 +7,7 @@ import org.springframework.http.ResponseEntity;
 import java.util.List;
 
 public interface CheckLeaveService {
-
     List<CheckLeaveDTO> getAll();
-
     ResponseEntity<CheckLeaveDTO> getLeaveById(int id);
-
     ResponseEntity<CheckLeaveDTO> updateLeaveStatus(int id, LeaveStatus leaveStatus, String adminEmail);
 }

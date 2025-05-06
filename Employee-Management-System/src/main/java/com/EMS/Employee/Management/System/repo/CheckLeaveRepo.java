@@ -6,5 +6,4 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface CheckLeaveRepo extends JpaRepository<CheckLeaveEntity, Integer> {
-    // Removed findByEmail as it's not needed and causes the error
 }

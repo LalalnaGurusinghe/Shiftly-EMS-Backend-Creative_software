@@ -12,9 +12,8 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/shiftly/ems/admin/check-leave")
-@CrossOrigin
+@CrossOrigin(origins = "http://localhost:3000")
 public class CheckLeaveController {
-
     private final CheckLeaveService checkLeaveService;
 
     public CheckLeaveController(CheckLeaveService checkLeaveService) {
@@ -22,24 +21,36 @@ public class CheckLeaveController {
     }
 
     @GetMapping("/all")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<List<CheckLeaveDTO>> getAllLeaveChecks() {
-        List<CheckLeaveDTO> checkLeaveDTOList = checkLeaveService.getAll();
-        return ResponseEntity.ok(checkLeaveDTOList);
+        return ResponseEntity.ok(checkLeaveService.getAll());
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<CheckLeaveDTO> getLeaveById(@PathVariable int id) {
         return checkLeaveService.getLeaveById(id);
     }
 
     @PutMapping("/update-status/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<CheckLeaveDTO> updateLeaveStatus(
             @PathVariable int id,
-            @RequestParam LeaveStatus newStatus) {
+            @RequestBody LeaveStatusDTO statusDTO) {
         String adminEmail = SecurityContextHolder.getContext().getAuthentication().getName();
-        return checkLeaveService.updateLeaveStatus(id, newStatus, adminEmail);
+        return checkLeaveService.updateLeaveStatus(id, statusDTO.getStatus(), adminEmail);
+    }
+}
+
+// DTO for status update
+class LeaveStatusDTO {
+    private LeaveStatus status;
+
+    public LeaveStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(LeaveStatus status) {
+        this.status = status;
     }
 }

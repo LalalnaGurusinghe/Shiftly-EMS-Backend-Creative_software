@@ -8,7 +8,7 @@ import com.EMS.Employee.Management.System.entity.RequestLeaveEntity;
 import com.EMS.Employee.Management.System.entity.User;
 import com.EMS.Employee.Management.System.repo.CheckLeaveRepo;
 import com.EMS.Employee.Management.System.repo.RequestLeaveRepo;
-import com.EMS.Employee.Management.System.repo.UserRepository;
+import com.EMS.Employee.Management.System.repo.UserRepo;
 import com.EMS.Employee.Management.System.service.CheckLeaveService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
@@ -21,21 +21,19 @@ import java.util.stream.Collectors;
 
 @Service
 public class CheckLeaveServiceImpl implements CheckLeaveService {
-
     private final CheckLeaveRepo checkLeaveRepo;
     private final RequestLeaveRepo requestLeaveRepo;
-    private final UserRepository userRepository;
+    private final UserRepo userRepo;
 
-    public CheckLeaveServiceImpl(CheckLeaveRepo checkLeaveRepo, RequestLeaveRepo requestLeaveRepo, UserRepository userRepository) {
+    public CheckLeaveServiceImpl(CheckLeaveRepo checkLeaveRepo, RequestLeaveRepo requestLeaveRepo, UserRepo userRepo) {
         this.checkLeaveRepo = checkLeaveRepo;
         this.requestLeaveRepo = requestLeaveRepo;
-        this.userRepository = userRepository;
+        this.userRepo = userRepo;
     }
 
     @Override
     public List<CheckLeaveDTO> getAll() {
-        List<CheckLeaveEntity> checkLeaveEntities = checkLeaveRepo.findAll();
-        return checkLeaveEntities.stream()
+        return checkLeaveRepo.findAll().stream()
                 .map(checkLeaveEntity -> {
                     CheckLeaveDTO checkLeaveDTO = new CheckLeaveDTO();
                     BeanUtils.copyProperties(checkLeaveEntity, checkLeaveDTO);
@@ -54,7 +52,6 @@ public class CheckLeaveServiceImpl implements CheckLeaveService {
         if (checkLeave.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
-
         CheckLeaveEntity checkLeaveEntity = checkLeave.get();
         CheckLeaveDTO checkLeaveDTO = new CheckLeaveDTO();
         BeanUtils.copyProperties(checkLeaveEntity, checkLeaveDTO);
@@ -71,21 +68,16 @@ public class CheckLeaveServiceImpl implements CheckLeaveService {
         if (checkLeave.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
-
-        User admin = userRepository.findByEmail(adminEmail)
+        User admin = userRepo.findByEmail(adminEmail)
                 .orElseThrow(() -> new RuntimeException("Admin not found"));
-
         CheckLeaveEntity checkLeaveEntity = checkLeave.get();
         checkLeaveEntity.setStatus(leaveStatus);
         checkLeaveEntity.setAdminId(admin.getId());
-        checkLeaveEntity.setAdminName(admin.getFirstName() + " " + admin.getLastName());
-
+        checkLeaveEntity.setAdminName(admin.getUsername());
         RequestLeaveEntity requestLeave = checkLeaveEntity.getRequestLeave();
         requestLeave.setStatus(leaveStatus);
-
         requestLeaveRepo.save(requestLeave);
         checkLeaveRepo.save(checkLeaveEntity);
-
         CheckLeaveDTO checkLeaveDTO = new CheckLeaveDTO();
         BeanUtils.copyProperties(checkLeaveEntity, checkLeaveDTO);
         RequestLeaveDTO requestLeaveDTO = new RequestLeaveDTO();

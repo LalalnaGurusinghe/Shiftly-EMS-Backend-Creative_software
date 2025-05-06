@@ -7,9 +7,12 @@ import com.EMS.Employee.Management.System.entity.RequestLeaveEntity;
 import com.EMS.Employee.Management.System.repo.CheckLeaveRepo;
 import com.EMS.Employee.Management.System.repo.RequestLeaveRepo;
 import com.EMS.Employee.Management.System.service.RequestLeaveService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,7 +21,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class RequestLeaveServiceImpl implements RequestLeaveService {
-
+    private static final Logger logger = LoggerFactory.getLogger(RequestLeaveServiceImpl.class);
     private final RequestLeaveRepo requestLeaveRepo;
     private final CheckLeaveRepo checkLeaveRepo;
 
@@ -29,9 +32,7 @@ public class RequestLeaveServiceImpl implements RequestLeaveService {
 
     @Override
     public List<RequestLeaveDTO> getAllLeaves() {
-        List<RequestLeaveEntity> requestLeaveEntities = requestLeaveRepo.findAll();
-        return requestLeaveEntities
-                .stream()
+        return requestLeaveRepo.findAll().stream()
                 .map(requestLeaveEntity -> {
                     RequestLeaveDTO requestLeaveDTO = new RequestLeaveDTO();
                     BeanUtils.copyProperties(requestLeaveEntity, requestLeaveDTO);
@@ -42,22 +43,20 @@ public class RequestLeaveServiceImpl implements RequestLeaveService {
 
     @Override
     public ResponseEntity<RequestLeaveDTO> addLeave(RequestLeaveDTO requestLeaveDTO) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        requestLeaveDTO.setUserName(username);
         RequestLeaveEntity requestLeaveEntity = new RequestLeaveEntity();
         BeanUtils.copyProperties(requestLeaveDTO, requestLeaveEntity);
         RequestLeaveEntity savedEntity = requestLeaveRepo.save(requestLeaveEntity);
-
-        // Create CheckLeaveEntity and link it to the saved RequestLeaveEntity
         CheckLeaveEntity checkLeaveEntity = new CheckLeaveEntity();
         checkLeaveEntity.setRequestLeave(savedEntity);
         checkLeaveEntity.setStatus(LeaveStatus.PENDING);
-        checkLeaveEntity.setAdminId(0L); // Updated to Long
-        checkLeaveEntity.setAdminName("Admin");
-
-        // Save CheckLeaveEntity
+        checkLeaveEntity.setAdminId(null); // Use null until an admin processes
+        checkLeaveEntity.setAdminName(null); // Use null until an admin processes
         checkLeaveRepo.save(checkLeaveEntity);
-
         RequestLeaveDTO savedDTO = new RequestLeaveDTO();
         BeanUtils.copyProperties(savedEntity, savedDTO);
+        logger.info("Leave request added for user: {}", username);
         return ResponseEntity.ok(savedDTO);
     }
 
@@ -70,6 +69,7 @@ public class RequestLeaveServiceImpl implements RequestLeaveService {
         RequestLeaveDTO requestLeaveDTO = new RequestLeaveDTO();
         BeanUtils.copyProperties(requestLeave.get(), requestLeaveDTO);
         requestLeaveRepo.deleteById(id);
+        logger.info("Leave request deleted with ID: {}", id);
         return ResponseEntity.ok(requestLeaveDTO);
     }
 
@@ -79,13 +79,8 @@ public class RequestLeaveServiceImpl implements RequestLeaveService {
         if (leave.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
-
         RequestLeaveEntity requestLeave = leave.get();
-
-        // Updating the RequestLeaveEntity fields based on the incoming DTO values
-        if (requestLeaveDTO.getUserId() != null) {
-            requestLeave.setUserId(requestLeaveDTO.getUserId());
-        }
+        if (requestLeaveDTO.getUserId() != null) requestLeave.setUserId(requestLeaveDTO.getUserId());
         if (requestLeaveDTO.getUserName() != null && !requestLeaveDTO.getUserName().isEmpty()) {
             requestLeave.setUserName(requestLeaveDTO.getUserName());
         }
@@ -98,9 +93,7 @@ public class RequestLeaveServiceImpl implements RequestLeaveService {
         if (requestLeaveDTO.getLeaveTo() != null && !requestLeaveDTO.getLeaveTo().isEmpty()) {
             requestLeave.setLeaveTo(requestLeaveDTO.getLeaveTo());
         }
-        if (requestLeaveDTO.getDuration() != 0) {
-            requestLeave.setDuration(requestLeaveDTO.getDuration());
-        }
+        if (requestLeaveDTO.getDuration() != 0) requestLeave.setDuration(requestLeaveDTO.getDuration());
         if (requestLeaveDTO.getCoverPerson() != null && !requestLeaveDTO.getCoverPerson().isEmpty()) {
             requestLeave.setCoverPerson(requestLeaveDTO.getCoverPerson());
         }
@@ -110,14 +103,10 @@ public class RequestLeaveServiceImpl implements RequestLeaveService {
         if (requestLeaveDTO.getReason() != null && !requestLeaveDTO.getReason().isEmpty()) {
             requestLeave.setReason(requestLeaveDTO.getReason());
         }
-        if (requestLeaveDTO.getStatus() != null) {
-            requestLeave.setStatus(requestLeaveDTO.getStatus());
-        }
-
-        // Save the updated leave entity
+        if (requestLeaveDTO.getStatus() != null) requestLeave.setStatus(requestLeaveDTO.getStatus());
         requestLeaveRepo.save(requestLeave);
-
         BeanUtils.copyProperties(requestLeave, requestLeaveDTO);
+        logger.info("Leave request updated with ID: {}", id);
         return ResponseEntity.ok(requestLeaveDTO);
     }
 

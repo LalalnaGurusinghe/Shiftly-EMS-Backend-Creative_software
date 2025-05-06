@@ -11,9 +11,8 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/shiftly/ems/admin/user")
-@CrossOrigin
+@CrossOrigin(origins = "http://localhost:3000")
 public class AdminUserController {
-
     private final AdminUserService adminUserService;
 
     public AdminUserController(AdminUserService adminUserService) {
@@ -28,8 +27,8 @@ public class AdminUserController {
 
     @GetMapping("/all")
     @PreAuthorize("hasRole('ADMIN')")
-    public List<AdminUserDTO> getAllAdminUsers() {
-        return adminUserService.getAll();
+    public ResponseEntity<List<AdminUserDTO>> getAllAdminUsers() {
+        return ResponseEntity.ok(adminUserService.getAll());
     }
 
     @GetMapping("/{id}")

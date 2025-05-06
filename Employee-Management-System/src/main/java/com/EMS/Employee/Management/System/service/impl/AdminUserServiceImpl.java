@@ -17,7 +17,6 @@ import java.util.stream.Collectors;
 
 @Service
 public class AdminUserServiceImpl implements AdminUserService {
-
     private final AdminUserRepo adminUserRepo;
 
     public AdminUserServiceImpl(AdminUserRepo adminUserRepo) {
@@ -29,10 +28,9 @@ public class AdminUserServiceImpl implements AdminUserService {
         if (adminUserRepo.existsByEmail(adminUserDTO.getEmail())) {
             throw new ValidationException("Email already exists");
         }
-        if (adminUserDTO.getEpfNo() != 0 && adminUserRepo.existsByEpfNO(adminUserDTO.getEpfNo())) {
+        if (adminUserDTO.getEpfNo() != 0 && adminUserRepo.existsByEpfNo(adminUserDTO.getEpfNo())) {
             throw new ValidationException("EPF number already exists");
         }
-
         AdminUserEntity adminUserEntity = new AdminUserEntity();
         BeanUtils.copyProperties(adminUserDTO, adminUserEntity);
         AdminUserEntity savedEntity = adminUserRepo.save(adminUserEntity);
@@ -90,11 +88,11 @@ public class AdminUserServiceImpl implements AdminUserService {
             }
             entity.setEmail(adminUserDTO.getEmail());
         }
-        if (adminUserDTO.getEpfNo() != 0 && adminUserDTO.getEpfNo() != entity.getEpfNO()) {
-            if (adminUserRepo.existsByEpfNO(adminUserDTO.getEpfNo())) {
+        if (adminUserDTO.getEpfNo() != 0 && adminUserDTO.getEpfNo() != entity.getEpfNo()) {
+            if (adminUserRepo.existsByEpfNo(adminUserDTO.getEpfNo())) {
                 throw new ValidationException("EPF number already exists");
             }
-            entity.setEpfNO(adminUserDTO.getEpfNo());
+            entity.setEpfNo(adminUserDTO.getEpfNo());
         }
         if (adminUserDTO.getDesignation() != null) entity.setDesignation(adminUserDTO.getDesignation());
         if (adminUserDTO.getDepartment() != null) entity.setDepartment(adminUserDTO.getDepartment());

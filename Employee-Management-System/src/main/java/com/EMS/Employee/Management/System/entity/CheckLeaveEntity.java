@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CheckLeaveEntity {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -27,6 +26,6 @@ public class CheckLeaveEntity {
     private String adminName;
 
     @OneToOne
-    @JoinColumn(name = "request_leave_id", referencedColumnName = "leave_id") // Updated to match RequestLeaveEntity's primary key column
+    @JoinColumn(name = "request_leave_id", referencedColumnName = "leave_id")
     private RequestLeaveEntity requestLeave;
 }

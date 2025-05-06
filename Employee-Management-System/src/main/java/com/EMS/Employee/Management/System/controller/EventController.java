@@ -13,9 +13,8 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/shiftly/ems/event")
-@CrossOrigin
+@CrossOrigin(origins = "http://localhost:3000")
 public class EventController {
-
     private final EventService eventService;
 
     public EventController(EventService eventService) {
@@ -41,8 +40,8 @@ public class EventController {
     }
 
     @GetMapping("/all")
-    public List<EventDTO> getAllEvent() {
-        return eventService.getAllEvent();
+    public ResponseEntity<List<EventDTO>> getAllEvent() {
+        return ResponseEntity.ok(eventService.getAllEvent());
     }
 
     @GetMapping("/{id}")

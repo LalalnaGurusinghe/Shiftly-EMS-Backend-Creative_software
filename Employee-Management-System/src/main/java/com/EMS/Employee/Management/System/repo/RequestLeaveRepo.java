@@ -5,5 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface RequestLeaveRepo extends JpaRepository<RequestLeaveEntity , Integer> {
+public interface RequestLeaveRepo extends JpaRepository<RequestLeaveEntity, Integer> {
 }

@@ -35,7 +35,7 @@ public class AdminUserEntity {
     private String email;
 
     @Column(name = "epf_no", nullable = false, unique = true)
-    private int epfNO;
+    private int epfNo;
 
     @Column(name = "designation", nullable = false, length = 50)
     private String designation;
