@@ -97,18 +97,22 @@ public class UserServiceImpl implements UserService {
     public UserDTO updateUserRole(Long id, String role) {
         User user = userRepo.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
         Set<String> roles = new HashSet<>();
+        String displayRole;
         switch (role.toUpperCase()) {
             case "SUPER_ADMIN":
                 roles.add("ROLE_SUPER_ADMIN");
                 roles.add("ROLE_ADMIN");
                 roles.add("ROLE_USER");
+                displayRole = "Super Admin";
                 break;
             case "ADMIN":
                 roles.add("ROLE_ADMIN");
                 roles.add("ROLE_USER");
+                displayRole = "Admin";
                 break;
             case "USER":
                 roles.add("ROLE_USER");
+                displayRole = "User";
                 break;
             default:
                 throw new RuntimeException("Invalid role specified");
@@ -124,6 +128,7 @@ public class UserServiceImpl implements UserService {
         List<User> unverifiedUsers = userRepo.findAll().stream()
                 .filter(user -> !user.isVerified())
                 .collect(Collectors.toList());
+        final String[] displayRole = new String[1];
         unverifiedUsers.forEach(user -> {
             Set<String> roles = new HashSet<>();
             switch (role.toUpperCase()) {
@@ -131,13 +136,16 @@ public class UserServiceImpl implements UserService {
                     roles.add("ROLE_SUPER_ADMIN");
                     roles.add("ROLE_ADMIN");
                     roles.add("ROLE_USER");
+                    displayRole[0] = "Super Admin";
                     break;
                 case "ADMIN":
                     roles.add("ROLE_ADMIN");
                     roles.add("ROLE_USER");
+                    displayRole[0] = "Admin";
                     break;
                 case "USER":
                     roles.add("ROLE_USER");
+                    displayRole[0] = "User";
                     break;
                 default:
                     throw new RuntimeException("Invalid role specified");

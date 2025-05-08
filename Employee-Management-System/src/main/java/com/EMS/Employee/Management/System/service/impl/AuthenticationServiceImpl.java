@@ -53,8 +53,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         user.setUsername(registerRequestDTO.getUsername());
         user.setEmail(registerRequestDTO.getEmail());
         user.setPassword(passwordEncoder.encode(registerRequestDTO.getPassword()));
-        user.setRoles(new HashSet<>()); // No roles assigned initially
+        user.setRoles(new HashSet<>());
         User savedUser = userRepo.save(user);
+        logger.info("Registered user: username={}, email={}", savedUser.getUsername(), savedUser.getEmail());
         sendRegistrationEmail(savedUser);
         return convertToUserDTO(savedUser);
     }
@@ -96,17 +97,20 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public void sendVerificationEmail(User user, String role) {
         SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom("lalanagurusinghe@gmail.com");
         message.setTo(user.getEmail());
         message.setSubject("Account Verification - Employee Management System");
-        message.setText(
-                "Dear " + user.getUsername() + ",\n\n" +
-                        "Your account has been verified by the Super Admin.\n" +
-                        "Role: " + role + "\n" +
-                        "Username: " + user.getUsername() + "\n" +
-                        "Please log in using your credentials at: http://localhost:3000/login\n\n" +
-                        "Best regards,\nEmployee Management Team"
-        );
+        String displayRole = role.replace("ROLE_", "").replace("_", " ");
+        String emailContent = "Dear " + user.getUsername() + ",\n\n" +
+                "Your account has been verified by the Super Admin.\n" +
+                "Assigned Role: " + displayRole + "\n" +
+                "Username: " + user.getUsername() + "\n" +
+                "Please log in using your credentials at: http://localhost:3000/login\n\n" +
+                "Best regards,\nEmployee Management Team";
+        message.setText(emailContent);
         try {
+            logger.info("Preparing verification email: to={}, username={}, role={}, content={}",
+                    user.getEmail(), user.getUsername(), displayRole, emailContent);
             mailSender.send(message);
             logger.info("Verification email sent to {}", user.getEmail());
         } catch (Exception e) {
@@ -114,18 +118,22 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         }
     }
 
-    private void sendRegistrationEmail(User user) {
+    private synchronized void sendRegistrationEmail(User user) {
         SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom("lalanagurusinghe@gmail.com");
         message.setTo(user.getEmail());
         message.setSubject("Registration Confirmation - Employee Management System");
-        message.setText(
-                "Dear " + user.getUsername() + ",\n\n" +
-                        "Your registration has been received.\n" +
-                        "Please wait for Super Admin verification.\n" +
-                        "You will receive another email once your account is verified.\n\n" +
-                        "Best regards,\nEmployee Management Team"
-        );
+        String emailContent = "Dear " + user.getUsername() + ",\n\n" +
+                "Your registration has been successfully received.\n" +
+                "Please wait for Super Admin verification.\n" +
+                "You will receive another email once your account is verified with your assigned role.\n\n" +
+                "Best regards,\nEmployee Management Team";
+        message.setText(emailContent);
         try {
+            logger.info("Preparing registration email: to={}, username={}, content={}",
+                    user.getEmail(), user.getUsername(), emailContent);
+            logger.info("Message object before send: to={}, subject={}, text={}",
+                    message.getTo()[0], message.getSubject(), message.getText());
             mailSender.send(message);
             logger.info("Registration email sent to {}", user.getEmail());
         } catch (Exception e) {
