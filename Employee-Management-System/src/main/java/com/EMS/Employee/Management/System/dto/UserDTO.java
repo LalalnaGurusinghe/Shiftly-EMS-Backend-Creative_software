@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -19,4 +21,5 @@ public class UserDTO {
     @Size(max = 70, message = "Email should not exceed 70 characters")
     @Email(message = "Invalid email format")
     private String email;
+    private List<String> roles; // Add roles
 }
