@@ -5,7 +5,10 @@ import com.EMS.Employee.Management.System.entity.EventEntity;
 import com.EMS.Employee.Management.System.repo.EventRepo;
 import com.EMS.Employee.Management.System.service.EventService;
 import jakarta.validation.Valid;
+import jdk.jfr.Event;
 import org.springframework.beans.BeanUtils;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -86,4 +89,25 @@ public class EventServiceImpl implements EventService {
         BeanUtils.copyProperties(eventEntity, eventDTO);
         return ResponseEntity.ok(eventDTO);
     }
+
+    @Override
+    public ResponseEntity<byte[]> getEventPhoto(Long id) {
+        EventEntity event = eventRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Event not found with id: " + id));
+
+        byte[] photo = event.getPhoto();
+        if (photo == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(org.springframework.http.MediaType.IMAGE_JPEG);
+        headers.setContentLength(photo.length);
+        headers.setContentDisposition(ContentDisposition.inline().filename("event_photo.jpg").build());
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(photo);
+    }
+
 }

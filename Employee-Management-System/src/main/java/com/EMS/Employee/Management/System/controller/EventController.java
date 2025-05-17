@@ -60,4 +60,10 @@ public class EventController {
     public ResponseEntity<EventDTO> updateEventById(@PathVariable Long id, @Valid @RequestBody EventDTO eventDTO) {
         return eventService.updateEventById(id, eventDTO);
     }
+
+    @GetMapping("/photo/{id}")
+    public ResponseEntity<byte[]> getEventPhoto(@PathVariable Long id) {
+        return eventService.getEventPhoto(id);
+    }
+
 }

@@ -11,4 +11,6 @@ public interface EventService {
     ResponseEntity<EventDTO> getEventById(Long id);
     ResponseEntity<EventDTO> deleteEventById(Long id);
     ResponseEntity<EventDTO> updateEventById(Long id, EventDTO eventDTO);
+
+    ResponseEntity<byte[]> getEventPhoto(Long id);
 }
