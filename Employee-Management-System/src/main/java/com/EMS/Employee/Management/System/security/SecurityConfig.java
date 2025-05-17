@@ -1,6 +1,5 @@
 package com.EMS.Employee.Management.System.security;
 
-import com.EMS.Employee.Management.System.service.impl.CustomUserDetailService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -20,14 +19,16 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-@Configuration
-@EnableWebSecurity
-@EnableMethodSecurity
+@Configuration // Marks as configuration class
+@EnableWebSecurity // Enables Spring Security
+@EnableMethodSecurity // Enables method-level security with @PreAuthorize
 public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final UserDetailsService userDetailsService;
 
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter, UserDetailsService userDetailsService) {
+    // Constructor injection
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
+                          UserDetailsService userDetailsService) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.userDetailsService = userDetailsService;
     }
@@ -35,26 +36,25 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable())
-                .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable()))
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .csrf(csrf -> csrf.disable()) // Disable CSRF for API (handled via JWT) cuz CSRF is usually needed in form-based login systems
+                .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable())) // For H2 console UI
+                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORS config for different type of requests with different origins
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/h2-console/**").permitAll()
-                        .requestMatchers("/api/v1/shiftly/ems/event/all").permitAll()
+                        .requestMatchers("/auth/**").permitAll() // Public auth endpoints
+                        .requestMatchers("/api/v1/shiftly/ems/event/all").permitAll() // Public endpoints
                         .requestMatchers("/api/v1/shiftly/ems/event/{id}").permitAll()
-                        .requestMatchers("/api/admin/**").hasAnyRole("ADMIN", "SUPER_ADMIN") // Allow SUPER_ADMIN
+                        .requestMatchers("/api/admin/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
                         .requestMatchers("/superadmin/**").hasRole("SUPER_ADMIN")
                         .requestMatchers("/users/**").hasAnyRole("USER", "ADMIN", "SUPER_ADMIN")
                         .requestMatchers("/api/v1/shiftly/ems/leave/**").hasRole("USER")
-                        .requestMatchers("/api/v1/shiftly/ems/admin/**").hasAnyRole("ADMIN", "SUPER_ADMIN") // Allow SUPER_ADMIN
-                        .anyRequest().authenticated()
+                        .requestMatchers("/api/v1/shiftly/ems/admin/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
+                        .anyRequest().authenticated() // All other requests need auth
                 )
                 .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // No sessions
                 )
-                .authenticationProvider(authenticationProvider())
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .authenticationProvider(authenticationProvider()) // Custom auth provider
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class); // JWT filter
 
         return http.build();
     }
@@ -62,14 +62,14 @@ public class SecurityConfig {
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setUserDetailsService(userDetailsService);
-        provider.setPasswordEncoder(passwordEncoder());
+        provider.setUserDetailsService(userDetailsService); // Custom user details
+        provider.setPasswordEncoder(passwordEncoder()); // Password encoder
         return provider;
     }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+        return new BCryptPasswordEncoder(); // Strong password hashing
     }
 
     @Bean
@@ -80,12 +80,12 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedOrigin("http://localhost:3000");
-        configuration.addAllowedMethod("*");
-        configuration.addAllowedHeader("*");
-        configuration.setAllowCredentials(true);
+        configuration.addAllowedOrigin("*"); // Allow all origins
+        configuration.addAllowedMethod("*"); // Allow all HTTP methods
+        configuration.addAllowedHeader("*"); // Allow all headers
+        configuration.setAllowCredentials(true); // Allow credentials (cookies)
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
+        source.registerCorsConfiguration("/**", configuration); // Apply to all paths
         return source;
     }
 }
