@@ -41,6 +41,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/h2-console/**").permitAll()
+                        .requestMatchers("/api/v1/shiftly/ems/employee/**").permitAll()
                         .requestMatchers("/api/v1/shiftly/ems/event/all").permitAll()
                         .requestMatchers("/api/v1/shiftly/ems/event/{id}").permitAll()
                         .requestMatchers("/api/admin/**").hasAnyRole("ADMIN", "SUPER_ADMIN") // Allow SUPER_ADMIN
