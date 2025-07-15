@@ -44,6 +44,11 @@ public class UserController {
         return ResponseEntity.ok(userService.changePassword(id, changePasswordDTO));
     }
 
+    @GetMapping("/hi")
+    public ResponseEntity<String> sayHi(){
+        return ResponseEntity.ok("Hi");
+    }
+
     @PutMapping("/update/{id}")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<UserDTO> updateUser(@PathVariable Long id, @Valid @RequestBody UserDTO userDTO) {

@@ -11,39 +11,60 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Table(name = "request_leaves")
 public class RequestLeaveEntity {
-        @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
-        @Column(name = "leave_id")
-        private Integer leaveId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "leave_id")
+    private Integer leaveId;
 
-        @Column(name = "user_id")
-        private Long userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
-        @Column(name = "user_name")
-        private String userName;
+    @Column(name = "leave_type")
+    private String leaveType;
 
-        @Column(name = "leave_type")
-        private String leaveType;
+    @Column(name = "leave_from")
+    private java.time.LocalDate leaveFrom;
 
-        @Column(name = "leave_from")
-        private String leaveFrom;
+    @Column(name = "leave_to")
+    private java.time.LocalDate leaveTo;
 
-        @Column(name = "leave_to")
-        private String leaveTo;
+    @Column(name = "duration_days")
+    private int duration;
 
-        @Column(name = "duration_days")
-        private int duration;
+    @Column(name = "cover_person")
+    private String coverPerson;
 
-        @Column(name = "cover_person")
-        private String coverPerson;
+    @Column(name = "report_to")
+    private String reportTo;
 
-        @Column(name = "report_to")
-        private String reportTo;
+    @Column(name = "reason_for_leave")
+    private String reason;
 
-        @Column(name = "reason_for_leave")
-        private String reason;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "leave_status")
+    private LeaveStatus status = LeaveStatus.PENDING;
 
-        @Enumerated(EnumType.STRING)
-        @Column(name = "leave_status")
-        private LeaveStatus status = LeaveStatus.PENDING;
+    @Column(name = "created_by")
+    private String createdBy;
+
+    @Column(name = "updated_by")
+    private String updatedBy;
+
+    @Column(name = "created_at")
+    private java.time.LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
+    private java.time.LocalDateTime updatedAt;
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = java.time.LocalDateTime.now();
+        this.updatedAt = java.time.LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = java.time.LocalDateTime.now();
+    }
 }

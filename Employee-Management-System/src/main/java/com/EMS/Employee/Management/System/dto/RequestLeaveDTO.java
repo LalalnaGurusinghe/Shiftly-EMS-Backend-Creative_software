@@ -12,22 +12,17 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class RequestLeaveDTO {
     private Integer leaveId;
-    @NotNull(message = "User ID is required")
-    private Long userId;
-    @NotBlank(message = "User name is required")
-    private String userName;
-    @NotBlank(message = "Leave type is required")
+    private Long userId; // Reference to User entity
     private String leaveType;
-    @NotBlank(message = "Leave from date is required")
-    private String leaveFrom;
-    @NotBlank(message = "Leave to date is required")
-    private String leaveTo;
+    private java.time.LocalDate leaveFrom;
+    private java.time.LocalDate leaveTo;
     private int duration;
-    @NotBlank(message = "Cover person is required")
     private String coverPerson;
-    @NotBlank(message = "Report to is required")
     private String reportTo;
-    @NotBlank(message = "Reason is required")
     private String reason;
-    private LeaveStatus status;
+    private com.EMS.Employee.Management.System.entity.LeaveStatus status;
+    private String createdBy;
+    private String updatedBy;
+    private java.time.LocalDateTime createdAt;
+    private java.time.LocalDateTime updatedAt;
 }
