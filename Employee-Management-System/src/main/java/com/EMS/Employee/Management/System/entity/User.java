@@ -15,15 +15,30 @@ import java.util.stream.Collectors;
 @Data
 @Table(name = "users")
 public class User implements UserDetails {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(unique = true, nullable = false)
     private String username;
+
+    @Column(unique = true, nullable = false)
     private String email;
+
+    @Column(nullable = false)
     private String password;
+
+    @Column(nullable = false)
     private boolean isActive;
+
+    @Column(nullable = false)
     private boolean isVerified;
+
+    @Column(nullable = false)
     private LocalDateTime createdAt;
+
+    @Column(nullable = false)
     private LocalDateTime updatedAt;
 
     @ElementCollection(fetch = FetchType.EAGER)
@@ -47,7 +62,7 @@ public class User implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles.stream()
-                .map(SimpleGrantedAuthority::new)
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + role)) // Prepend ROLE_ to match Spring Security
                 .collect(Collectors.toList());
     }
 
@@ -80,4 +95,14 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return isActive && isVerified;
     }
+
+    public boolean isActive() {
+        return this.isActive;
+    }
+
+    public boolean isVerified() {
+        return this.isVerified;
+    }
+
+
 }

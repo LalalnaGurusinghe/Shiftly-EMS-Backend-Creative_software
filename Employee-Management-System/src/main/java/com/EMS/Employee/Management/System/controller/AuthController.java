@@ -12,7 +12,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController // Marks this as a REST controller that returns JSON responses
-@RequestMapping("/auth") // Base path for all endpoints in this controller
+@RequestMapping("/api/auth") // Base path for all endpoints in this controller
 @CrossOrigin(origins = "*") // Allows requests from any origin (CORS)
 public class AuthController {
     private final AuthenticationService authenticationService;

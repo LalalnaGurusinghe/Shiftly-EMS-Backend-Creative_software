@@ -40,7 +40,7 @@ public class SecurityConfig {
                 .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable())) // For H2 console UI
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORS config for different type of requests with different origins
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**").permitAll() // Public auth endpoints
+                        .requestMatchers("/api/auth/**").permitAll() // Public auth endpoints
                         .requestMatchers("/api/v1/shiftly/ems/event/all").permitAll() // Public endpoints
                         .requestMatchers("/api/v1/shiftly/ems/event/{id}").permitAll()
                         .requestMatchers("/api/admin/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
