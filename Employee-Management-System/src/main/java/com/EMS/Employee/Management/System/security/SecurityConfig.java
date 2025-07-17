@@ -40,15 +40,45 @@ public class SecurityConfig {
                 .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable())) // For H2 console UI
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORS config for different type of requests with different origins
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll() // Public auth endpoints
-                        .requestMatchers("/api/v1/shiftly/ems/event/all").permitAll() // Public endpoints
-                        .requestMatchers("/api/v1/shiftly/ems/event/{id}").permitAll()
-                        .requestMatchers("/api/admin/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
-                        .requestMatchers("/superadmin/**").hasRole("SUPER_ADMIN")
+                        // Public endpoints
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/v1/shiftly/ems/events/all").permitAll()
+                        .requestMatchers("/api/v1/shiftly/ems/events/{id}").permitAll()
+                        .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+
+                        // User endpoints
                         .requestMatchers("/users/**").hasAnyRole("USER", "ADMIN", "SUPER_ADMIN")
-                        .requestMatchers("/api/v1/shiftly/ems/leave/**").hasRole("USER")
-                        .requestMatchers("/api/v1/shiftly/ems/admin/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
-                        .anyRequest().authenticated() // All other requests need auth
+                        .requestMatchers("/api/v1/shiftly/ems/employee/self-update").hasRole("USER")
+                        .requestMatchers("/api/v1/shiftly/ems/timesheets/**").hasRole("USER")
+                        .requestMatchers("/api/v1/shiftly/ems/leaves/**").hasRole("USER")
+                        .requestMatchers("/api/v1/shiftly/ems/claims/**").hasRole("USER")
+                        .requestMatchers("/api/v1/shiftly/ems/referrals/**").hasRole("USER")
+                        .requestMatchers("/api/v1/shiftly/ems/education/**").hasRole("USER")
+                        .requestMatchers("/api/v1/shiftly/ems/teams/my").hasRole("USER")
+                        .requestMatchers("/api/v1/shiftly/ems/team-members/my-team").hasRole("USER")
+                        .requestMatchers("/api/v1/shiftly/ems/projects/my").hasRole("USER")
+                        .requestMatchers("/api/v1/shiftly/ems/events/my/**").hasRole("USER")
+
+                        // Admin endpoints
+                        .requestMatchers("/api/v1/shiftly/ems/employee/**").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/shiftly/ems/teams/**").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/shiftly/ems/team-members/**").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/shiftly/ems/departments/**").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/shiftly/ems/projects/**").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/shiftly/ems/timesheets/all").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/shiftly/ems/leaves/all").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/shiftly/ems/claims/all").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/shiftly/ems/vacancies/**").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/shiftly/ems/referrals/all").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/shiftly/ems/events/all").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/shiftly/ems/events/approve/**").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/shiftly/ems/events/reject/**").hasRole("ADMIN")
+
+                        // Super admin endpoints
+                        .requestMatchers("/superadmin/**").hasRole("SUPER_ADMIN")
+
+                        // Any other request
+                        .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // No sessions
