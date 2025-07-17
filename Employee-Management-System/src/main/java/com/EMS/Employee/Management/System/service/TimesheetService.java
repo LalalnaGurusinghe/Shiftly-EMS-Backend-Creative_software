@@ -4,9 +4,12 @@ import com.EMS.Employee.Management.System.dto.TimesheetDTO;
 import java.util.List;
 
 public interface TimesheetService {
+    // Employee
     TimesheetDTO submitTimesheet(TimesheetDTO dto, String username);
-    List<TimesheetDTO> getUserTimesheets(String username);
+    List<TimesheetDTO> getOwnTimesheets(String username);
+
+    // Admin
     List<TimesheetDTO> getAllTimesheets();
-    TimesheetDTO approveTimesheet(Long id, String adminUsername);
-    TimesheetDTO rejectTimesheet(Long id, String adminUsername);
+    TimesheetDTO approveTimesheet(Long timesheetId);
+    TimesheetDTO rejectTimesheet(Long timesheetId);
 } 

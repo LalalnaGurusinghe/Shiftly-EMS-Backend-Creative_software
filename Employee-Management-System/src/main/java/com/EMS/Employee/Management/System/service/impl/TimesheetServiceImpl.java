@@ -1,104 +1,98 @@
 package com.EMS.Employee.Management.System.service.impl;
 
 import com.EMS.Employee.Management.System.dto.TimesheetDTO;
-import com.EMS.Employee.Management.System.entity.Timesheet;
-import com.EMS.Employee.Management.System.entity.TimesheetStatus;
-import com.EMS.Employee.Management.System.entity.User;
-import com.EMS.Employee.Management.System.repo.TimesheetRepo;
-import com.EMS.Employee.Management.System.repo.UserRepo;
+import com.EMS.Employee.Management.System.entity.*;
+import com.EMS.Employee.Management.System.repo.*;
 import com.EMS.Employee.Management.System.service.TimesheetService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 public class TimesheetServiceImpl implements TimesheetService {
     private final TimesheetRepo timesheetRepo;
     private final UserRepo userRepo;
+    private final EmployeeRepo employeeRepo;
+    private final ProjectRepo projectRepo;
 
-    public TimesheetServiceImpl(TimesheetRepo timesheetRepo, UserRepo userRepo) {
+    public TimesheetServiceImpl(TimesheetRepo timesheetRepo, UserRepo userRepo, EmployeeRepo employeeRepo, ProjectRepo projectRepo) {
         this.timesheetRepo = timesheetRepo;
         this.userRepo = userRepo;
+        this.employeeRepo = employeeRepo;
+        this.projectRepo = projectRepo;
     }
 
+    // Employee: Submit timesheet
     @Override
     @Transactional
     public TimesheetDTO submitTimesheet(TimesheetDTO dto, String username) {
-        User user = userRepo.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        if (timesheetRepo.existsByUserIdAndDate(user.getId(), dto.getDate())) {
+        User user = userRepo.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
+        EmployeeEntity employee = employeeRepo.findByUser_Id(user.getId());
+        if (employee == null) throw new RuntimeException("Employee not found");
+        if (employee.getTeam() == null) throw new RuntimeException("Employee not assigned to a team");
+        // Find project for the team
+        List<ProjectEntity> projects = projectRepo.findByTeam_TeamId(employee.getTeam().getTeamId());
+        if (projects.isEmpty()) throw new RuntimeException("No project assigned to your team");
+        ProjectEntity project = projects.get(0); // If multiple, pick the first (or enhance logic)
+        if (timesheetRepo.existsByEmployee_EmployeeIdAndDate(employee.getEmployeeId(), dto.getDate())) {
             throw new RuntimeException("Timesheet for this date already exists");
         }
-        Timesheet timesheet = new Timesheet();
-        timesheet.setUser(user);
-        timesheet.setDate(dto.getDate());
-        timesheet.setHoursWorked(dto.getHoursWorked());
-        timesheet.setDescription(dto.getDescription());
-        timesheet.setStatus(TimesheetStatus.PENDING);
-        timesheet.setSubmittedAt(LocalDateTime.now());
-        Timesheet saved = timesheetRepo.save(timesheet);
+        Timesheet entity = new Timesheet();
+        entity.setEmployee(employee);
+        entity.setProject(project);
+        entity.setDate(dto.getDate());
+        entity.setWorkingHours(dto.getWorkingHours());
+        entity.setActivities(dto.getActivities());
+        entity.setStatus(TimesheetStatus.PENDING);
+        Timesheet saved = timesheetRepo.save(entity);
         return toDTO(saved);
     }
 
+    // Employee: View own timesheets
     @Override
-    public List<TimesheetDTO> getUserTimesheets(String username) {
-        User user = userRepo.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        return timesheetRepo.findByUserId(user.getId()).stream()
-                .map(this::toDTO)
-                .collect(Collectors.toList());
+    public List<TimesheetDTO> getOwnTimesheets(String username) {
+        User user = userRepo.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
+        EmployeeEntity employee = employeeRepo.findByUser_Id(user.getId());
+        if (employee == null) throw new RuntimeException("Employee not found");
+        return timesheetRepo.findByEmployee_EmployeeId(employee.getEmployeeId()).stream().map(this::toDTO).collect(Collectors.toList());
     }
 
+    // Admin: View all timesheets
     @Override
     public List<TimesheetDTO> getAllTimesheets() {
-        return timesheetRepo.findAll().stream()
-                .map(this::toDTO)
-                .collect(Collectors.toList());
+        return timesheetRepo.findAll().stream().map(this::toDTO).collect(Collectors.toList());
     }
 
+    // Admin: Approve timesheet
     @Override
     @Transactional
-    public TimesheetDTO approveTimesheet(Long id, String adminUsername) {
-        Timesheet timesheet = timesheetRepo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Timesheet not found"));
-        if (timesheet.getStatus() != TimesheetStatus.PENDING) {
-            throw new RuntimeException("Only pending timesheets can be approved");
-        }
-        timesheet.setStatus(TimesheetStatus.APPROVED);
-        timesheet.setApprovedAt(LocalDateTime.now());
-        Timesheet saved = timesheetRepo.save(timesheet);
+    public TimesheetDTO approveTimesheet(Long timesheetId) {
+        Timesheet entity = timesheetRepo.findById(timesheetId).orElseThrow(() -> new RuntimeException("Timesheet not found"));
+        entity.setStatus(TimesheetStatus.APPROVED);
+        Timesheet saved = timesheetRepo.save(entity);
         return toDTO(saved);
     }
 
+    // Admin: Reject timesheet
     @Override
     @Transactional
-    public TimesheetDTO rejectTimesheet(Long id, String adminUsername) {
-        Timesheet timesheet = timesheetRepo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Timesheet not found"));
-        if (timesheet.getStatus() != TimesheetStatus.PENDING) {
-            throw new RuntimeException("Only pending timesheets can be rejected");
-        }
-        timesheet.setStatus(TimesheetStatus.REJECTED);
-        timesheet.setApprovedAt(LocalDateTime.now());
-        Timesheet saved = timesheetRepo.save(timesheet);
+    public TimesheetDTO rejectTimesheet(Long timesheetId) {
+        Timesheet entity = timesheetRepo.findById(timesheetId).orElseThrow(() -> new RuntimeException("Timesheet not found"));
+        entity.setStatus(TimesheetStatus.REJECTED);
+        Timesheet saved = timesheetRepo.save(entity);
         return toDTO(saved);
     }
 
-    private TimesheetDTO toDTO(Timesheet t) {
+    private TimesheetDTO toDTO(Timesheet entity) {
         TimesheetDTO dto = new TimesheetDTO();
-        dto.setId(t.getId());
-        dto.setUserId(t.getUser().getId());
-        dto.setUsername(t.getUser().getUsername());
-        dto.setDate(t.getDate());
-        dto.setHoursWorked(t.getHoursWorked());
-        dto.setDescription(t.getDescription());
-        dto.setStatus(t.getStatus());
-        dto.setSubmittedAt(t.getSubmittedAt());
-        dto.setApprovedAt(t.getApprovedAt());
+        BeanUtils.copyProperties(entity, dto);
+        dto.setEmployeeId(entity.getEmployee() != null ? entity.getEmployee().getEmployeeId() : null);
+        dto.setProjectId(entity.getProject() != null ? entity.getProject().getProjectId() : null);
+        dto.setProjectName(entity.getProject() != null ? entity.getProject().getName() : null);
+        dto.setStatus(entity.getStatus() != null ? entity.getStatus().name() : null);
         return dto;
     }
-}
+} 

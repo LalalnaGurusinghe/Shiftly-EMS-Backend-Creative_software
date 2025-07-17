@@ -3,7 +3,6 @@ package com.EMS.Employee.Management.System.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "timesheets")
@@ -11,28 +10,27 @@ import java.time.LocalDateTime;
 public class Timesheet {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "timesheet_id")
+    private Long timesheetId;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @JoinColumn(name = "employee_id", nullable = false)
+    private EmployeeEntity employee;
 
-    @Column(nullable = false)
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "project_id", nullable = false)
+    private ProjectEntity project;
+
+    @Column(name = "date", nullable = false)
     private LocalDate date;
 
-    @Column(nullable = false)
-    private Double hoursWorked;
+    @Column(name = "working_hours", nullable = false)
+    private Double workingHours;
 
-    @Column(length = 255)
-    private String description;
+    @Column(name = "activities", length = 1000)
+    private String activities;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "status", nullable = false)
     private TimesheetStatus status = TimesheetStatus.PENDING;
-
-    @Column
-    private LocalDateTime submittedAt;
-
-    @Column
-    private LocalDateTime approvedAt;
 } 

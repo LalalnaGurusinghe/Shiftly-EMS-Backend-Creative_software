@@ -4,8 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "events")
@@ -15,37 +14,31 @@ import java.time.LocalDateTime;
 public class EventEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
     private Long id;
 
-    @Column(name = "title")
+    @Column(name = "title", nullable = false)
     private String title;
 
-    @Column(name = "form_url")
-    private String formUrl;
-
-    @Column(name = "response_url")
-    private String responseUrl;
-
-    @Column(name = "audience")
-    private String audience;
-
-    @Column(name = "event_type")
+    @Column(name = "event_type", nullable = false)
     private String eventType;
 
-    @Column(name = "projects")
-    private String projects;
+    @Column(name = "enable_date", nullable = false)
+    private LocalDate enableDate;
 
-    @Column(name = "enable_date_time")
-    private LocalDateTime enableDateTime;
+    @Column(name = "expire_date", nullable = false)
+    private LocalDate expireDate;
 
-    @Column(name = "expire_date_time")
-    private LocalDateTime expireDateTime;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "created_by", nullable = false)
+    private EmployeeEntity createdBy;
 
-    @Column(name = "created_by")
-    private String createdBy;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private EventStatus status;
 
-    @Column(name = "event_banner", columnDefinition = "LONGBLOB")
-    @Lob
-    private byte[] photo;
+    @Column(name = "file_name")
+    private String fileName;
+
+    @Column(name = "file_path")
+    private String filePath;
 }
