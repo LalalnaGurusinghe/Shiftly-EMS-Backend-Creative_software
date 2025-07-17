@@ -14,6 +14,6 @@ public interface UserService {
     UserDTO changePassword(Long id, ChangePasswordDTO changePasswordDTO);
     void deleteUser(Long id);
     UserDTO updateUser(Long id, UserDTO userDTO);
-    UserDTO updateUserRole(Long id, String role);
+    UserDTO verifyAndUpdateUserRole(Long id, String role);
     List<UserDTO> verifyAllUnverifiedEmployees(String role);
 }

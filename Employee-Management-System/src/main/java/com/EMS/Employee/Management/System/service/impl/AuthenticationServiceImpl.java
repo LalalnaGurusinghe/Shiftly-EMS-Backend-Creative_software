@@ -163,8 +163,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             userDTO.setId(user.getId());
             userDTO.setUsername(user.getUsername());
             userDTO.setEmail(user.getEmail());
-            userDTO.setIsActive(user.isActive()); // Line 60
-            userDTO.setIsVerified(user.isVerified()); // Line 61
+            userDTO.setActive(user.isActive()); // Line 60
+            userDTO.setVerified(user.isVerified()); // Line 61
             userDTO.setRoles(user.getRoles() != null ? new HashSet<>(user.getRoles()) : new HashSet<>());
         }
         return userDTO;

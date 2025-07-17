@@ -11,6 +11,7 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.List;
@@ -94,28 +95,26 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDTO updateUserRole(Long id, String role) {
+    @Transactional
+    public UserDTO verifyAndUpdateUserRole(Long id, String role) {
+        if (!isValidRole(role)) {
+            throw new IllegalArgumentException("Invalid role specified: " + role);
+        }
         User user = userRepo.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
         Set<String> roles = new HashSet<>();
-        String displayRole;
         switch (role.toUpperCase()) {
             case "SUPER_ADMIN":
-                roles.add("ROLE_SUPER_ADMIN");
-                roles.add("ROLE_ADMIN");
-                roles.add("ROLE_USER");
-                displayRole = "Super Admin";
+                roles.add("SUPER_ADMIN");
+                roles.add("ADMIN");
+                roles.add("USER");
                 break;
             case "ADMIN":
-                roles.add("ROLE_ADMIN");
-                roles.add("ROLE_USER");
-                displayRole = "Admin";
+                roles.add("ADMIN");
+                roles.add("USER");
                 break;
             case "USER":
-                roles.add("ROLE_USER");
-                displayRole = "User";
+                roles.add("USER");
                 break;
-            default:
-                throw new RuntimeException("Invalid role specified");
         }
         user.setRoles(roles);
         user.setVerified(true);
@@ -124,40 +123,46 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public List<UserDTO> verifyAllUnverifiedEmployees(String role) {
-        List<User> unverifiedUsers = userRepo.findAll().stream()
-                .filter(user -> !user.isVerified())
-                .collect(Collectors.toList());
-        final String[] displayRole = new String[1];
+        if (!isValidRole(role)) {
+            throw new IllegalArgumentException("Invalid role specified: " + role);
+        }
+        List<User> unverifiedUsers = userRepo.findByIsVerifiedFalse();
+        Set<String> roles = new HashSet<>();
+        switch (role.toUpperCase()) {
+            case "SUPER_ADMIN":
+                roles.add("SUPER_ADMIN");
+                roles.add("ADMIN");
+                roles.add("USER");
+                break;
+            case "ADMIN":
+                roles.add("ADMIN");
+                roles.add("USER");
+                break;
+            case "USER":
+                roles.add("USER");
+                break;
+        }
         unverifiedUsers.forEach(user -> {
-            Set<String> roles = new HashSet<>();
-            switch (role.toUpperCase()) {
-                case "SUPER_ADMIN":
-                    roles.add("ROLE_SUPER_ADMIN");
-                    roles.add("ROLE_ADMIN");
-                    roles.add("ROLE_USER");
-                    displayRole[0] = "Super Admin";
-                    break;
-                case "ADMIN":
-                    roles.add("ROLE_ADMIN");
-                    roles.add("ROLE_USER");
-                    displayRole[0] = "Admin";
-                    break;
-                case "USER":
-                    roles.add("ROLE_USER");
-                    displayRole[0] = "User";
-                    break;
-                default:
-                    throw new RuntimeException("Invalid role specified");
-            }
             user.setRoles(roles);
             user.setVerified(true);
             userRepo.save(user);
-            logger.info("Verified user: {}", user.getUsername());
+            logger.info("Verified user: {} with role: {}", user.getUsername(), role);
         });
         return unverifiedUsers.stream()
                 .map(this::convertToUserDTO)
                 .collect(Collectors.toList());
+    }
+
+    private boolean isValidRole(String role) {
+        if (role == null) {
+            return false;
+        }
+        return switch (role.toUpperCase()) {
+            case "USER", "ADMIN", "SUPER_ADMIN" -> true;
+            default -> false;
+        };
     }
 
     private UserDTO convertToUserDTO(User user) {
@@ -165,6 +170,7 @@ public class UserServiceImpl implements UserService {
         userDTO.setId(user.getId());
         userDTO.setUsername(user.getUsername());
         userDTO.setEmail(user.getEmail());
+        userDTO.setRoles(user.getRoles());
         return userDTO;
     }
 }
