@@ -85,6 +85,17 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         );
 
         String jwtToken = jwtService.generateToken(user);
+
+        // Create the JWT cookie
+        ResponseCookie cookie = ResponseCookie.from("JWT", jwtToken)
+                .httpOnly(true)
+                .secure(false) // Set to true in production (HTTPS)
+                .path("/")
+                .maxAge(60 * 60) // 1 hour
+                .sameSite("Strict")
+                .build();
+
+        // Return response with cookie header
         return LoginResponseDTO.builder()
                 .jwttoken(jwtToken)
                 .userDTO(convertToUserDTO(user))
@@ -95,9 +106,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public ResponseEntity<String> logout() {
         ResponseCookie cookie = ResponseCookie.from("JWT", "")
                 .httpOnly(true)
-                .secure(true)
+                .secure(false) // Set to false for local development
                 .path("/")
-                .maxAge(0)
+                .maxAge(0) // Set to 0 to delete the cookie
                 .sameSite("Strict")
                 .build();
 
@@ -163,8 +174,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             userDTO.setId(user.getId());
             userDTO.setUsername(user.getUsername());
             userDTO.setEmail(user.getEmail());
-            userDTO.setActive(user.isActive()); // Line 60
-            userDTO.setVerified(user.isVerified()); // Line 61
+            userDTO.setActive(user.isActive());
+            userDTO.setVerified(user.isVerified());
             userDTO.setRoles(user.getRoles() != null ? new HashSet<>(user.getRoles()) : new HashSet<>());
         }
         return userDTO;
