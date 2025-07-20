@@ -5,8 +5,6 @@ import com.EMS.Employee.Management.System.entity.User;
 import com.EMS.Employee.Management.System.repo.UserRepo;
 import com.EMS.Employee.Management.System.service.AuthenticationService;
 import jakarta.validation.Valid;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -15,7 +13,7 @@ import java.util.HashSet;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
+@CrossOrigin(origins = "http://localhost:3000")
 public class AuthController {
     private final AuthenticationService authenticationService;
     private final UserRepo userRepo;
@@ -31,37 +29,14 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<UserDTO> login(@Valid @RequestBody LoginRequestDTO loginRequestDTO) {
+    public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginRequestDTO loginRequestDTO) {
         LoginResponseDTO loginResponseDTO = authenticationService.login(loginRequestDTO);
-
-        // Create the JWT cookie
-        ResponseCookie cookie = ResponseCookie.from("JWT", loginResponseDTO.getJwttoken())
-                .httpOnly(true)
-                .secure(false) // Set to true in production (HTTPS)
-                .path("/")
-                .maxAge(60 * 60) // 1 hour
-                .sameSite("Lax") // Use Lax for better compatibility
-                .build();
-
-        return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .body(loginResponseDTO.getUserDTO());
+        return ResponseEntity.ok(loginResponseDTO);
     }
 
     @PostMapping("/logout")
     public ResponseEntity<String> logout() {
-        // Create empty cookie to delete the JWT
-        ResponseCookie cookie = ResponseCookie.from("JWT", "")
-                .httpOnly(true)
-                .secure(false) // Set to true in production (HTTPS)
-                .path("/")
-                .maxAge(0) // Set to 0 to delete the cookie
-                .sameSite("Lax") // Use Lax for better compatibility
-                .build();
-
-        return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .body("Logged out successfully");
+        return ResponseEntity.ok("Logged out successfully");
     }
 
     @GetMapping("/currentuser")
@@ -69,11 +44,9 @@ public class AuthController {
         if (authentication == null || !authentication.isAuthenticated()) {
             return ResponseEntity.status(401).body("Unauthorized");
         }
-
         String username = authentication.getName();
         User user = userRepo.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-
         return ResponseEntity.ok(convertToUserDTO(user));
     }
 

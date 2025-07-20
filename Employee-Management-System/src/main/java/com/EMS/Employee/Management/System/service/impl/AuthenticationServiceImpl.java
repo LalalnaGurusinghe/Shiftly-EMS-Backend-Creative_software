@@ -10,15 +10,13 @@ import com.EMS.Employee.Management.System.service.AuthenticationService;
 import com.EMS.Employee.Management.System.service.JwtService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseCookie;
-import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.http.ResponseEntity;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -86,16 +84,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         String jwtToken = jwtService.generateToken(user);
 
-        // Create the JWT cookie
-        ResponseCookie cookie = ResponseCookie.from("JWT", jwtToken)
-                .httpOnly(true)
-                .secure(false) // Set to true in production (HTTPS)
-                .path("/")
-                .maxAge(60 * 60) // 1 hour
-                .sameSite("Strict")
-                .build();
-
-        // Return response with cookie header
+        // Return response with JWT token for localStorage storage
         return LoginResponseDTO.builder()
                 .jwttoken(jwtToken)
                 .userDTO(convertToUserDTO(user))
@@ -104,17 +93,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public ResponseEntity<String> logout() {
-        ResponseCookie cookie = ResponseCookie.from("JWT", "")
-                .httpOnly(true)
-                .secure(false) // Set to false for local development
-                .path("/")
-                .maxAge(0) // Set to 0 to delete the cookie
-                .sameSite("Strict")
-                .build();
-
-        return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .body("Logout successful");
+        // For localStorage-based JWT, logout is handled on the frontend
+        // by removing the token from localStorage
+        return ResponseEntity.ok("Logged out successfully");
     }
 
     @Override
