@@ -5,6 +5,10 @@ import lombok.Data;
 @Data
 public class VerifyUserRequestDTO {
     private String role;
+    private String department;
     private String designation;
-    private Long departmentId;
+
+    public String getDesignation() {
+        return designation;
+    }
 } 

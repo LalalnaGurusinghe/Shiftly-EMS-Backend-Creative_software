@@ -16,6 +16,8 @@ public class UserDTO {
     private Set<String> roles;
     private boolean isActive;
     private boolean isVerified;
+    private String designation;
+    private String department;
 
 
 }

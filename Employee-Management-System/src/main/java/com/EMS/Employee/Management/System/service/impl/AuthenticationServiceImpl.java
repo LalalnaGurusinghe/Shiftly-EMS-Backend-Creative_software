@@ -104,7 +104,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public void sendVerificationEmail(User user, String role, String designation, Long departmentId) {
+    public void sendVerificationEmail(User user, String role, String designation, String department) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom("lalanagurusinghe@gmail.com");
         message.setTo(user.getEmail());
@@ -112,9 +112,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         String displayRole = role.replace("ROLE_", "").replace("_", " ");
         String departmentName = "";
-        if (departmentId != null) {
-            DepartmentEntity department = departmentRepo.findById(departmentId).orElse(null);
-            if (department != null) departmentName = department.getName();
+        if (department != null && !department.isEmpty()) {
+            DepartmentEntity departmentEntity = departmentRepo.findByName(department).orElse(null);
+            if (departmentEntity != null) departmentName = departmentEntity.getName();
         }
         String emailContent = "Dear " + user.getUsername() + ",\n\n" +
                 "Your account has been verified by the Super Admin.\n" +

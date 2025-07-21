@@ -34,5 +34,5 @@ public interface AuthenticationService {
      * @param user The user to send the email to.
      * @param role The role assigned to the user.
      */
-    void sendVerificationEmail(User user, String role, String designation, Long departmentId);
+    void sendVerificationEmail(User user, String role, String designation, String department);
 }

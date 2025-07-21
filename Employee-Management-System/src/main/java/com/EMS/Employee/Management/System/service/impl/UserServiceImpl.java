@@ -132,7 +132,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public UserDTO verifyAndUpdateUserRoleAndProfile(Long id, String role, String designation, Long departmentId) {
+    public UserDTO verifyAndUpdateUserRoleAndProfile(Long id, String role, String designation, String department) {
         if (!isValidRole(role)) {
             throw new IllegalArgumentException("Invalid role specified: " + role);
         }
@@ -154,17 +154,9 @@ public class UserServiceImpl implements UserService {
         }
         user.setRoles(roles);
         user.setVerified(true);
+        if (designation != null) user.setDesignation(designation);
+        if (department != null) user.setDepartment(department);
         userRepo.save(user);
-        // Update employee profile
-        EmployeeEntity employee = employeeRepo.findByUser_Id(user.getId());
-        if (employee != null) {
-            if (designation != null) employee.setDesignation(designation);
-            if (departmentId != null) {
-                DepartmentEntity department = departmentRepo.findById(departmentId).orElseThrow(() -> new RuntimeException("Department not found"));
-                employee.setDepartment(department);
-            }
-            employeeRepo.save(employee);
-        }
         return convertToUserDTO(user);
     }
 

@@ -37,9 +37,9 @@ public class SuperAdminController {
     @PutMapping("/employee/{id}/verify")
     public ResponseEntity<UserDTO> verifyEmployee(@PathVariable Long id, @RequestBody VerifyUserRequestDTO verifyDTO) {
         try {
-            UserDTO updatedUser = userService.verifyAndUpdateUserRoleAndProfile(id, verifyDTO.getRole(), verifyDTO.getDesignation(), verifyDTO.getDepartmentId());
+            UserDTO updatedUser = userService.verifyAndUpdateUserRoleAndProfile(id, verifyDTO.getRole(), verifyDTO.getDesignation(), verifyDTO.getDepartment());
             User user = userService.getUserEntityById(id);
-            authenticationService.sendVerificationEmail(user, verifyDTO.getRole(), verifyDTO.getDesignation(), verifyDTO.getDepartmentId());
+            authenticationService.sendVerificationEmail(user, verifyDTO.getRole(), verifyDTO.getDesignation(), verifyDTO.getDepartment());
             return ResponseEntity.ok(updatedUser);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(null);
