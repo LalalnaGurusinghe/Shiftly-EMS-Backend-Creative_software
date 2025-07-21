@@ -17,6 +17,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import com.EMS.Employee.Management.System.entity.EmployeeEntity;
+import com.EMS.Employee.Management.System.repo.EmployeeRepo;
+import com.EMS.Employee.Management.System.repo.DepartmentRepo;
+import com.EMS.Employee.Management.System.entity.DepartmentEntity;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -24,11 +28,15 @@ public class UserServiceImpl implements UserService {
     private final UserRepo userRepo;
     private final PasswordEncoder passwordEncoder;
     private final JavaMailSender mailSender;
+    private final EmployeeRepo employeeRepo;
+    private final DepartmentRepo departmentRepo;
 
-    public UserServiceImpl(UserRepo userRepo, PasswordEncoder passwordEncoder, JavaMailSender mailSender) {
+    public UserServiceImpl(UserRepo userRepo, PasswordEncoder passwordEncoder, JavaMailSender mailSender, EmployeeRepo employeeRepo, DepartmentRepo departmentRepo) {
         this.userRepo = userRepo;
         this.passwordEncoder = passwordEncoder;
         this.mailSender = mailSender;
+        this.employeeRepo = employeeRepo;
+        this.departmentRepo = departmentRepo;
     }
 
     @Override
@@ -120,6 +128,44 @@ public class UserServiceImpl implements UserService {
         user.setVerified(true);
         User updatedUser = userRepo.save(user);
         return convertToUserDTO(updatedUser);
+    }
+
+    @Override
+    @Transactional
+    public UserDTO verifyAndUpdateUserRoleAndProfile(Long id, String role, String designation, Long departmentId) {
+        if (!isValidRole(role)) {
+            throw new IllegalArgumentException("Invalid role specified: " + role);
+        }
+        User user = userRepo.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
+        Set<String> roles = new HashSet<>();
+        switch (role.toUpperCase()) {
+            case "SUPER_ADMIN":
+                roles.add("SUPER_ADMIN");
+                roles.add("ADMIN");
+                roles.add("USER");
+                break;
+            case "ADMIN":
+                roles.add("ADMIN");
+                roles.add("USER");
+                break;
+            case "USER":
+                roles.add("USER");
+                break;
+        }
+        user.setRoles(roles);
+        user.setVerified(true);
+        userRepo.save(user);
+        // Update employee profile
+        EmployeeEntity employee = employeeRepo.findByUser_Id(user.getId());
+        if (employee != null) {
+            if (designation != null) employee.setDesignation(designation);
+            if (departmentId != null) {
+                DepartmentEntity department = departmentRepo.findById(departmentId).orElseThrow(() -> new RuntimeException("Department not found"));
+                employee.setDepartment(department);
+            }
+            employeeRepo.save(employee);
+        }
+        return convertToUserDTO(user);
     }
 
     @Override

@@ -61,9 +61,10 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/shiftly/ems/team-members/my-team").hasRole("USER")
                         .requestMatchers("/api/v1/shiftly/ems/projects/my").hasRole("USER")
                         .requestMatchers("/api/v1/shiftly/ems/events/my/**").hasRole("USER")
+                        .requestMatchers("/api/v1/shiftly/ems/employee/**").hasRole("USER")
 
                         // Admin endpoints
-                        .requestMatchers("/api/v1/shiftly/ems/employee/**").hasRole("ADMIN")
+
                         .requestMatchers("/api/v1/shiftly/ems/teams/**").hasRole("ADMIN")
                         .requestMatchers("/api/v1/shiftly/ems/team-members/**").hasRole("ADMIN")
                         .requestMatchers("/api/v1/shiftly/ems/departments/**").hasRole("ADMIN")

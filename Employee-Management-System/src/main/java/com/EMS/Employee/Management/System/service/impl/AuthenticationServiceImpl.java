@@ -18,6 +18,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.http.ResponseEntity;
 
+import com.EMS.Employee.Management.System.repo.DepartmentRepo;
+import com.EMS.Employee.Management.System.entity.DepartmentEntity;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -31,15 +34,17 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final JavaMailSender mailSender;
+    private final DepartmentRepo departmentRepo;
 
     public AuthenticationServiceImpl(UserRepo userRepo, PasswordEncoder passwordEncoder,
                                      AuthenticationManager authenticationManager, JwtService jwtService,
-                                     JavaMailSender mailSender) {
+                                     JavaMailSender mailSender, DepartmentRepo departmentRepo) {
         this.userRepo = userRepo;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
         this.mailSender = mailSender;
+        this.departmentRepo = departmentRepo;
     }
 
     @Override
@@ -99,16 +104,23 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public void sendVerificationEmail(User user, String role) {
+    public void sendVerificationEmail(User user, String role, String designation, Long departmentId) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom("lalanagurusinghe@gmail.com");
         message.setTo(user.getEmail());
         message.setSubject("Account Verification - Employee Management System");
 
         String displayRole = role.replace("ROLE_", "").replace("_", " ");
+        String departmentName = "";
+        if (departmentId != null) {
+            DepartmentEntity department = departmentRepo.findById(departmentId).orElse(null);
+            if (department != null) departmentName = department.getName();
+        }
         String emailContent = "Dear " + user.getUsername() + ",\n\n" +
                 "Your account has been verified by the Super Admin.\n" +
                 "Assigned Role: " + displayRole + "\n" +
+                "Designation: " + (designation != null ? designation : "-") + "\n" +
+                "Department: " + (!departmentName.isEmpty() ? departmentName : "-") + "\n" +
                 "Username: " + user.getUsername() + "\n" +
                 "Please log in using your credentials at: http://localhost:3000/login\n\n" +
                 "Best regards,\nEmployee Management Team";
@@ -116,8 +128,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         message.setText(emailContent);
 
         try {
-            logger.info("Preparing verification email: to={}, username={}, role={}, content={}",
-                    user.getEmail(), user.getUsername(), displayRole, emailContent);
+            logger.info("Preparing verification email: to={}, username={}, role={}, designation={}, department={}, content={}",
+                    user.getEmail(), user.getUsername(), displayRole, designation, departmentName, emailContent);
             mailSender.send(message);
             logger.info("Verification email sent to {}", user.getEmail());
         } catch (Exception e) {

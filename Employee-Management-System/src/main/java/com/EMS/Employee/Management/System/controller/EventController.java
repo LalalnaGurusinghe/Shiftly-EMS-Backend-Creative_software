@@ -5,7 +5,12 @@ import com.EMS.Employee.Management.System.service.EventService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 
 @RestController
@@ -42,7 +47,26 @@ public class EventController {
     // Employee: Create event
     @PostMapping("/add")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<EventDTO> createEvent(@RequestBody EventDTO eventDTO) {
+    public ResponseEntity<EventDTO> createEvent(
+        @RequestPart("event") EventDTO eventDTO,
+        @RequestPart(value = "file", required = false) MultipartFile file
+    ) {
+        if (file != null && !file.isEmpty()) {
+            try {
+                String uploadDir = "uploads/events/";
+                Path uploadPath = Paths.get(uploadDir);
+                if (!Files.exists(uploadPath)) {
+                    Files.createDirectories(uploadPath);
+                }
+                String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
+                Path filePath = uploadPath.resolve(fileName);
+                Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+                eventDTO.setFileName(fileName);
+                eventDTO.setFilePath("/uploads/events/" + fileName);
+            } catch (Exception e) {
+                throw new RuntimeException("Failed to store file: " + e.getMessage());
+            }
+        }
         return ResponseEntity.ok(eventService.createEvent(eventDTO));
     }
 

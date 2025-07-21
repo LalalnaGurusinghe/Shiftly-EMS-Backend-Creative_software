@@ -2,6 +2,7 @@ package com.EMS.Employee.Management.System.controller;
 
 import com.EMS.Employee.Management.System.dto.RoleDTO;
 import com.EMS.Employee.Management.System.dto.UserDTO;
+import com.EMS.Employee.Management.System.dto.VerifyUserRequestDTO;
 import com.EMS.Employee.Management.System.entity.User;
 import com.EMS.Employee.Management.System.service.AuthenticationService;
 import com.EMS.Employee.Management.System.service.UserService;
@@ -34,11 +35,11 @@ public class SuperAdminController {
     }
 
     @PutMapping("/employee/{id}/verify")
-    public ResponseEntity<UserDTO> verifyEmployee(@PathVariable Long id, @RequestBody RoleDTO roleDTO) {
+    public ResponseEntity<UserDTO> verifyEmployee(@PathVariable Long id, @RequestBody VerifyUserRequestDTO verifyDTO) {
         try {
-            UserDTO updatedUser = userService.verifyAndUpdateUserRole(id, roleDTO.role());
+            UserDTO updatedUser = userService.verifyAndUpdateUserRoleAndProfile(id, verifyDTO.getRole(), verifyDTO.getDesignation(), verifyDTO.getDepartmentId());
             User user = userService.getUserEntityById(id);
-            authenticationService.sendVerificationEmail(user, roleDTO.role());
+            authenticationService.sendVerificationEmail(user, verifyDTO.getRole(), verifyDTO.getDesignation(), verifyDTO.getDepartmentId());
             return ResponseEntity.ok(updatedUser);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(null);
@@ -54,7 +55,7 @@ public class SuperAdminController {
         try {
             List<UserDTO> verifiedUsers = userService.verifyAllUnverifiedEmployees(roleDTO.role());
             verifiedUsers.forEach(user -> authenticationService.sendVerificationEmail(
-                    userService.getUserEntityById(user.getId()), roleDTO.role()));
+                    userService.getUserEntityById(user.getId()), roleDTO.role(), null, null));
             return ResponseEntity.ok(verifiedUsers);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(null);

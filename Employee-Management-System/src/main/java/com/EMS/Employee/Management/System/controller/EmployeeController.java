@@ -8,15 +8,29 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import org.springframework.security.core.Authentication;
+import com.EMS.Employee.Management.System.repo.UserRepo;
+import com.EMS.Employee.Management.System.repo.EmployeeRepo;
+import com.EMS.Employee.Management.System.entity.EmployeeEntity;
+import com.EMS.Employee.Management.System.entity.User;
+import org.springframework.beans.BeanUtils;
+import com.EMS.Employee.Management.System.entity.DepartmentEntity;
+import com.EMS.Employee.Management.System.repo.DepartmentRepo;
 
 @RestController
 @RequestMapping("/api/v1/shiftly/ems/employee")
 @CrossOrigin(origins = "http://localhost:3000")
 public class EmployeeController {
     private final EmployeeService employeeService;
+    private final UserRepo userRepo;
+    private final EmployeeRepo employeeRepo;
+    private final DepartmentRepo departmentRepo;
 
-    public EmployeeController(EmployeeService employeeService) {
+    public EmployeeController(EmployeeService employeeService, UserRepo userRepo, EmployeeRepo employeeRepo, DepartmentRepo departmentRepo) {
         this.employeeService = employeeService;
+        this.userRepo = userRepo;
+        this.employeeRepo = employeeRepo;
+        this.departmentRepo = departmentRepo;
     }
 
     @PostMapping("/add")
@@ -54,5 +68,62 @@ public class EmployeeController {
     public ResponseEntity<EmployeeDTO> updateOwnInfo(@RequestBody EmployeeDTO employeeDTO) {
         // Assume employeeId is set in DTO and userId is validated by security context in real implementation
         return employeeService.updateUserById(employeeDTO.getEmployeeId(), employeeDTO);
+    }
+
+    @GetMapping("/profile")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<EmployeeDTO> getProfile(Authentication authentication) {
+        String username = authentication.getName();
+        User user = userRepo.findByUsername(username)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+        EmployeeEntity employee = employeeRepo.findByUser_Id(user.getId());
+        if (employee == null) {
+            return ResponseEntity.notFound().build();
+        }
+        EmployeeDTO dto = new EmployeeDTO();
+        BeanUtils.copyProperties(employee, dto);
+        dto.setUserId(user.getId());
+        return ResponseEntity.ok(dto);
+    }
+
+    @PutMapping("/profile")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<EmployeeDTO> updateProfile(
+        Authentication authentication,
+        @RequestBody EmployeeDTO employeeDTO
+    ) {
+        String username = authentication.getName();
+        User user = userRepo.findByUsername(username)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+        EmployeeEntity employee = employeeRepo.findByUser_Id(user.getId());
+        if (employee == null) {
+            employee = new EmployeeEntity();
+            employee.setUser(user);
+        }
+        // Only allow admin to change departmentId and designation
+        boolean isAdmin = user.getRoles().contains("ADMIN") || user.getRoles().contains("SUPER_ADMIN");
+        String originalDesignation = employee.getDesignation();
+        Long originalDepartmentId = employee.getDepartment() != null ? employee.getDepartment().getDepartmentId() : null;
+        BeanUtils.copyProperties(employeeDTO, employee, "employeeId", "user", "department", "designation");
+        if (isAdmin) {
+            if (employeeDTO.getDesignation() != null) employee.setDesignation(employeeDTO.getDesignation());
+            if (employeeDTO.getDepartmentId() != null) {
+                DepartmentEntity department = departmentRepo.findById(employeeDTO.getDepartmentId()).orElse(null);
+                if (department != null) employee.setDepartment(department);
+            }
+        } else {
+            // Non-admin: keep original values
+            employee.setDesignation(originalDesignation);
+            if (originalDepartmentId != null) {
+                DepartmentEntity department = departmentRepo.findById(originalDepartmentId).orElse(null);
+                if (department != null) employee.setDepartment(department);
+            }
+        }
+        employee.setUser(user);
+        EmployeeEntity saved = employeeRepo.save(employee);
+        EmployeeDTO dto = new EmployeeDTO();
+        BeanUtils.copyProperties(saved, dto);
+        dto.setUserId(user.getId());
+        return ResponseEntity.ok(dto);
     }
 }
