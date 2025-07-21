@@ -20,6 +20,13 @@ public class ProjectEntity {
     private String description;
 
     @ManyToOne(optional = false)
+    @JoinColumn(name = "department_id", nullable = false)
+    private DepartmentEntity department;
+
+    @Column(name = "progress", nullable = false)
+    private int progress = 0;
+
+    @ManyToOne(optional = false)
     @JoinColumn(name = "team_id", nullable = false)
     private TeamEntity team;
 

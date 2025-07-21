@@ -12,4 +12,7 @@ public class ProjectDTO {
     private String teamName;
     private LocalDate startDate;
     private LocalDate endDate;
+    private Long departmentId;
+    private String departmentName;
+    private int progress;
 } 
