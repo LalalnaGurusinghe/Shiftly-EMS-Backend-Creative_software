@@ -211,6 +211,8 @@ public class UserServiceImpl implements UserService {
         userDTO.setActive(user.isActive());
         userDTO.setVerified(user.isVerified());
         userDTO.setRoles(user.getRoles());
+        userDTO.setDesignation(user.getDesignation());
+        userDTO.setDepartment(user.getDepartment());
         return userDTO;
     }
 
