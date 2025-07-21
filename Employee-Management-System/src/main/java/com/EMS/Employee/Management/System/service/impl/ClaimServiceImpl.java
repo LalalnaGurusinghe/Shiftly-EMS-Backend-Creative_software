@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.Base64;
 
 @Service
 public class ClaimServiceImpl implements ClaimService {
@@ -36,7 +37,11 @@ public class ClaimServiceImpl implements ClaimService {
         User user = userRepo.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
         ClaimEntity entity = new ClaimEntity();
         BeanUtils.copyProperties(dto, entity);
+        if (dto.getFileData() != null) {
+            entity.setFileData(Base64.getDecoder().decode(dto.getFileData()));
+        }
         entity.setRequestedBy(user);
+        entity.setUser(user);
         entity.setStatus(ClaimStatus.PENDING);
         ClaimEntity saved = claimRepo.save(entity);
         return toDTO(saved);
@@ -60,8 +65,6 @@ public class ClaimServiceImpl implements ClaimService {
         }
         if (dto.getClaimType() != null) entity.setClaimType(dto.getClaimType());
         if (dto.getDescription() != null) entity.setDescription(dto.getDescription());
-        if (dto.getFileName() != null) entity.setFileName(dto.getFileName());
-        if (dto.getFilePath() != null) entity.setFilePath(dto.getFilePath());
         ClaimEntity saved = claimRepo.save(entity);
         return toDTO(saved);
     }
@@ -98,10 +101,14 @@ public class ClaimServiceImpl implements ClaimService {
     private ClaimDTO toDTO(ClaimEntity entity) {
         ClaimDTO dto = new ClaimDTO();
         BeanUtils.copyProperties(entity, dto);
+        if (entity.getFileData() != null) {
+            dto.setFileData(Base64.getEncoder().encodeToString(entity.getFileData()));
+        }
         dto.setRequestedById(entity.getRequestedBy().getId());
         dto.setRequestedByUsername(entity.getRequestedBy().getUsername());
         EmployeeEntity emp = employeeRepo.findByUser_Id(entity.getRequestedBy().getId());
         dto.setRequestedByFirstName(emp != null ? emp.getFirstName() : null);
+        dto.setUserId(entity.getUser() != null ? entity.getUser().getId() : null);
         return dto;
     }
 } 

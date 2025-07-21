@@ -5,6 +5,7 @@ import com.EMS.Employee.Management.System.service.EventService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.file.Files;
@@ -12,6 +13,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
+import org.springframework.security.core.Authentication;
 
 @RestController
 @RequestMapping("/api/v1/shiftly/ems/events")
@@ -47,26 +49,7 @@ public class EventController {
     // Employee: Create event
     @PostMapping("/add")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<EventDTO> createEvent(
-        @RequestPart("event") EventDTO eventDTO,
-        @RequestPart(value = "file", required = false) MultipartFile file
-    ) {
-        if (file != null && !file.isEmpty()) {
-            try {
-                String uploadDir = "uploads/events/";
-                Path uploadPath = Paths.get(uploadDir);
-                if (!Files.exists(uploadPath)) {
-                    Files.createDirectories(uploadPath);
-                }
-                String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
-                Path filePath = uploadPath.resolve(fileName);
-                Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-                eventDTO.setFileName(fileName);
-                eventDTO.setFilePath("/uploads/events/" + fileName);
-            } catch (Exception e) {
-                throw new RuntimeException("Failed to store file: " + e.getMessage());
-            }
-        }
+    public ResponseEntity<EventDTO> addEvent(@RequestBody EventDTO eventDTO, Authentication authentication) {
         return ResponseEntity.ok(eventService.createEvent(eventDTO));
     }
 
@@ -97,5 +80,11 @@ public class EventController {
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<EventDTO> getEventById(@PathVariable Long id) {
         return ResponseEntity.ok(eventService.getEventById(id));
+    }
+
+    @GetMapping("/user/{userId}")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<List<EventDTO>> getEventsByUserId(@PathVariable Long userId) {
+        return ResponseEntity.ok(eventService.getEventsByUserId(userId));
     }
 } 

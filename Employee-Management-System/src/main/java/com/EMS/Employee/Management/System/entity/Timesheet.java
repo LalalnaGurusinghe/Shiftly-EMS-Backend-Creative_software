@@ -21,6 +21,10 @@ public class Timesheet {
     @JoinColumn(name = "project_id", nullable = false)
     private ProjectEntity project;
 
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
     @Column(name = "date", nullable = false)
     private LocalDate date;
 

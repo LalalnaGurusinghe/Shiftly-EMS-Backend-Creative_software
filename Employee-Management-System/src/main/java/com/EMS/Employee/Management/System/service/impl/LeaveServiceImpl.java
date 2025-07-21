@@ -13,6 +13,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -37,6 +38,9 @@ public class LeaveServiceImpl implements LeaveService {
         LeaveEntity entity = new LeaveEntity();
         BeanUtils.copyProperties(leaveDTO, entity);
         entity.setUser(user);
+        if (leaveDTO.getFileData() != null) {
+            entity.setFileData(Base64.getDecoder().decode(leaveDTO.getFileData()));
+        }
         if (leaveDTO.getCoverPersonId() != null) {
             EmployeeEntity cover = employeeRepo.findById(leaveDTO.getCoverPersonId())
                 .orElseThrow(() -> new RuntimeException("Cover person not found"));
@@ -84,8 +88,6 @@ public class LeaveServiceImpl implements LeaveService {
                 .orElseThrow(() -> new RuntimeException("Report to not found"));
             entity.setReportTo(reportTo);
         }
-        if (leaveDTO.getFileName() != null) entity.setFileName(leaveDTO.getFileName());
-        if (leaveDTO.getFilePath() != null) entity.setFilePath(leaveDTO.getFilePath());
         LeaveEntity saved = leaveRepo.save(entity);
         return toDTO(saved);
     }
@@ -124,6 +126,9 @@ public class LeaveServiceImpl implements LeaveService {
     private LeaveDTO toDTO(LeaveEntity entity) {
         LeaveDTO dto = new LeaveDTO();
         BeanUtils.copyProperties(entity, dto);
+        if (entity.getFileData() != null) {
+            dto.setFileData(Base64.getEncoder().encodeToString(entity.getFileData()));
+        }
         if (entity.getUser() != null) {
             dto.setUserId(entity.getUser().getId());
             EmployeeEntity emp = employeeRepo.findByUser_Id(entity.getUser().getId());

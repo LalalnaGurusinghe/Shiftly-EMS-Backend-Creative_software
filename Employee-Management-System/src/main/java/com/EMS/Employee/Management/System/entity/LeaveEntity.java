@@ -45,9 +45,7 @@ public class LeaveEntity {
     @Column(name = "leave_status", nullable = false)
     private LeaveStatus leaveStatus = LeaveStatus.PENDING;
 
-    @Column(name = "file_name")
-    private String fileName;
-
-    @Column(name = "file_path")
-    private String filePath;
+    @Lob
+    @Column(name = "file_data")
+    private byte[] fileData;
 } 

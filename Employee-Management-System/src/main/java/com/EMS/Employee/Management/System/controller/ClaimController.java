@@ -6,7 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.security.core.Authentication;
 
 import java.security.Principal;
 import java.util.List;
@@ -21,16 +22,8 @@ public class ClaimController {
     // Employee: Create claim (with optional file upload)
     @PostMapping("/add")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<ClaimDTO> createClaim(@RequestPart("claim") ClaimDTO dto,
-                                                @RequestPart(value = "file", required = false) MultipartFile file,
-                                                Principal principal) {
-        // File handling logic (save file, set fileName/filePath in dto) can be added here
-        if (file != null && !file.isEmpty()) {
-            dto.setFileName(file.getOriginalFilename());
-            dto.setFilePath("/uploads/claims/" + file.getOriginalFilename()); // Example path
-        }
-        ClaimDTO result = claimService.createClaim(dto, principal.getName());
-        return ResponseEntity.ok(result);
+    public ResponseEntity<ClaimDTO> createClaim(@RequestBody ClaimDTO dto, Authentication authentication) {
+        return ResponseEntity.ok(claimService.createClaim(dto, authentication.getName()));
     }
 
     // Employee: View own claims

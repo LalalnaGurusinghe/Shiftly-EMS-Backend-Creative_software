@@ -17,15 +17,17 @@ public class ClaimEntity {
     @Column(name = "description", length = 1000)
     private String description;
 
-    @Column(name = "file_name")
-    private String fileName;
-
-    @Column(name = "file_path")
-    private String filePath;
+    @Lob
+    @Column(name = "file_data")
+    private byte[] fileData;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private ClaimStatus status = ClaimStatus.PENDING;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "requested_by", nullable = false)

@@ -20,4 +20,7 @@ public class EventDTO {
     private String status;
     private String fileName;
     private String filePath;
+    // fileData is a Base64 string for API, but is stored as byte[] in the entity
+    private String fileData;
+    private Long userId;
 } 

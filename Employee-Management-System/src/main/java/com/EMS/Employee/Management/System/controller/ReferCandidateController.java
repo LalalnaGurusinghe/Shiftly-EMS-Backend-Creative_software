@@ -6,7 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.security.core.Authentication;
 
 import java.security.Principal;
 import java.util.List;
@@ -21,16 +22,8 @@ public class ReferCandidateController {
     // Employee: Create referral (with optional resume upload)
     @PostMapping("/add")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<ReferCandidateDTO> createReferral(@RequestPart("referral") ReferCandidateDTO dto,
-                                                           @RequestPart(value = "resume", required = false) MultipartFile resume,
-                                                           Principal principal) {
-        // File handling logic (save file, set resumeFileName/resumeFilePath in dto) can be added here
-        if (resume != null && !resume.isEmpty()) {
-            dto.setResumeFileName(resume.getOriginalFilename());
-            dto.setResumeFilePath("/uploads/resumes/" + resume.getOriginalFilename()); // Example path
-        }
-        ReferCandidateDTO result = referCandidateService.createReferral(dto, principal.getName());
-        return ResponseEntity.ok(result);
+    public ResponseEntity<ReferCandidateDTO> createReferral(@RequestBody ReferCandidateDTO dto, Authentication authentication) {
+        return ResponseEntity.ok(referCandidateService.createReferral(dto, authentication.getName()));
     }
 
     // Employee: View own referrals

@@ -24,11 +24,13 @@ public class ReferCandidateEntity {
     @Column(name = "message", length = 1000)
     private String message;
 
-    @Column(name = "resume_file_name")
-    private String resumeFileName;
+    @Lob
+    @Column(name = "resume_data")
+    private byte[] resumeData;
 
-    @Column(name = "resume_file_path")
-    private String resumeFilePath;
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "referred_by", nullable = false)

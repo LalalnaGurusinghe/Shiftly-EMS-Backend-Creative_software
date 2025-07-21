@@ -12,9 +12,12 @@ public class ReferCandidateDTO {
     private String message;
     private String resumeFileName;
     private String resumeFilePath;
+    // resumeData is a Base64 string for API, but is stored as byte[] in the entity
+    private String resumeData;
     private Long referredById;
     private String referredByUsername;
     private Long referredByUserId;
     private String referredByFirstName;
     private String status;
+    private Long userId;
 } 

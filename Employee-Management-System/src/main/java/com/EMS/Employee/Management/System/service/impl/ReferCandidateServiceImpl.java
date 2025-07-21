@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.Base64;
 
 @Service
 public class ReferCandidateServiceImpl implements ReferCandidateService {
@@ -38,12 +39,16 @@ public class ReferCandidateServiceImpl implements ReferCandidateService {
     @Transactional
     public ReferCandidateDTO createReferral(ReferCandidateDTO dto, String username) {
         User user = userRepo.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
-        VacancyEntity vacancy = vacancyRepo.findById(dto.getVacancyId()).orElseThrow(() -> new RuntimeException("Vacancy not found"));
         ReferCandidateEntity entity = new ReferCandidateEntity();
         BeanUtils.copyProperties(dto, entity);
-        entity.setVacancy(vacancy);
-        entity.setReferredBy(user);
+        if (dto.getResumeData() != null) {
+            entity.setResumeData(Base64.getDecoder().decode(dto.getResumeData()));
+        }
+        entity.setUser(user);
         entity.setStatus(ReferStatus.UNREAD);
+        entity.setReferredBy(user);
+        VacancyEntity vacancy = vacancyRepo.findById(dto.getVacancyId()).orElseThrow(() -> new RuntimeException("Vacancy not found"));
+        entity.setVacancy(vacancy);
         ReferCandidateEntity saved = referCandidateRepo.save(entity);
         return toDTO(saved);
     }
@@ -67,8 +72,6 @@ public class ReferCandidateServiceImpl implements ReferCandidateService {
         if (dto.getApplicantName() != null) entity.setApplicantName(dto.getApplicantName());
         if (dto.getApplicantEmail() != null) entity.setApplicantEmail(dto.getApplicantEmail());
         if (dto.getMessage() != null) entity.setMessage(dto.getMessage());
-        if (dto.getResumeFileName() != null) entity.setResumeFileName(dto.getResumeFileName());
-        if (dto.getResumeFilePath() != null) entity.setResumeFilePath(dto.getResumeFilePath());
         if (dto.getVacancyId() != null) {
             VacancyEntity vacancy = vacancyRepo.findById(dto.getVacancyId()).orElseThrow(() -> new RuntimeException("Vacancy not found"));
             entity.setVacancy(vacancy);
@@ -109,6 +112,9 @@ public class ReferCandidateServiceImpl implements ReferCandidateService {
     private ReferCandidateDTO toDTO(ReferCandidateEntity entity) {
         ReferCandidateDTO dto = new ReferCandidateDTO();
         BeanUtils.copyProperties(entity, dto);
+        if (entity.getResumeData() != null) {
+            dto.setResumeData(Base64.getEncoder().encodeToString(entity.getResumeData()));
+        }
         dto.setVacancyId(entity.getVacancy() != null ? entity.getVacancy().getId() : null);
         dto.setVacancyName(entity.getVacancy() != null ? entity.getVacancy().getName() : null);
         dto.setReferredById(entity.getReferredBy().getId());
@@ -117,6 +123,7 @@ public class ReferCandidateServiceImpl implements ReferCandidateService {
         dto.setReferredByUserId(entity.getReferredBy().getId());
         dto.setReferredByFirstName(emp != null ? emp.getFirstName() : null);
         dto.setStatus(entity.getStatus() != null ? entity.getStatus().name() : null);
+        dto.setUserId(entity.getUser() != null ? entity.getUser().getId() : null);
         return dto;
     }
 } 

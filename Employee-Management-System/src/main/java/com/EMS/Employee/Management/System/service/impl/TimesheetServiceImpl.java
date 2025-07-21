@@ -34,6 +34,12 @@ public class TimesheetServiceImpl implements TimesheetService {
         if (employee == null) throw new RuntimeException("Employee not found");
         // Team info is removed; cannot assign project by team
         throw new UnsupportedOperationException("Project assignment by team is not supported.");
+        // Example for direct user linkage if you re-enable timesheet creation:
+        // Timesheet entity = new Timesheet();
+        // entity.setEmployee(employee);
+        // entity.setUser(user);
+        // ...
+        // return toDTO(saved);
     }
 
     // Employee: View own timesheets
@@ -77,6 +83,9 @@ public class TimesheetServiceImpl implements TimesheetService {
         if (entity.getEmployee() != null) {
             dto.setUserId(entity.getEmployee().getUser() != null ? entity.getEmployee().getUser().getId() : null);
             dto.setEmployeeFirstName(entity.getEmployee().getFirstName());
+        }
+        if (entity.getUser() != null) {
+            dto.setUserId(entity.getUser().getId());
         }
         return dto;
     }

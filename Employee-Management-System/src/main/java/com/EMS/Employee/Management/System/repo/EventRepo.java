@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface EventRepo extends JpaRepository<EventEntity, Long> {
     List<EventEntity> findByCreatedBy_EmployeeId(Integer employeeId);
+    List<EventEntity> findByUser_Id(Long userId);
 } 

@@ -6,10 +6,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
 import java.util.List;
+import org.springframework.security.core.Authentication;
 
 @RestController
 @RequestMapping("/api/v1/shiftly/ems/leaves")
@@ -21,17 +24,8 @@ public class LeaveController {
     // Employee: Apply for leave (with optional file upload)
     @PostMapping("/apply")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<LeaveDTO> applyLeave(@RequestPart("leave") LeaveDTO leaveDTO,
-                                               @RequestPart(value = "file", required = false) MultipartFile file,
-                                               Principal principal) {
-        // File handling logic (save file, set fileName/filePath in leaveDTO) can be added here
-        // For now, just set fileName and filePath if file is present
-        if (file != null && !file.isEmpty()) {
-            leaveDTO.setFileName(file.getOriginalFilename());
-            leaveDTO.setFilePath("/uploads/leaves/" + file.getOriginalFilename()); // Example path
-        }
-        LeaveDTO result = leaveService.applyLeave(leaveDTO, principal.getName());
-        return ResponseEntity.ok(result);
+    public ResponseEntity<LeaveDTO> applyLeave(@RequestBody LeaveDTO leaveDTO, Authentication authentication) {
+        return ResponseEntity.ok(leaveService.applyLeave(leaveDTO, authentication.getName()));
     }
 
     // Employee: View own leaves

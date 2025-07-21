@@ -10,6 +10,7 @@ import com.EMS.Employee.Management.System.service.EventService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -28,17 +29,20 @@ public class EventServiceImpl implements EventService {
     public EventDTO createEvent(EventDTO eventDTO) {
         EventEntity eventEntity = new EventEntity();
         BeanUtils.copyProperties(eventDTO, eventEntity);
+        if (eventDTO.getFileData() != null) {
+            eventEntity.setFileData(Base64.getDecoder().decode(eventDTO.getFileData()));
+        }
         if (eventDTO.getCreatedBy() != null) {
             EmployeeEntity employee = employeeRepo.findById(eventDTO.getCreatedBy())
                     .orElseThrow(() -> new RuntimeException("Employee not found"));
             eventEntity.setCreatedBy(employee);
+            if (employee.getUser() != null) {
+                eventEntity.setUser(employee.getUser());
+            }
         }
         eventEntity.setStatus(EventStatus.PENDING);
         EventEntity saved = eventRepo.save(eventEntity);
-        EventDTO dto = new EventDTO();
-        BeanUtils.copyProperties(saved, dto);
-        dto.setCreatedBy(saved.getCreatedBy() != null ? saved.getCreatedBy().getEmployeeId() : null);
-        dto.setStatus(saved.getStatus().name());
+        EventDTO dto = toDTO(saved);
         return dto;
     }
 
@@ -50,8 +54,6 @@ public class EventServiceImpl implements EventService {
         if (eventDTO.getEventType() != null) eventEntity.setEventType(eventDTO.getEventType());
         if (eventDTO.getEnableDate() != null) eventEntity.setEnableDate(eventDTO.getEnableDate());
         if (eventDTO.getExpireDate() != null) eventEntity.setExpireDate(eventDTO.getExpireDate());
-        if (eventDTO.getFileName() != null) eventEntity.setFileName(eventDTO.getFileName());
-        if (eventDTO.getFilePath() != null) eventEntity.setFilePath(eventDTO.getFilePath());
         EventEntity saved = eventRepo.save(eventEntity);
         EventDTO dto = new EventDTO();
         BeanUtils.copyProperties(saved, dto);
@@ -128,13 +130,27 @@ public class EventServiceImpl implements EventService {
         return dto;
     }
 
+    @Override
+    public List<EventDTO> getEventsByUserId(Long userId) {
+        return eventRepo.findByUser_Id(userId)
+            .stream()
+            .map(this::toDTO)
+            .collect(java.util.stream.Collectors.toList());
+    }
+
     private EventDTO toDTO(EventEntity entity) {
         EventDTO dto = new EventDTO();
         BeanUtils.copyProperties(entity, dto);
+        if (entity.getFileData() != null) {
+            dto.setFileData(Base64.getEncoder().encodeToString(entity.getFileData()));
+        }
         if (entity.getCreatedBy() != null) {
             dto.setCreatedBy(entity.getCreatedBy().getEmployeeId());
             dto.setCreatedByUserId(entity.getCreatedBy().getUser() != null ? entity.getCreatedBy().getUser().getId() : null);
             dto.setCreatedByFirstName(entity.getCreatedBy().getFirstName());
+        }
+        if (entity.getUser() != null) {
+            dto.setUserId(entity.getUser().getId());
         }
         dto.setStatus(entity.getStatus() != null ? entity.getStatus().name() : null);
         return dto;

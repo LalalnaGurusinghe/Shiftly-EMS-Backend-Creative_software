@@ -32,13 +32,15 @@ public class EventEntity {
     @JoinColumn(name = "created_by", nullable = false)
     private EmployeeEntity createdBy;
 
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private EventStatus status;
 
-    @Column(name = "file_name")
-    private String fileName;
-
-    @Column(name = "file_path")
-    private String filePath;
+    @Lob
+    @Column(name = "file_data")
+    private byte[] fileData;
 }

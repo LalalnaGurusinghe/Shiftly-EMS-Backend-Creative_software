@@ -12,4 +12,5 @@ public interface EventService {
     List<EventDTO> getEventsByEmployeeId(Integer employeeId);
     EventDTO approveEvent(Long id);
     EventDTO rejectEvent(Long id);
+    List<EventDTO> getEventsByUserId(Long userId);
 } 
