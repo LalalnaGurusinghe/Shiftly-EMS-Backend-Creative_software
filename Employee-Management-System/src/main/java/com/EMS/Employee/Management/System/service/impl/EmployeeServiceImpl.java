@@ -97,13 +97,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         if (employeeDTO.getGender() != null) entity.setGender(employeeDTO.getGender());
         if (employeeDTO.getDob() != null) entity.setDob(employeeDTO.getDob());
         if (employeeDTO.getLocation() != null) entity.setLocation(employeeDTO.getLocation());
-        if (employeeDTO.getDesignation() != null) entity.setDesignation(employeeDTO.getDesignation());
-        if (employeeDTO.getDepartmentId() != null) {
-            DepartmentEntity department = departmentRepo.findById(employeeDTO.getDepartmentId())
-                .orElse(null);
-            entity.setDepartment(department);
-        }
-        // Remove all logic related to team info
+        // Removed designation and department logic
         // Skills (as comma-separated string)
         if (employeeDTO.getSkills() != null) {
             entity.setSkills(employeeDTO.getSkills());
@@ -125,7 +119,6 @@ public class EmployeeServiceImpl implements EmployeeService {
     private EmployeeDTO toDTO(EmployeeEntity entity) {
         EmployeeDTO dto = new EmployeeDTO();
         BeanUtils.copyProperties(entity, dto);
-
         // User info
         if (entity.getUser() != null) {
             User user = userRepo.findById(entity.getUser().getId()).orElse(null);
@@ -134,19 +127,11 @@ public class EmployeeServiceImpl implements EmployeeService {
                 dto.setUsername(user.getUsername());
             }
         }
-
-        // Department info
-        if (entity.getDepartment() != null) {
-            dto.setDepartmentId(entity.getDepartment().getDepartmentId());
-            dto.setDepartmentName(entity.getDepartment().getName());
-        }
-
-        // Remove all logic related to team info
+        // Removed department info logic
         // Skills (as string)
         dto.setSkills(entity.getSkills());
         // Education (as string)
         dto.setEducation(entity.getEducation());
-
         return dto;
     }
 }

@@ -17,9 +17,6 @@ public class EmployeeDTO {
     private String gender;
     private String dob;
     private String location;
-    private String designation;
-    private Long departmentId;
-    private String departmentName;
     private String skills;
     private String education;
     private String username;

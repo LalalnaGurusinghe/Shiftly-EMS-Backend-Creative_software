@@ -101,25 +101,8 @@ public class EmployeeController {
             employee = new EmployeeEntity();
             employee.setUser(user);
         }
-        // Only allow admin to change departmentId and designation
         boolean isAdmin = user.getRoles().contains("ADMIN") || user.getRoles().contains("SUPER_ADMIN");
-        String originalDesignation = employee.getDesignation();
-        Long originalDepartmentId = employee.getDepartment() != null ? employee.getDepartment().getDepartmentId() : null;
-        BeanUtils.copyProperties(employeeDTO, employee, "employeeId", "user", "department", "designation");
-        if (isAdmin) {
-            if (employeeDTO.getDesignation() != null) employee.setDesignation(employeeDTO.getDesignation());
-            if (employeeDTO.getDepartmentId() != null) {
-                DepartmentEntity department = departmentRepo.findById(employeeDTO.getDepartmentId()).orElse(null);
-                if (department != null) employee.setDepartment(department);
-            }
-        } else {
-            // Non-admin: keep original values
-            employee.setDesignation(originalDesignation);
-            if (originalDepartmentId != null) {
-                DepartmentEntity department = departmentRepo.findById(originalDepartmentId).orElse(null);
-                if (department != null) employee.setDepartment(department);
-            }
-        }
+        BeanUtils.copyProperties(employeeDTO, employee, "employeeId", "user");
         employee.setUser(user);
         EmployeeEntity saved = employeeRepo.save(employee);
         EmployeeDTO dto = new EmployeeDTO();

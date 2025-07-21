@@ -35,13 +35,6 @@ public class EmployeeEntity {
     @Column(name = "location", nullable = false, length = 100)
     private String location;
 
-    @Column(name = "designation", length = 50)
-    private String designation;
-
-    @ManyToOne
-    @JoinColumn(name = "department_id")
-    private DepartmentEntity department;
-
     @Column(name = "skills", length = 1000)
     private String skills;
 
