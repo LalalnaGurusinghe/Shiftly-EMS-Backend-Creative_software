@@ -48,6 +48,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/shiftly/ems/events/all").permitAll()
                         .requestMatchers("/api/v1/shiftly/ems/events/{id}").permitAll()
                         .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/api/v1/shiftly/ems/ai-letter/**").permitAll()
 
                         // User endpoints
                         .requestMatchers("/users/**").hasAnyRole("USER", "ADMIN", "SUPER_ADMIN")
