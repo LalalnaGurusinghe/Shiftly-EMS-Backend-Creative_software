@@ -7,6 +7,7 @@ import java.time.LocalDate;
 public class LeaveDTO {
     private Long id;
     private Long userId;
+    private String employeeFirstName;
     private String username;
     private String leaveType;
     private LocalDate leaveFrom;

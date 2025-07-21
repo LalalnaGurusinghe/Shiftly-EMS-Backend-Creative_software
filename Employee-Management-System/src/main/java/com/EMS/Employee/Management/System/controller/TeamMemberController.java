@@ -39,9 +39,9 @@ public class TeamMemberController {
         Long userId = userRepo.findByUsername(username).map(u -> u.getId()).orElse(null);
         if (userId == null) return ResponseEntity.status(404).build();
         EmployeeEntity employee = employeeRepo.findByUser_Id(userId);
-        if (employee == null || employee.getTeam() == null) return ResponseEntity.status(404).build();
-        List<TeamMemberDTO> members = teamMemberService.getTeamMembersByTeamId(employee.getTeam().getTeamId());
-        return ResponseEntity.ok(members);
+        if (employee == null) return ResponseEntity.status(404).build();
+        // No team info, so just return empty list
+        return ResponseEntity.ok(List.of());
     }
 
     // Admin: Add member to team

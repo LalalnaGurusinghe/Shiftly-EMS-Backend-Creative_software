@@ -12,4 +12,5 @@ public class ClaimDTO {
     private String status;
     private Long requestedById;
     private String requestedByUsername;
+    private String requestedByFirstName;
 } 

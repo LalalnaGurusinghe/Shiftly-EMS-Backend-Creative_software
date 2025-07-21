@@ -20,9 +20,7 @@ public class EmployeeDTO {
     private String designation;
     private Long departmentId;
     private String departmentName;
-    private Integer reportingPersonId;
-    private java.util.List<SkillDTO> skills;
-    private java.util.List<EducationDTO> education;
-    private Long teamId;
-    private String teamName;
+    private String skills;
+    private String education;
+    private String username;
 }

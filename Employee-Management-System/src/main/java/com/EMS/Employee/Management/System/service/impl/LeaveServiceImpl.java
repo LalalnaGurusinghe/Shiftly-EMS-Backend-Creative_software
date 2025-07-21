@@ -124,8 +124,12 @@ public class LeaveServiceImpl implements LeaveService {
     private LeaveDTO toDTO(LeaveEntity entity) {
         LeaveDTO dto = new LeaveDTO();
         BeanUtils.copyProperties(entity, dto);
-        dto.setUserId(entity.getUser() != null ? entity.getUser().getId() : null);
-        dto.setUsername(entity.getUser() != null ? entity.getUser().getUsername() : null);
+        if (entity.getUser() != null) {
+            dto.setUserId(entity.getUser().getId());
+            EmployeeEntity emp = employeeRepo.findByUser_Id(entity.getUser().getId());
+            dto.setEmployeeFirstName(emp != null ? emp.getFirstName() : null);
+            dto.setUsername(entity.getUser().getUsername());
+        }
         dto.setCoverPersonId(entity.getCoverPerson() != null ? entity.getCoverPerson().getEmployeeId() : null);
         dto.setCoverPersonName(entity.getCoverPerson() != null ? entity.getCoverPerson().getFirstName() + " " + entity.getCoverPerson().getLastName() : null);
         dto.setReportToId(entity.getReportTo() != null ? entity.getReportTo().getEmployeeId() : null);

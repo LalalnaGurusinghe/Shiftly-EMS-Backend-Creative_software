@@ -42,17 +42,9 @@ public class EmployeeEntity {
     @JoinColumn(name = "department_id")
     private DepartmentEntity department;
 
-    @ManyToOne
-    @JoinColumn(name = "reporting_person_id")
-    private EmployeeEntity reportingPerson;
+    @Column(name = "skills", length = 1000)
+    private String skills;
 
-    @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL, orphanRemoval = true)
-    private java.util.List<SkillEntity> skills;
-
-    @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL, orphanRemoval = true)
-    private java.util.List<EducationEntity> education;
-
-    @ManyToOne
-    @JoinColumn(name = "team_id")
-    private TeamEntity team;
+    @Column(name = "education", length = 1000)
+    private String education;
 }

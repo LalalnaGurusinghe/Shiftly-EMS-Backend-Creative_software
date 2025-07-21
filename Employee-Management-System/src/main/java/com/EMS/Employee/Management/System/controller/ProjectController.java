@@ -63,8 +63,8 @@ public class ProjectController {
         Long userId = userRepo.findByUsername(username).map(u -> u.getId()).orElse(null);
         if (userId == null) return ResponseEntity.status(404).build();
         EmployeeEntity employee = employeeRepo.findByUser_Id(userId);
-        if (employee == null || employee.getTeam() == null) return ResponseEntity.status(404).build();
-        List<ProjectDTO> projects = projectService.getProjectsByTeamId(employee.getTeam().getTeamId());
-        return ResponseEntity.ok(projects);
+        if (employee == null) return ResponseEntity.status(404).build();
+        // No team info, so just return empty list
+        return ResponseEntity.ok(List.of());
     }
 } 

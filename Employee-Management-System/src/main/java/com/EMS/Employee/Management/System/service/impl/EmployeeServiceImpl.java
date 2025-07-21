@@ -7,6 +7,11 @@ import com.EMS.Employee.Management.System.repo.EmployeeRepo;
 import com.EMS.Employee.Management.System.service.EmployeeService;
 import com.EMS.Employee.Management.System.repo.DepartmentRepo;
 import com.EMS.Employee.Management.System.entity.DepartmentEntity;
+import com.EMS.Employee.Management.System.dto.SkillDTO;
+import com.EMS.Employee.Management.System.dto.EducationDTO;
+import com.EMS.Employee.Management.System.repo.TeamRepo;
+import com.EMS.Employee.Management.System.entity.TeamEntity;
+import com.EMS.Employee.Management.System.repo.UserRepo;
 import jakarta.validation.ValidationException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
@@ -22,10 +27,14 @@ import java.util.stream.Collectors;
 public class EmployeeServiceImpl implements EmployeeService {
     private final EmployeeRepo employeeRepo;
     private final DepartmentRepo departmentRepo;
+    private final TeamRepo teamRepo;
+    private final UserRepo userRepo;
 
-    public EmployeeServiceImpl(EmployeeRepo employeeRepo, DepartmentRepo departmentRepo) {
+    public EmployeeServiceImpl(EmployeeRepo employeeRepo, DepartmentRepo departmentRepo, TeamRepo teamRepo, UserRepo userRepo) {
         this.employeeRepo = employeeRepo;
         this.departmentRepo = departmentRepo;
+        this.teamRepo = teamRepo;
+        this.userRepo = userRepo;
     }
 
     @Override
@@ -34,8 +43,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         BeanUtils.copyProperties(employeeDTO, employeeEntity);
         // Set User reference from userId
         if (employeeDTO.getUserId() != null) {
-            User user = new User();
-            user.setId(employeeDTO.getUserId());
+            User user = userRepo.findById(employeeDTO.getUserId()).orElse(null);
             employeeEntity.setUser(user);
         }
         EmployeeEntity savedEntity = employeeRepo.save(employeeEntity);
@@ -95,41 +103,50 @@ public class EmployeeServiceImpl implements EmployeeService {
                 .orElse(null);
             entity.setDepartment(department);
         }
-        if (employeeDTO.getReportingPersonId() != null) {
-            EmployeeEntity reportingPerson = employeeRepo.findById(employeeDTO.getReportingPersonId())
-                .orElse(null);
-            entity.setReportingPerson(reportingPerson);
-        }
+        // Remove all logic related to team info
+        // Skills (as comma-separated string)
         if (employeeDTO.getSkills() != null) {
-            List<com.EMS.Employee.Management.System.entity.SkillEntity> skillEntities = employeeDTO.getSkills().stream().map(dto -> {
-                com.EMS.Employee.Management.System.entity.SkillEntity skill = new com.EMS.Employee.Management.System.entity.SkillEntity();
-                skill.setId(dto.getId());
-                skill.setName(dto.getName());
-                skill.setEmployee(entity);
-                return skill;
-            }).collect(Collectors.toList());
-            entity.setSkills(skillEntities);
+            entity.setSkills(employeeDTO.getSkills());
         }
+        // Education (as comma-separated string)
         if (employeeDTO.getEducation() != null) {
-            List<com.EMS.Employee.Management.System.entity.EducationEntity> educationEntities = employeeDTO.getEducation().stream().map(dto -> {
-                com.EMS.Employee.Management.System.entity.EducationEntity education = new com.EMS.Employee.Management.System.entity.EducationEntity();
-                education.setId(dto.getId());
-                education.setName(dto.getName());
-                education.setEmployee(entity);
-                return education;
-            }).collect(Collectors.toList());
-            entity.setEducation(educationEntities);
+            entity.setEducation(employeeDTO.getEducation());
         }
         // Set User reference from userId if provided
         if (employeeDTO.getUserId() != null) {
-            User user = new User();
-            user.setId(employeeDTO.getUserId());
+            User user = userRepo.findById(employeeDTO.getUserId()).orElse(null);
             entity.setUser(user);
         }
         employeeRepo.save(entity);
-        EmployeeDTO updatedDTO = new EmployeeDTO();
-        BeanUtils.copyProperties(entity, updatedDTO);
-        updatedDTO.setUserId(entity.getUser() != null ? entity.getUser().getId() : null);
+        EmployeeDTO updatedDTO = toDTO(entity);
         return ResponseEntity.ok(updatedDTO);
+    }
+
+    private EmployeeDTO toDTO(EmployeeEntity entity) {
+        EmployeeDTO dto = new EmployeeDTO();
+        BeanUtils.copyProperties(entity, dto);
+
+        // User info
+        if (entity.getUser() != null) {
+            User user = userRepo.findById(entity.getUser().getId()).orElse(null);
+            if (user != null) {
+                dto.setUserId(user.getId());
+                dto.setUsername(user.getUsername());
+            }
+        }
+
+        // Department info
+        if (entity.getDepartment() != null) {
+            dto.setDepartmentId(entity.getDepartment().getDepartmentId());
+            dto.setDepartmentName(entity.getDepartment().getName());
+        }
+
+        // Remove all logic related to team info
+        // Skills (as string)
+        dto.setSkills(entity.getSkills());
+        // Education (as string)
+        dto.setEducation(entity.getEducation());
+
+        return dto;
     }
 }

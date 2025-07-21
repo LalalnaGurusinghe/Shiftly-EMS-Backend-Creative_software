@@ -4,8 +4,10 @@ import com.EMS.Employee.Management.System.dto.ClaimDTO;
 import com.EMS.Employee.Management.System.entity.ClaimEntity;
 import com.EMS.Employee.Management.System.entity.ClaimStatus;
 import com.EMS.Employee.Management.System.entity.User;
+import com.EMS.Employee.Management.System.entity.EmployeeEntity;
 import com.EMS.Employee.Management.System.repo.ClaimRepo;
 import com.EMS.Employee.Management.System.repo.UserRepo;
+import com.EMS.Employee.Management.System.repo.EmployeeRepo;
 import com.EMS.Employee.Management.System.service.ClaimService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -19,10 +21,12 @@ import java.util.stream.Collectors;
 public class ClaimServiceImpl implements ClaimService {
     private final ClaimRepo claimRepo;
     private final UserRepo userRepo;
+    private final EmployeeRepo employeeRepo;
 
-    public ClaimServiceImpl(ClaimRepo claimRepo, UserRepo userRepo) {
+    public ClaimServiceImpl(ClaimRepo claimRepo, UserRepo userRepo, EmployeeRepo employeeRepo) {
         this.claimRepo = claimRepo;
         this.userRepo = userRepo;
+        this.employeeRepo = employeeRepo;
     }
 
     // Employee: Create claim
@@ -94,9 +98,10 @@ public class ClaimServiceImpl implements ClaimService {
     private ClaimDTO toDTO(ClaimEntity entity) {
         ClaimDTO dto = new ClaimDTO();
         BeanUtils.copyProperties(entity, dto);
-        dto.setRequestedById(entity.getRequestedBy() != null ? entity.getRequestedBy().getId() : null);
-        dto.setRequestedByUsername(entity.getRequestedBy() != null ? entity.getRequestedBy().getUsername() : null);
-        dto.setStatus(entity.getStatus() != null ? entity.getStatus().name() : null);
+        dto.setRequestedById(entity.getRequestedBy().getId());
+        dto.setRequestedByUsername(entity.getRequestedBy().getUsername());
+        EmployeeEntity emp = employeeRepo.findByUser_Id(entity.getRequestedBy().getId());
+        dto.setRequestedByFirstName(emp != null ? emp.getFirstName() : null);
         return dto;
     }
 } 

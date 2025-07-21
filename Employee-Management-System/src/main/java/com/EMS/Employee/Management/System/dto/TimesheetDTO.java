@@ -13,4 +13,6 @@ public class TimesheetDTO {
     private Double workingHours;
     private String activities;
     private String status;
+    private Long userId;
+    private String employeeFirstName;
 } 

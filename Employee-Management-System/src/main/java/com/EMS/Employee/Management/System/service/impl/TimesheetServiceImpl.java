@@ -32,23 +32,8 @@ public class TimesheetServiceImpl implements TimesheetService {
         User user = userRepo.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
         EmployeeEntity employee = employeeRepo.findByUser_Id(user.getId());
         if (employee == null) throw new RuntimeException("Employee not found");
-        if (employee.getTeam() == null) throw new RuntimeException("Employee not assigned to a team");
-        // Find project for the team
-        List<ProjectEntity> projects = projectRepo.findByTeam_TeamId(employee.getTeam().getTeamId());
-        if (projects.isEmpty()) throw new RuntimeException("No project assigned to your team");
-        ProjectEntity project = projects.get(0); // If multiple, pick the first (or enhance logic)
-        if (timesheetRepo.existsByEmployee_EmployeeIdAndDate(employee.getEmployeeId(), dto.getDate())) {
-            throw new RuntimeException("Timesheet for this date already exists");
-        }
-        Timesheet entity = new Timesheet();
-        entity.setEmployee(employee);
-        entity.setProject(project);
-        entity.setDate(dto.getDate());
-        entity.setWorkingHours(dto.getWorkingHours());
-        entity.setActivities(dto.getActivities());
-        entity.setStatus(TimesheetStatus.PENDING);
-        Timesheet saved = timesheetRepo.save(entity);
-        return toDTO(saved);
+        // Team info is removed; cannot assign project by team
+        throw new UnsupportedOperationException("Project assignment by team is not supported.");
     }
 
     // Employee: View own timesheets
@@ -89,10 +74,10 @@ public class TimesheetServiceImpl implements TimesheetService {
     private TimesheetDTO toDTO(Timesheet entity) {
         TimesheetDTO dto = new TimesheetDTO();
         BeanUtils.copyProperties(entity, dto);
-        dto.setEmployeeId(entity.getEmployee() != null ? entity.getEmployee().getEmployeeId() : null);
-        dto.setProjectId(entity.getProject() != null ? entity.getProject().getProjectId() : null);
-        dto.setProjectName(entity.getProject() != null ? entity.getProject().getName() : null);
-        dto.setStatus(entity.getStatus() != null ? entity.getStatus().name() : null);
+        if (entity.getEmployee() != null) {
+            dto.setUserId(entity.getEmployee().getUser() != null ? entity.getEmployee().getUser().getId() : null);
+            dto.setEmployeeFirstName(entity.getEmployee().getFirstName());
+        }
         return dto;
     }
 } 

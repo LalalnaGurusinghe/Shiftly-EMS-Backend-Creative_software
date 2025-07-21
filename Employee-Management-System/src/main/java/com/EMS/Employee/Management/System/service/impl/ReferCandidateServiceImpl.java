@@ -5,9 +5,11 @@ import com.EMS.Employee.Management.System.entity.ReferCandidateEntity;
 import com.EMS.Employee.Management.System.entity.ReferStatus;
 import com.EMS.Employee.Management.System.entity.User;
 import com.EMS.Employee.Management.System.entity.VacancyEntity;
+import com.EMS.Employee.Management.System.entity.EmployeeEntity;
 import com.EMS.Employee.Management.System.repo.ReferCandidateRepo;
 import com.EMS.Employee.Management.System.repo.UserRepo;
 import com.EMS.Employee.Management.System.repo.VacancyRepo;
+import com.EMS.Employee.Management.System.repo.EmployeeRepo;
 import com.EMS.Employee.Management.System.service.ReferCandidateService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -22,11 +24,13 @@ public class ReferCandidateServiceImpl implements ReferCandidateService {
     private final ReferCandidateRepo referCandidateRepo;
     private final UserRepo userRepo;
     private final VacancyRepo vacancyRepo;
+    private final EmployeeRepo employeeRepo;
 
-    public ReferCandidateServiceImpl(ReferCandidateRepo referCandidateRepo, UserRepo userRepo, VacancyRepo vacancyRepo) {
+    public ReferCandidateServiceImpl(ReferCandidateRepo referCandidateRepo, UserRepo userRepo, VacancyRepo vacancyRepo, EmployeeRepo employeeRepo) {
         this.referCandidateRepo = referCandidateRepo;
         this.userRepo = userRepo;
         this.vacancyRepo = vacancyRepo;
+        this.employeeRepo = employeeRepo;
     }
 
     // Employee: Create referral
@@ -107,8 +111,11 @@ public class ReferCandidateServiceImpl implements ReferCandidateService {
         BeanUtils.copyProperties(entity, dto);
         dto.setVacancyId(entity.getVacancy() != null ? entity.getVacancy().getId() : null);
         dto.setVacancyName(entity.getVacancy() != null ? entity.getVacancy().getName() : null);
-        dto.setReferredById(entity.getReferredBy() != null ? entity.getReferredBy().getId() : null);
-        dto.setReferredByUsername(entity.getReferredBy() != null ? entity.getReferredBy().getUsername() : null);
+        dto.setReferredById(entity.getReferredBy().getId());
+        dto.setReferredByUsername(entity.getReferredBy().getUsername());
+        EmployeeEntity emp = employeeRepo.findByUser_Id(entity.getReferredBy().getId());
+        dto.setReferredByUserId(entity.getReferredBy().getId());
+        dto.setReferredByFirstName(emp != null ? emp.getFirstName() : null);
         dto.setStatus(entity.getStatus() != null ? entity.getStatus().name() : null);
         return dto;
     }

@@ -14,5 +14,7 @@ public class ReferCandidateDTO {
     private String resumeFilePath;
     private Long referredById;
     private String referredByUsername;
+    private Long referredByUserId;
+    private String referredByFirstName;
     private String status;
 } 

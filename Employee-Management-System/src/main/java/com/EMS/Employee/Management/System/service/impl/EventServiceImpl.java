@@ -127,4 +127,16 @@ public class EventServiceImpl implements EventService {
         dto.setStatus(saved.getStatus().name());
         return dto;
     }
+
+    private EventDTO toDTO(EventEntity entity) {
+        EventDTO dto = new EventDTO();
+        BeanUtils.copyProperties(entity, dto);
+        if (entity.getCreatedBy() != null) {
+            dto.setCreatedBy(entity.getCreatedBy().getEmployeeId());
+            dto.setCreatedByUserId(entity.getCreatedBy().getUser() != null ? entity.getCreatedBy().getUser().getId() : null);
+            dto.setCreatedByFirstName(entity.getCreatedBy().getFirstName());
+        }
+        dto.setStatus(entity.getStatus() != null ? entity.getStatus().name() : null);
+        return dto;
+    }
 } 

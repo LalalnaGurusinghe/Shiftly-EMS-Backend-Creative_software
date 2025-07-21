@@ -15,6 +15,8 @@ public class EventDTO {
     private LocalDate enableDate;
     private LocalDate expireDate;
     private Integer createdBy; // employeeId
+    private Long createdByUserId;
+    private String createdByFirstName;
     private String status;
     private String fileName;
     private String filePath;

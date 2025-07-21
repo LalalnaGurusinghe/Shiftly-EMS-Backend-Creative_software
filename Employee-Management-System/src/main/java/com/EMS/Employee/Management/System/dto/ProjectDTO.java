@@ -15,4 +15,6 @@ public class ProjectDTO {
     private Long departmentId;
     private String departmentName;
     private int progress;
+    private Long createdByUserId;
+    private String createdByFirstName;
 } 

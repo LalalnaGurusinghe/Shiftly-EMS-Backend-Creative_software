@@ -51,23 +51,14 @@ public class TeamServiceImpl implements TeamService {
     @Override
     @Transactional
     public TeamDTO assignEmployeeToTeam(Long employeeId, Long teamId) {
-        EmployeeEntity employee = employeeRepo.findById(employeeId.intValue())
-                .orElseThrow(() -> new RuntimeException("Employee not found"));
-        TeamEntity team = teamRepo.findById(teamId)
-                .orElseThrow(() -> new RuntimeException("Team not found"));
-        employee.setTeam(team);
-        employeeRepo.save(employee);
-        return toDTO(team);
+        // Team assignment is no longer supported
+        throw new UnsupportedOperationException("Team assignment is not supported.");
     }
 
-    // Employee: Get own team
     @Override
     public TeamDTO getEmployeeTeam(Long employeeId) {
-        EmployeeEntity employee = employeeRepo.findById(employeeId.intValue())
-                .orElseThrow(() -> new RuntimeException("Employee not found"));
-        TeamEntity team = employee.getTeam();
-        if (team == null) return null;
-        return toDTO(team);
+        // Team info is no longer available
+        return null;
     }
 
     // Helper: Entity to DTO

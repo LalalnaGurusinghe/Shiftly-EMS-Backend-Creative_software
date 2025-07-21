@@ -83,6 +83,7 @@ public class EmployeeController {
         EmployeeDTO dto = new EmployeeDTO();
         BeanUtils.copyProperties(employee, dto);
         dto.setUserId(user.getId());
+        dto.setUsername(user.getUsername());
         return ResponseEntity.ok(dto);
     }
 
@@ -124,6 +125,7 @@ public class EmployeeController {
         EmployeeDTO dto = new EmployeeDTO();
         BeanUtils.copyProperties(saved, dto);
         dto.setUserId(user.getId());
+        dto.setUsername(user.getUsername());
         return ResponseEntity.ok(dto);
     }
 }
