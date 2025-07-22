@@ -24,19 +24,14 @@ public class ReferCandidateEntity {
     @Column(name = "message", length = 1000)
     private String message;
 
-    @Lob
-    @Column(name = "resume_data")
-    private byte[] resumeData;
-
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
-
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "referred_by", nullable = false)
-    private User referredBy;
+    @Column(name = "file_url")
+    private String fileUrl;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private ReferStatus status = ReferStatus.UNREAD;
-} 
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+}
