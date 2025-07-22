@@ -16,18 +16,22 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
+import com.EMS.Employee.Management.System.entity.User;
+import com.EMS.Employee.Management.System.repo.UserRepo;
 
 @Service
 public class ProjectServiceImpl implements ProjectService {
     private final ProjectRepo projectRepo;
     private final TeamRepo teamRepo;
     private final DepartmentRepo departmentRepo;
+    private final UserRepo userRepo;
 
     @Autowired
-    public ProjectServiceImpl(ProjectRepo projectRepo, TeamRepo teamRepo, DepartmentRepo departmentRepo) {
+    public ProjectServiceImpl(ProjectRepo projectRepo, TeamRepo teamRepo, DepartmentRepo departmentRepo, UserRepo userRepo) {
         this.projectRepo = projectRepo;
         this.teamRepo = teamRepo;
         this.departmentRepo = departmentRepo;
+        this.userRepo = userRepo;
     }
 
     // Admin: Create project
@@ -36,6 +40,7 @@ public class ProjectServiceImpl implements ProjectService {
     public ProjectDTO createProject(ProjectDTO dto) {
         TeamEntity team = null;
         DepartmentEntity department = null;
+        User createdBy = null;
 
         if (dto.getTeamName() != null) {
             team = teamRepo.findByName(dto.getTeamName())
@@ -53,10 +58,18 @@ public class ProjectServiceImpl implements ProjectService {
                     .orElseThrow(() -> new RuntimeException("Department not found"));
         }
 
+        if (dto.getCreatedByUserId() != null) {
+            createdBy = userRepo.findById(dto.getCreatedByUserId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        } else {
+            throw new RuntimeException("Created by userId is required");
+        }
+
         ProjectEntity entity = new ProjectEntity();
         BeanUtils.copyProperties(dto, entity);
         entity.setTeam(team);
         entity.setDepartment(department);
+        entity.setCreatedBy(createdBy);
         entity.setProgress(dto.getProgress());
         ProjectEntity saved = projectRepo.save(entity);
         return toDTO(saved);
@@ -111,6 +124,8 @@ public class ProjectServiceImpl implements ProjectService {
         dto.setDepartmentId(entity.getDepartment() != null ? entity.getDepartment().getDepartmentId() : null);
         dto.setDepartmentName(entity.getDepartment() != null ? entity.getDepartment().getName() : null);
         dto.setProgress(entity.getProgress());
+        dto.setCreatedByUserId(entity.getCreatedBy() != null ? entity.getCreatedBy().getId() : null);
+        dto.setCreatedByFirstName(entity.getCreatedBy() != null ? entity.getCreatedBy().getUsername() : null);
         return dto;
     }
 } 

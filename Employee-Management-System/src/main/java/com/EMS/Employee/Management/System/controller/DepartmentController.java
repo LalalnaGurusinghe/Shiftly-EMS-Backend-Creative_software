@@ -20,4 +20,10 @@ public class DepartmentController {
         List<DepartmentDTO> departments = departmentService.getAllDepartments();
         return ResponseEntity.ok(departments);
     }
+
+    @GetMapping("/name/{departmentId}")
+    public ResponseEntity<String> getDepartmentNameById(@PathVariable Long departmentId) {
+        String name = departmentService.getDepartmentNameById(departmentId);
+        return name != null ? ResponseEntity.ok(name) : ResponseEntity.notFound().build();
+    }
 } 

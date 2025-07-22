@@ -121,6 +121,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 "Assigned Role: " + displayRole + "\n" +
                 "Designation: " + (designation != null ? designation : "-") + "\n" +
                 "Department: " + (!departmentName.isEmpty() ? departmentName : "-") + "\n" +
+                "Reporting Person: " + (user.getReportingPerson() != null ? user.getReportingPerson() : "-") + "\n" +
+                "Reporting Person Email: " + (user.getReportingPersonEmail() != null ? user.getReportingPersonEmail() : "-") + "\n" +
                 "Username: " + user.getUsername() + "\n" +
                 "Please log in using your credentials at: http://localhost:3000/login\n\n" +
                 "Best regards,\nEmployee Management Team";

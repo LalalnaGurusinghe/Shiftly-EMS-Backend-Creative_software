@@ -26,4 +26,9 @@ public class DepartmentServiceImpl implements DepartmentService {
             return dto;
         }).collect(Collectors.toList());
     }
+
+    @Override
+    public String getDepartmentNameById(Long departmentId) {
+        return departmentRepo.findById(departmentId).map(DepartmentEntity::getName).orElse(null);
+    }
 } 

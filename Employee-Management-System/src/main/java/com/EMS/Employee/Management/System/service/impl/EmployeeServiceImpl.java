@@ -7,8 +7,6 @@ import com.EMS.Employee.Management.System.repo.EmployeeRepo;
 import com.EMS.Employee.Management.System.service.EmployeeService;
 import com.EMS.Employee.Management.System.repo.DepartmentRepo;
 import com.EMS.Employee.Management.System.entity.DepartmentEntity;
-import com.EMS.Employee.Management.System.dto.SkillDTO;
-import com.EMS.Employee.Management.System.dto.EducationDTO;
 import com.EMS.Employee.Management.System.repo.TeamRepo;
 import com.EMS.Employee.Management.System.entity.TeamEntity;
 import com.EMS.Employee.Management.System.repo.UserRepo;
@@ -50,6 +48,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         employeeEntity.setSkills(employeeDTO.getSkills());
         employeeEntity.setEducation(employeeDTO.getEducation());
         employeeEntity.setExperience(employeeDTO.getExperience());
+        employeeEntity.setTeamName(employeeDTO.getTeamName());
         EmployeeEntity savedEntity = employeeRepo.save(employeeEntity);
         employeeDTO.setEmployeeId(savedEntity.getEmployeeId());
         return ResponseEntity.status(HttpStatus.CREATED).body(employeeDTO);
@@ -104,6 +103,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         if (employeeDTO.getSkills() != null) entity.setSkills(employeeDTO.getSkills());
         if (employeeDTO.getEducation() != null) entity.setEducation(employeeDTO.getEducation());
         if (employeeDTO.getExperience() != null) entity.setExperience(employeeDTO.getExperience());
+        if (employeeDTO.getTeamName() != null) entity.setTeamName(employeeDTO.getTeamName());
         // Set User reference from userId if provided
         if (employeeDTO.getUserId() != null) {
             User user = userRepo.findById(employeeDTO.getUserId()).orElse(null);
@@ -128,6 +128,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         dto.setSkills(entity.getSkills());
         dto.setEducation(entity.getEducation());
         dto.setExperience(entity.getExperience());
+        dto.setTeamName(entity.getTeamName());
         return dto;
     }
 }

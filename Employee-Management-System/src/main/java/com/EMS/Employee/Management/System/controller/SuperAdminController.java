@@ -37,7 +37,14 @@ public class SuperAdminController {
     @PutMapping("/employee/{id}/verify")
     public ResponseEntity<UserDTO> verifyEmployee(@PathVariable Long id, @RequestBody VerifyUserRequestDTO verifyDTO) {
         try {
-            UserDTO updatedUser = userService.verifyAndUpdateUserRoleAndProfile(id, verifyDTO.getRole(), verifyDTO.getDesignation(), verifyDTO.getDepartment());
+            UserDTO updatedUser = userService.verifyAndUpdateUserRoleAndProfile(
+                id,
+                verifyDTO.getRole(),
+                verifyDTO.getDesignation(),
+                verifyDTO.getDepartment(),
+                verifyDTO.getReportingPerson(),
+                verifyDTO.getReportingPersonEmail()
+            );
             User user = userService.getUserEntityById(id);
             authenticationService.sendVerificationEmail(user, verifyDTO.getRole(), verifyDTO.getDesignation(), verifyDTO.getDepartment());
             return ResponseEntity.ok(updatedUser);

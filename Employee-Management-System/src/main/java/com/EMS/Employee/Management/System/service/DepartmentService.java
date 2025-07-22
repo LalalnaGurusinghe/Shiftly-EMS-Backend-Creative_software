@@ -5,4 +5,5 @@ import java.util.List;
 
 public interface DepartmentService {
     List<DepartmentDTO> getAllDepartments();
+    String getDepartmentNameById(Long departmentId);
 } 

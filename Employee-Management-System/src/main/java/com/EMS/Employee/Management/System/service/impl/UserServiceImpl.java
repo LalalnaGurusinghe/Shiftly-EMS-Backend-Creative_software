@@ -78,9 +78,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void deleteUser(Long id) {
-        User user = userRepo.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
-        userRepo.delete(user);
+        // Delete employee entry by user id first
+        EmployeeEntity employee = employeeRepo.findByUser_Id(id);
+        if (employee != null) {
+            employeeRepo.delete(employee);
+        }
+        userRepo.deleteById(id);
     }
 
     @Override
@@ -132,36 +137,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public UserDTO verifyAndUpdateUserRoleAndProfile(Long id, String role, String designation, String department) {
-        if (!isValidRole(role)) {
-            throw new IllegalArgumentException("Invalid role specified: " + role);
-        }
-        User user = userRepo.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
-        Set<String> roles = new HashSet<>();
-        switch (role.toUpperCase()) {
-            case "SUPER_ADMIN":
-                roles.add("SUPER_ADMIN");
-                roles.add("ADMIN");
-                roles.add("USER");
-                break;
-            case "ADMIN":
-                roles.add("ADMIN");
-                roles.add("USER");
-                break;
-            case "USER":
-                roles.add("USER");
-                break;
-        }
-        user.setRoles(roles);
-        user.setVerified(true);
-        if (designation != null) user.setDesignation(designation);
-        if (department != null) user.setDepartment(department);
-        userRepo.save(user);
-        return convertToUserDTO(user);
-    }
-
-    @Override
-    @Transactional
     public List<UserDTO> verifyAllUnverifiedEmployees(String role) {
         if (!isValidRole(role)) {
             throw new IllegalArgumentException("Invalid role specified: " + role);
@@ -191,6 +166,38 @@ public class UserServiceImpl implements UserService {
         return unverifiedUsers.stream()
                 .map(this::convertToUserDTO)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public UserDTO verifyAndUpdateUserRoleAndProfile(Long id, String role, String designation, String department, String reportingPerson, String reportingPersonEmail) {
+        if (!isValidRole(role)) {
+            throw new IllegalArgumentException("Invalid role specified: " + role);
+        }
+        User user = userRepo.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
+        Set<String> roles = new HashSet<>();
+        switch (role.toUpperCase()) {
+            case "SUPER_ADMIN":
+                roles.add("SUPER_ADMIN");
+                roles.add("ADMIN");
+                roles.add("USER");
+                break;
+            case "ADMIN":
+                roles.add("ADMIN");
+                roles.add("USER");
+                break;
+            case "USER":
+                roles.add("USER");
+                break;
+        }
+        user.setRoles(roles);
+        user.setVerified(true);
+        if (designation != null) user.setDesignation(designation);
+        if (department != null) user.setDepartment(department);
+        if (reportingPerson != null) user.setReportingPerson(reportingPerson);
+        if (reportingPersonEmail != null) user.setReportingPersonEmail(reportingPersonEmail);
+        userRepo.save(user);
+        return convertToUserDTO(user);
     }
 
     private boolean isValidRole(String role) {

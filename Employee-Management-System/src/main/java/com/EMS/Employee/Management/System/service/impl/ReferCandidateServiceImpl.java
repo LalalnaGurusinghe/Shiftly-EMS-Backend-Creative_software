@@ -46,7 +46,8 @@ public class ReferCandidateServiceImpl implements ReferCandidateService {
         }
         entity.setUser(user);
         entity.setStatus(ReferStatus.UNREAD);
-        VacancyEntity vacancy = vacancyRepo.findById(dto.getVacancyId()).orElseThrow(() -> new RuntimeException("Vacancy not found"));
+        VacancyEntity vacancy = vacancyRepo.findByName(dto.getVacancyName());
+        if (vacancy == null) throw new RuntimeException("Vacancy not found");
         entity.setVacancy(vacancy);
         ReferCandidateEntity saved = referCandidateRepo.save(entity);
         return toDTO(saved);
@@ -71,8 +72,9 @@ public class ReferCandidateServiceImpl implements ReferCandidateService {
         if (dto.getApplicantName() != null) entity.setApplicantName(dto.getApplicantName());
         if (dto.getApplicantEmail() != null) entity.setApplicantEmail(dto.getApplicantEmail());
         if (dto.getMessage() != null) entity.setMessage(dto.getMessage());
-        if (dto.getVacancyId() != null) {
-            VacancyEntity vacancy = vacancyRepo.findById(dto.getVacancyId()).orElseThrow(() -> new RuntimeException("Vacancy not found"));
+        if (dto.getVacancyName() != null) {
+            VacancyEntity vacancy = vacancyRepo.findByName(dto.getVacancyName());
+            if (vacancy == null) throw new RuntimeException("Vacancy not found");
             entity.setVacancy(vacancy);
         }
         ReferCandidateEntity saved = referCandidateRepo.save(entity);
@@ -114,7 +116,6 @@ public class ReferCandidateServiceImpl implements ReferCandidateService {
         if (entity.getResumeData() != null) {
             dto.setResumeData(Base64.getEncoder().encodeToString(entity.getResumeData()));
         }
-        dto.setVacancyId(entity.getVacancy() != null ? entity.getVacancy().getId() : null);
         dto.setVacancyName(entity.getVacancy() != null ? entity.getVacancy().getName() : null);
         dto.setStatus(entity.getStatus() != null ? entity.getStatus().name() : null);
         dto.setUserId(entity.getUser() != null ? entity.getUser().getId() : null);

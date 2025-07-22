@@ -28,37 +28,24 @@ public class TeamServiceImpl implements TeamService {
         this.employeeRepo = employeeRepo;
     }
 
-    // Admin: Create team
     @Override
-    @Transactional
-    public TeamDTO createTeam(TeamDTO dto) {
-        DepartmentEntity department = departmentRepo.findById(dto.getDepartmentId())
-                .orElseThrow(() -> new RuntimeException("Department not found"));
-        TeamEntity entity = new TeamEntity();
-        BeanUtils.copyProperties(dto, entity);
-        entity.setDepartment(department);
-        TeamEntity saved = teamRepo.save(entity);
-        return toDTO(saved);
+    public List<TeamDTO> getAllTeams() {
+        return teamRepo.findAll().stream().map(this::toDTO).collect(Collectors.toList());
     }
 
-    // Admin: Get teams by department
     @Override
     public List<TeamDTO> getTeamsByDepartment(Long departmentId) {
         return teamRepo.findByDepartment_DepartmentId(departmentId).stream().map(this::toDTO).collect(Collectors.toList());
     }
 
-    // Admin: Assign employee to team (one team per employee)
     @Override
-    @Transactional
-    public TeamDTO assignEmployeeToTeam(Long employeeId, Long teamId) {
-        // Team assignment is no longer supported
-        throw new UnsupportedOperationException("Team assignment is not supported.");
+    public String getTeamNameById(Long teamId) {
+        return teamRepo.findById(teamId).map(TeamEntity::getName).orElse(null);
     }
 
     @Override
-    public TeamDTO getEmployeeTeam(Long employeeId) {
-        // Team info is no longer available
-        return null;
+    public String getDepartmentNameById(Long departmentId) {
+        return departmentRepo.findById(departmentId).map(DepartmentEntity::getName).orElse(null);
     }
 
     // Helper: Entity to DTO

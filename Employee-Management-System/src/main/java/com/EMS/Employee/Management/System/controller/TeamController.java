@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 import java.util.List;
 import com.EMS.Employee.Management.System.entity.EmployeeEntity;
+import com.EMS.Employee.Management.System.repo.TeamRepo;
+import com.EMS.Employee.Management.System.repo.DepartmentRepo;
 
 @RestController
 @RequestMapping("/api/v1/shiftly/ems/teams")
@@ -22,42 +24,36 @@ public class TeamController {
     private UserRepo userRepo;
     @Autowired
     private EmployeeRepo employeeRepo;
+    @Autowired
+    private TeamRepo teamRepo;
+    @Autowired
+    private DepartmentRepo departmentRepo;
 
-    // Admin: Create team
-    @PostMapping("/add")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<TeamDTO> createTeam(@RequestBody TeamDTO dto) {
-        TeamDTO result = teamService.createTeam(dto);
-        return ResponseEntity.ok(result);
+    @GetMapping("/all")
+    public ResponseEntity<List<TeamDTO>> getAllTeams() {
+        List<TeamDTO> teams = teamService.getAllTeams();
+        return ResponseEntity.ok(teams);
     }
 
-    // Admin: Get teams by department
     @GetMapping("/by-department/{departmentId}")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<TeamDTO>> getTeamsByDepartment(@PathVariable Long departmentId) {
         List<TeamDTO> teams = teamService.getTeamsByDepartment(departmentId);
         return ResponseEntity.ok(teams);
     }
 
-    // Admin: Assign employee to team
-    @PutMapping("/assign/{employeeId}/{teamId}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<TeamDTO> assignEmployeeToTeam(@PathVariable Long employeeId, @PathVariable Long teamId) {
-        TeamDTO result = teamService.assignEmployeeToTeam(employeeId, teamId);
-        return ResponseEntity.ok(result);
+    @GetMapping("/name/{teamId}")
+    public ResponseEntity<String> getTeamNameById(@PathVariable Long teamId) {
+        return teamRepo.findById(teamId)
+                .map(team -> ResponseEntity.ok(team.getName()))
+                .orElse(ResponseEntity.notFound().build());
     }
 
-    // Employee: View own team
-    @GetMapping("/my")
-    @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<TeamDTO> getOwnTeam(Principal principal) {
-        String username = principal.getName();
-        Long userId = userRepo.findByUsername(username).map(u -> u.getId()).orElse(null);
-        if (userId == null) return ResponseEntity.status(404).build();
-        EmployeeEntity employee = employeeRepo.findByUser_Id(userId);
-        if (employee == null) return ResponseEntity.status(404).build();
-        TeamDTO team = teamService.getEmployeeTeam((long) employee.getEmployeeId());
-        if (team == null) return ResponseEntity.notFound().build();
-        return ResponseEntity.ok(team);
+    @GetMapping("/department-name/{departmentId}")
+    public ResponseEntity<String> getDepartmentNameById(@PathVariable Long departmentId) {
+        return departmentRepo.findById(departmentId)
+                .map(dept -> ResponseEntity.ok(dept.getName()))
+                .orElse(ResponseEntity.notFound().build());
     }
+
+    // Removed getOwnTeam endpoint as getEmployeeTeam no longer exists
 } 

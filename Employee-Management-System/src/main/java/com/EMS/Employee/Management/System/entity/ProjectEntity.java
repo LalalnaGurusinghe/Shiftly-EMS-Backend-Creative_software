@@ -23,6 +23,10 @@ public class ProjectEntity {
     @JoinColumn(name = "department_id", nullable = false)
     private DepartmentEntity department;
 
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "created_by", nullable = false)
+    private User createdBy;
+
     @Column(name = "progress", nullable = false)
     private int progress = 0;
 

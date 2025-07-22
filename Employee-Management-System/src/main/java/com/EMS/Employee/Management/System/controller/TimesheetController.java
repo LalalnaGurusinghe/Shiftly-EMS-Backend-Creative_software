@@ -16,43 +16,44 @@ public class TimesheetController {
     @Autowired
     private TimesheetService timesheetService;
 
-    // Employee: Submit timesheet
-    @PostMapping("/submit")
+    // User: Create timesheet
+    @PostMapping("/add")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<TimesheetDTO> submitTimesheet(@RequestBody TimesheetDTO dto, Principal principal) {
-        TimesheetDTO result = timesheetService.submitTimesheet(dto, principal.getName());
-        return ResponseEntity.ok(result);
+    public ResponseEntity<TimesheetDTO> createTimesheet(@RequestBody TimesheetDTO dto, Principal principal) {
+        // Set userId from principal if needed
+        return ResponseEntity.ok(timesheetService.createTimesheet(dto));
     }
 
-    // Employee: View own timesheets
-    @GetMapping("/my")
-    @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<List<TimesheetDTO>> getOwnTimesheets(Principal principal) {
-        List<TimesheetDTO> timesheets = timesheetService.getOwnTimesheets(principal.getName());
-        return ResponseEntity.ok(timesheets);
-    }
-
-    // Admin: View all timesheets
+    // SuperAdmin: Get all timesheets
     @GetMapping("/all")
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<List<TimesheetDTO>> getAllTimesheets() {
-        List<TimesheetDTO> timesheets = timesheetService.getAllTimesheets();
-        return ResponseEntity.ok(timesheets);
+        return ResponseEntity.ok(timesheetService.getAllTimesheets());
     }
 
-    // Admin: Approve timesheet
-    @PutMapping("/approve/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
-    public ResponseEntity<TimesheetDTO> approveTimesheet(@PathVariable Long id) {
-        TimesheetDTO result = timesheetService.approveTimesheet(id);
-        return ResponseEntity.ok(result);
+    // User: Get timesheets by userId
+    @GetMapping("/user/{userId}")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<List<TimesheetDTO>> getTimesheetsByUserId(@PathVariable Long userId) {
+        return ResponseEntity.ok(timesheetService.getTimesheetsByUserId(userId));
     }
 
-    // Admin: Reject timesheet
-    @PutMapping("/reject/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
-    public ResponseEntity<TimesheetDTO> rejectTimesheet(@PathVariable Long id) {
-        TimesheetDTO result = timesheetService.rejectTimesheet(id);
-        return ResponseEntity.ok(result);
+    // User: Delete timesheet
+    @DeleteMapping("/delete/{id}")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<Void> deleteTimesheet(@PathVariable Long id, Principal principal) {
+        // You may want to extract userId from principal
+        // For now, assume userId is provided in the request
+        // Replace with actual userId extraction logic as needed
+        Long userId = Long.valueOf(principal.getName());
+        timesheetService.deleteTimesheet(id, userId);
+        return ResponseEntity.ok().build();
+    }
+
+    // SuperAdmin: Update timesheet status
+    @PutMapping("/status/{id}")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    public ResponseEntity<TimesheetDTO> updateStatus(@PathVariable Long id, @RequestParam String status) {
+        return ResponseEntity.ok(timesheetService.updateStatus(id, status));
     }
 } 

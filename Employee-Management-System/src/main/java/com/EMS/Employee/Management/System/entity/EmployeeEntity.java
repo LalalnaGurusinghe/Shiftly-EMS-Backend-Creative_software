@@ -35,6 +35,9 @@ public class EmployeeEntity {
     @Column(name = "location", nullable = false, length = 100)
     private String location;
 
+    @Column(name = "team_name", length = 100)
+    private String teamName;
+
     @ElementCollection
     @CollectionTable(name = "employee_skills", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "skill")

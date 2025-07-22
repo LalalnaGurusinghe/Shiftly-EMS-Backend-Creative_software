@@ -21,4 +21,5 @@ public class EmployeeDTO {
     private java.util.List<String> education;
     private java.util.List<String> experience;
     private String username;
+    private String teamName;
 }

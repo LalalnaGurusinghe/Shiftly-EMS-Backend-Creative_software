@@ -38,14 +38,17 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(nullable = false)
-    private LocalDateTime updatedAt;
-
     @Column
     private String designation;
 
     @Column
     private String department;
+
+    @Column
+    private String reportingPerson;
+
+    @Column
+    private String reportingPersonEmail;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
@@ -55,14 +58,8 @@ public class User implements UserDetails {
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
         this.isActive = true;
         this.isVerified = false;
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
     }
 
     @Override
@@ -110,5 +107,17 @@ public class User implements UserDetails {
         return this.isVerified;
     }
 
+    public String getReportingPerson() {
+        return reportingPerson;
+    }
+    public void setReportingPerson(String reportingPerson) {
+        this.reportingPerson = reportingPerson;
+    }
+    public String getReportingPersonEmail() {
+        return reportingPersonEmail;
+    }
+    public void setReportingPersonEmail(String reportingPersonEmail) {
+        this.reportingPersonEmail = reportingPersonEmail;
+    }
 
 }

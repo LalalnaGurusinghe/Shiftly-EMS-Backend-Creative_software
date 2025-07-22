@@ -5,10 +5,8 @@ import java.util.List;
 
 public interface TeamService {
     // Admin
-    TeamDTO createTeam(TeamDTO dto);
+    List<TeamDTO> getAllTeams();
     List<TeamDTO> getTeamsByDepartment(Long departmentId);
-    TeamDTO assignEmployeeToTeam(Long employeeId, Long teamId);
-
-    // Employee
-    TeamDTO getEmployeeTeam(Long employeeId);
+    String getTeamNameById(Long teamId);
+    String getDepartmentNameById(Long departmentId);
 } 
