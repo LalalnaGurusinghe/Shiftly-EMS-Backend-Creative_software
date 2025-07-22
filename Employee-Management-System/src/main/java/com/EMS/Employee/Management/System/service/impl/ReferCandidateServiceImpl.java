@@ -46,7 +46,6 @@ public class ReferCandidateServiceImpl implements ReferCandidateService {
         }
         entity.setUser(user);
         entity.setStatus(ReferStatus.UNREAD);
-        entity.setReferredBy(user);
         VacancyEntity vacancy = vacancyRepo.findById(dto.getVacancyId()).orElseThrow(() -> new RuntimeException("Vacancy not found"));
         entity.setVacancy(vacancy);
         ReferCandidateEntity saved = referCandidateRepo.save(entity);
@@ -57,7 +56,7 @@ public class ReferCandidateServiceImpl implements ReferCandidateService {
     @Override
     public List<ReferCandidateDTO> getOwnReferrals(String username) {
         User user = userRepo.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
-        return referCandidateRepo.findByReferredBy_Id(user.getId()).stream().map(this::toDTO).collect(Collectors.toList());
+        return referCandidateRepo.findByUser_Id(user.getId()).stream().map(this::toDTO).collect(Collectors.toList());
     }
 
     // Employee: Update own referral
@@ -66,7 +65,7 @@ public class ReferCandidateServiceImpl implements ReferCandidateService {
     public ReferCandidateDTO updateOwnReferral(Long id, ReferCandidateDTO dto, String username) {
         User user = userRepo.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
         ReferCandidateEntity entity = referCandidateRepo.findById(id).orElseThrow(() -> new RuntimeException("Referral not found"));
-        if (!entity.getReferredBy().getId().equals(user.getId())) {
+        if (!entity.getUser().getId().equals(user.getId())) {
             throw new RuntimeException("Unauthorized");
         }
         if (dto.getApplicantName() != null) entity.setApplicantName(dto.getApplicantName());
@@ -86,7 +85,7 @@ public class ReferCandidateServiceImpl implements ReferCandidateService {
     public void deleteOwnReferral(Long id, String username) {
         User user = userRepo.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
         ReferCandidateEntity entity = referCandidateRepo.findById(id).orElseThrow(() -> new RuntimeException("Referral not found"));
-        if (!entity.getReferredBy().getId().equals(user.getId())) {
+        if (!entity.getUser().getId().equals(user.getId())) {
             throw new RuntimeException("Unauthorized");
         }
         referCandidateRepo.deleteById(id);
@@ -117,11 +116,6 @@ public class ReferCandidateServiceImpl implements ReferCandidateService {
         }
         dto.setVacancyId(entity.getVacancy() != null ? entity.getVacancy().getId() : null);
         dto.setVacancyName(entity.getVacancy() != null ? entity.getVacancy().getName() : null);
-        dto.setReferredById(entity.getReferredBy().getId());
-        dto.setReferredByUsername(entity.getReferredBy().getUsername());
-        EmployeeEntity emp = employeeRepo.findByUser_Id(entity.getReferredBy().getId());
-        dto.setReferredByUserId(entity.getReferredBy().getId());
-        dto.setReferredByFirstName(emp != null ? emp.getFirstName() : null);
         dto.setStatus(entity.getStatus() != null ? entity.getStatus().name() : null);
         dto.setUserId(entity.getUser() != null ? entity.getUser().getId() : null);
         return dto;

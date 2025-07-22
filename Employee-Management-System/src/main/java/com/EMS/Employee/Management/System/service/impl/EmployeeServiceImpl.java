@@ -40,12 +40,16 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public ResponseEntity<EmployeeDTO> addUser(EmployeeDTO employeeDTO) {
         EmployeeEntity employeeEntity = new EmployeeEntity();
-        BeanUtils.copyProperties(employeeDTO, employeeEntity);
+        BeanUtils.copyProperties(employeeDTO, employeeEntity, "employeeId", "userId", "username");
         // Set User reference from userId
         if (employeeDTO.getUserId() != null) {
             User user = userRepo.findById(employeeDTO.getUserId()).orElse(null);
             employeeEntity.setUser(user);
         }
+        // Set lists
+        employeeEntity.setSkills(employeeDTO.getSkills());
+        employeeEntity.setEducation(employeeDTO.getEducation());
+        employeeEntity.setExperience(employeeDTO.getExperience());
         EmployeeEntity savedEntity = employeeRepo.save(employeeEntity);
         employeeDTO.setEmployeeId(savedEntity.getEmployeeId());
         return ResponseEntity.status(HttpStatus.CREATED).body(employeeDTO);
@@ -97,15 +101,9 @@ public class EmployeeServiceImpl implements EmployeeService {
         if (employeeDTO.getGender() != null) entity.setGender(employeeDTO.getGender());
         if (employeeDTO.getDob() != null) entity.setDob(employeeDTO.getDob());
         if (employeeDTO.getLocation() != null) entity.setLocation(employeeDTO.getLocation());
-        // Removed designation and department logic
-        // Skills (as comma-separated string)
-        if (employeeDTO.getSkills() != null) {
-            entity.setSkills(employeeDTO.getSkills());
-        }
-        // Education (as comma-separated string)
-        if (employeeDTO.getEducation() != null) {
-            entity.setEducation(employeeDTO.getEducation());
-        }
+        if (employeeDTO.getSkills() != null) entity.setSkills(employeeDTO.getSkills());
+        if (employeeDTO.getEducation() != null) entity.setEducation(employeeDTO.getEducation());
+        if (employeeDTO.getExperience() != null) entity.setExperience(employeeDTO.getExperience());
         // Set User reference from userId if provided
         if (employeeDTO.getUserId() != null) {
             User user = userRepo.findById(employeeDTO.getUserId()).orElse(null);
@@ -118,7 +116,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     private EmployeeDTO toDTO(EmployeeEntity entity) {
         EmployeeDTO dto = new EmployeeDTO();
-        BeanUtils.copyProperties(entity, dto);
+        BeanUtils.copyProperties(entity, dto, "employeeId", "user", "username");
         // User info
         if (entity.getUser() != null) {
             User user = userRepo.findById(entity.getUser().getId()).orElse(null);
@@ -127,11 +125,9 @@ public class EmployeeServiceImpl implements EmployeeService {
                 dto.setUsername(user.getUsername());
             }
         }
-        // Removed department info logic
-        // Skills (as string)
         dto.setSkills(entity.getSkills());
-        // Education (as string)
         dto.setEducation(entity.getEducation());
+        dto.setExperience(entity.getExperience());
         return dto;
     }
 }

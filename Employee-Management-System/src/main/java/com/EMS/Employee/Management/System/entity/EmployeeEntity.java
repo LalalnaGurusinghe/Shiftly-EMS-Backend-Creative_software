@@ -35,9 +35,18 @@ public class EmployeeEntity {
     @Column(name = "location", nullable = false, length = 100)
     private String location;
 
-    @Column(name = "skills", length = 1000)
-    private String skills;
+    @ElementCollection
+    @CollectionTable(name = "employee_skills", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "skill")
+    private java.util.List<String> skills = new java.util.ArrayList<>();
 
-    @Column(name = "education", length = 1000)
-    private String education;
+    @ElementCollection
+    @CollectionTable(name = "employee_education", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "education")
+    private java.util.List<String> education = new java.util.ArrayList<>();
+
+    @ElementCollection
+    @CollectionTable(name = "employee_experience", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "experience")
+    private java.util.List<String> experience = new java.util.ArrayList<>();
 }

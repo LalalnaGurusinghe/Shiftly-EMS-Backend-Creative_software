@@ -39,6 +39,18 @@ public class AuthController {
         return ResponseEntity.ok("Logged out successfully");
     }
 
+    @PostMapping("/forgot-password")
+    public ResponseEntity<String> forgotPassword(@RequestBody ForgotPasswordRequestDTO request) {
+        authenticationService.forgotPassword(request.getEmail());
+        return ResponseEntity.ok("Password reset link sent to your email if it exists in our system.");
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordRequestDTO request) {
+        authenticationService.resetPassword(request.getToken(), request.getNewPassword(), request.getConfirmPassword());
+        return ResponseEntity.ok("Password has been reset successfully.");
+    }
+
     @GetMapping("/currentuser")
     public ResponseEntity<?> getCurrentUser(Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {

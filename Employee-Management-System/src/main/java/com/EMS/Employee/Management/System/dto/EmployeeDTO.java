@@ -17,7 +17,8 @@ public class EmployeeDTO {
     private String gender;
     private String dob;
     private String location;
-    private String skills;
-    private String education;
+    private java.util.List<String> skills;
+    private java.util.List<String> education;
+    private java.util.List<String> experience;
     private String username;
 }
