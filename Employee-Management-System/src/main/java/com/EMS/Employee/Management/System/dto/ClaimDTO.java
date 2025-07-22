@@ -10,9 +10,6 @@ public class ClaimDTO {
     private String fileName;
     private String filePath;
     private String status;
-    private Long requestedById;
-    private String requestedByUsername;
-    private String requestedByFirstName;
     private Long userId;
     // fileData is a Base64 string for API, but is stored as byte[] in the entity
     private String fileData;

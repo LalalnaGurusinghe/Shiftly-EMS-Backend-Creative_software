@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface ClaimRepo extends JpaRepository<ClaimEntity, Long> {
-    List<ClaimEntity> findByRequestedBy_Id(Long userId);
+    List<ClaimEntity> findByUser_Id(Long userId);
 } 

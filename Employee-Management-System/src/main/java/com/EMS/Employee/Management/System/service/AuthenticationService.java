@@ -35,7 +35,4 @@ public interface AuthenticationService {
      * @param role The role assigned to the user.
      */
     void sendVerificationEmail(User user, String role, String designation, String department);
-
-    void forgotPassword(String email);
-    void resetPassword(String token, String newPassword, String confirmPassword);
 }

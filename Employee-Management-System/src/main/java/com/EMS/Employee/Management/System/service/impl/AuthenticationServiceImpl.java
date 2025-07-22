@@ -137,43 +137,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         }
     }
 
-    @Override
-    public void forgotPassword(String email) {
-        User user = userRepo.findByEmail(email).orElse(null);
-        if (user == null) return; // Do not reveal if user exists
-        String token = java.util.UUID.randomUUID().toString();
-        user.setResetToken(token);
-        user.setResetTokenExpiry(java.time.LocalDateTime.now().plusHours(1));
-        userRepo.save(user);
-        // Send email
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom("lalanagurusinghe@gmail.com");
-        message.setTo(user.getEmail());
-        message.setSubject("Password Reset Request");
-        String resetLink = "http://localhost:3000/reset-password?token=" + token;
-        message.setText("To reset your password, click the link below:\n" + resetLink + "\nThis link will expire in 1 hour.");
-        try {
-            mailSender.send(message);
-        } catch (Exception e) {
-            logger.error("Failed to send password reset email: {}", e.getMessage());
-        }
-    }
-
-    @Override
-    public void resetPassword(String token, String newPassword, String confirmPassword) {
-        User user = userRepo.findByResetToken(token).orElseThrow(() -> new RuntimeException("Invalid or expired token"));
-        if (user.getResetTokenExpiry() == null || user.getResetTokenExpiry().isBefore(java.time.LocalDateTime.now())) {
-            throw new RuntimeException("Token expired");
-        }
-        if (!newPassword.equals(confirmPassword)) {
-            throw new RuntimeException("Passwords do not match");
-        }
-        user.setPassword(passwordEncoder.encode(newPassword));
-        user.setResetToken(null);
-        user.setResetTokenExpiry(null);
-        userRepo.save(user);
-    }
-
     private void sendRegistrationEmail(User user) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom("lalanagurusinghe@gmail.com");

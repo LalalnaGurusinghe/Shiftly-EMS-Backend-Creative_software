@@ -28,8 +28,4 @@ public class ClaimEntity {
     @ManyToOne(optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
-
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "requested_by", nullable = false)
-    private User requestedBy;
 } 

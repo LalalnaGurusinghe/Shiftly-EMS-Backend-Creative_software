@@ -40,7 +40,6 @@ public class ClaimServiceImpl implements ClaimService {
         if (dto.getFileData() != null) {
             entity.setFileData(Base64.getDecoder().decode(dto.getFileData()));
         }
-        entity.setRequestedBy(user);
         entity.setUser(user);
         entity.setStatus(ClaimStatus.PENDING);
         ClaimEntity saved = claimRepo.save(entity);
@@ -51,7 +50,7 @@ public class ClaimServiceImpl implements ClaimService {
     @Override
     public List<ClaimDTO> getOwnClaims(String username) {
         User user = userRepo.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
-        return claimRepo.findByRequestedBy_Id(user.getId()).stream().map(this::toDTO).collect(Collectors.toList());
+        return claimRepo.findByUser_Id(user.getId()).stream().map(this::toDTO).collect(Collectors.toList());
     }
 
     // Employee: Update own claim
@@ -60,7 +59,7 @@ public class ClaimServiceImpl implements ClaimService {
     public ClaimDTO updateOwnClaim(Long id, ClaimDTO dto, String username) {
         User user = userRepo.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
         ClaimEntity entity = claimRepo.findById(id).orElseThrow(() -> new RuntimeException("Claim not found"));
-        if (!entity.getRequestedBy().getId().equals(user.getId())) {
+        if (!entity.getUser().getId().equals(user.getId())) {
             throw new RuntimeException("Unauthorized");
         }
         if (dto.getClaimType() != null) entity.setClaimType(dto.getClaimType());
@@ -75,7 +74,7 @@ public class ClaimServiceImpl implements ClaimService {
     public void deleteOwnClaim(Long id, String username) {
         User user = userRepo.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
         ClaimEntity entity = claimRepo.findById(id).orElseThrow(() -> new RuntimeException("Claim not found"));
-        if (!entity.getRequestedBy().getId().equals(user.getId())) {
+        if (!entity.getUser().getId().equals(user.getId())) {
             throw new RuntimeException("Unauthorized");
         }
         claimRepo.deleteById(id);
@@ -104,10 +103,6 @@ public class ClaimServiceImpl implements ClaimService {
         if (entity.getFileData() != null) {
             dto.setFileData(Base64.getEncoder().encodeToString(entity.getFileData()));
         }
-        dto.setRequestedById(entity.getRequestedBy().getId());
-        dto.setRequestedByUsername(entity.getRequestedBy().getUsername());
-        EmployeeEntity emp = employeeRepo.findByUser_Id(entity.getRequestedBy().getId());
-        dto.setRequestedByFirstName(emp != null ? emp.getFirstName() : null);
         dto.setUserId(entity.getUser() != null ? entity.getUser().getId() : null);
         return dto;
     }
