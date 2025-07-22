@@ -35,6 +35,9 @@ public class EmployeeEntity {
     @Column(name = "location", nullable = false, length = 100)
     private String location;
 
+    @Column(name = "department", length = 100)
+    private String department;
+
     @Column(name = "team_name", length = 100)
     private String teamName;
 
