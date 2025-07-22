@@ -77,6 +77,18 @@ public class EmployeeServiceImpl implements EmployeeService {
         return ResponseEntity.ok(dto);
     }
 
+    @Override
+    public List<EmployeeDTO> getEmployeesByDepartment(String department) {
+        return employeeRepo.findByDepartment(department).stream()
+            .map(entity -> {
+                EmployeeDTO dto = new EmployeeDTO();
+                BeanUtils.copyProperties(entity, dto);
+                dto.setUserId(entity.getUser() != null ? entity.getUser().getId() : null);
+                return dto;
+            })
+            .collect(Collectors.toList());
+    }
+
     @Transactional
     @Override
     public ResponseEntity<EmployeeDTO> deleteUserById(int id) {

@@ -111,4 +111,10 @@ public class EmployeeController {
         dto.setUsername(user.getUsername());
         return ResponseEntity.ok(dto);
     }
+
+    @GetMapping("/by-department/{department}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<EmployeeDTO>> getEmployeesByDepartment(@PathVariable String department) {
+        return ResponseEntity.ok(employeeService.getEmployeesByDepartment(department));
+    }
 }

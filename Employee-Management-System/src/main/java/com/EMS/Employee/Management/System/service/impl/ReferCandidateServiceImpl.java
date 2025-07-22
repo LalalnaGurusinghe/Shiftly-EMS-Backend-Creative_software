@@ -121,6 +121,9 @@ public class ReferCandidateServiceImpl implements ReferCandidateService {
     }
 
     // Admin: View all referrals
+    @Override
+    public List<ReferCandidateDTO> getAllReferrals() {
+        return referCandidateRepo.findAll().stream().map(this::toDTO).collect(Collectors.toList());
     }
 
     @Override
@@ -136,8 +139,6 @@ public class ReferCandidateServiceImpl implements ReferCandidateService {
     // Helper: Entity to DTO
     private ReferCandidateDTO toDTO(ReferCandidateEntity entity) {
         ReferCandidateDTO dto = new ReferCandidateDTO();
-        dto.setId(entity.getId());
-        dto.setVacancyId(entity.getVacancy() != null ? entity.getVacancy().getId() : null);
         dto.setVacancyName(entity.getVacancy() != null ? entity.getVacancy().getName() : null);
         dto.setApplicantName(entity.getApplicantName());
         dto.setApplicantEmail(entity.getApplicantEmail());
