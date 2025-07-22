@@ -7,4 +7,4 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface VacancyRepo extends JpaRepository<VacancyEntity, Long> {
     VacancyEntity findByName(String name);
-} 
+}

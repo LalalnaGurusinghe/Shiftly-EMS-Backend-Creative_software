@@ -9,4 +9,4 @@ import java.util.List;
 @Repository
 public interface ReferCandidateRepo extends JpaRepository<ReferCandidateEntity, Long> {
     List<ReferCandidateEntity> findByUser_Id(Long userId);
-} 
+}

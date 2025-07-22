@@ -31,7 +31,7 @@ public class SecurityConfig {
 
     // Constructor injection
     public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
-                          UserDetailsService userDetailsService) {
+            UserDetailsService userDetailsService) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.userDetailsService = userDetailsService;
     }
@@ -39,15 +39,18 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable()) // Disable CSRF for API (handled via JWT) cuz CSRF is usually needed in form-based login systems
+                .csrf(csrf -> csrf.disable()) // Disable CSRF for API (handled via JWT) cuz CSRF is usually needed in
+                                              // form-based login systems
                 .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable())) // For H2 console UI
-                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORS config for different type of requests with different origins
+                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORS config for different type of
+                                                                                   // requests with different origins
                 .authorizeHttpRequests(auth -> auth
                         // Public endpoints
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/v1/shiftly/ems/events/all").permitAll()
                         .requestMatchers("/api/v1/shiftly/ems/events/{id}").permitAll()
                         .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/uploads/files/**").permitAll() // <-- Allow public access to uploaded files
 
                         // User endpoints
                         .requestMatchers("/users/**").hasAnyRole("USER", "ADMIN", "SUPER_ADMIN")
@@ -82,8 +85,7 @@ public class SecurityConfig {
                         .requestMatchers("/superadmin/**").hasRole("SUPER_ADMIN")
 
                         // Any other request
-                        .anyRequest().authenticated()
-                )
+                        .anyRequest().authenticated())
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // No sessions
                 )
@@ -117,7 +119,8 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(List.of("http://localhost:3000")); // Use specific origin(s)
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
-        // Remove allowCredentials since we're using Authorization header instead of cookies
+        // Remove allowCredentials since we're using Authorization header instead of
+        // cookies
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

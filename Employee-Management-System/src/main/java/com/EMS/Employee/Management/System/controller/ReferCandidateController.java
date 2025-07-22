@@ -8,9 +8,17 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.multipart.MultipartFile;
+import java.io.File;
+import java.io.IOException;
 
 import java.security.Principal;
 import java.util.List;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/shiftly/ems/referrals")
@@ -20,10 +28,19 @@ public class ReferCandidateController {
     private ReferCandidateService referCandidateService;
 
     // Employee: Create referral (with optional resume upload)
-    @PostMapping("/add")
+    @PostMapping(value = "/add", consumes = { "multipart/form-data" })
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<ReferCandidateDTO> createReferral(@RequestBody ReferCandidateDTO dto, Authentication authentication) {
-        return ResponseEntity.ok(referCandidateService.createReferral(dto, authentication.getName()));
+    public ResponseEntity<ReferCandidateDTO> createReferral(
+            @RequestParam Long vacancyId,
+            @RequestParam String applicantName,
+            @RequestParam String applicantEmail,
+            @RequestParam(required = false) String message,
+            @RequestParam(required = false) MultipartFile file,
+            @RequestParam(required = false) String status,
+            Authentication authentication) throws Exception {
+        ReferCandidateDTO dto = referCandidateService.createReferral(
+                vacancyId, applicantName, applicantEmail, message, file, status, authentication.getName());
+        return ResponseEntity.ok(dto);
     }
 
     // Employee: View own referrals
@@ -38,8 +55,8 @@ public class ReferCandidateController {
     @PutMapping("/update/{id}")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<ReferCandidateDTO> updateOwnReferral(@PathVariable Long id,
-                                                              @RequestBody ReferCandidateDTO dto,
-                                                              Principal principal) {
+            @RequestBody ReferCandidateDTO dto,
+            Principal principal) {
         ReferCandidateDTO result = referCandidateService.updateOwnReferral(id, dto, principal.getName());
         return ResponseEntity.ok(result);
     }
@@ -67,4 +84,4 @@ public class ReferCandidateController {
         ReferCandidateDTO result = referCandidateService.updateReferralStatus(id, status);
         return ResponseEntity.ok(result);
     }
-} 
+}
