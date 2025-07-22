@@ -64,7 +64,12 @@ public class ProjectController {
         if (userId == null) return ResponseEntity.status(404).build();
         EmployeeEntity employee = employeeRepo.findByUser_Id(userId);
         if (employee == null) return ResponseEntity.status(404).build();
-        // No team info, so just return empty list
-        return ResponseEntity.ok(List.of());
+        String teamName = employee.getTeamName();
+        if (teamName == null || teamName.isEmpty()) return ResponseEntity.ok(List.of());
+        List<ProjectDTO> allProjects = projectService.getAllProjects();
+        List<ProjectDTO> myProjects = allProjects.stream()
+            .filter(p -> teamName.equals(p.getTeamName()))
+            .toList();
+        return ResponseEntity.ok(myProjects);
     }
 } 
