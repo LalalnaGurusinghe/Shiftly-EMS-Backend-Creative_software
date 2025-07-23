@@ -38,17 +38,21 @@ public class LeaveServiceImpl implements LeaveService {
         LeaveEntity entity = new LeaveEntity();
         BeanUtils.copyProperties(leaveDTO, entity);
         entity.setUser(user);
-        if (leaveDTO.getFileData() != null) {
-            entity.setFileData(Base64.getDecoder().decode(leaveDTO.getFileData()));
-        }
-        if (leaveDTO.getCoverPersonId() != null) {
-            EmployeeEntity cover = employeeRepo.findById(leaveDTO.getCoverPersonId())
-                .orElseThrow(() -> new RuntimeException("Cover person not found"));
+        // Remove fileData logic since DTO does not have it
+        // Map coverPerson by name
+        if (leaveDTO.getCoverPersonName() != null && !leaveDTO.getCoverPersonName().isEmpty()) {
+            String[] names = leaveDTO.getCoverPersonName().split(" ", 2);
+            if (names.length < 2) throw new RuntimeException("Cover person name must include first and last name");
+            EmployeeEntity cover = employeeRepo.findByFirstNameAndLastName(names[0], names[1]);
+            if (cover == null) throw new RuntimeException("Cover person not found");
             entity.setCoverPerson(cover);
         }
-        if (leaveDTO.getReportToId() != null) {
-            EmployeeEntity reportTo = employeeRepo.findById(leaveDTO.getReportToId())
-                .orElseThrow(() -> new RuntimeException("Report to not found"));
+        // Map reportTo by name
+        if (leaveDTO.getReportToName() != null && !leaveDTO.getReportToName().isEmpty()) {
+            String[] names = leaveDTO.getReportToName().split(" ", 2);
+            if (names.length < 2) throw new RuntimeException("Report to name must include first and last name");
+            EmployeeEntity reportTo = employeeRepo.findByFirstNameAndLastName(names[0], names[1]);
+            if (reportTo == null) throw new RuntimeException("Report to not found");
             entity.setReportTo(reportTo);
         }
         entity.setLeaveStatus(LeaveStatus.PENDING);
@@ -76,18 +80,8 @@ public class LeaveServiceImpl implements LeaveService {
         if (leaveDTO.getLeaveType() != null) entity.setLeaveType(leaveDTO.getLeaveType());
         if (leaveDTO.getLeaveFrom() != null) entity.setLeaveFrom(leaveDTO.getLeaveFrom());
         if (leaveDTO.getLeaveTo() != null) entity.setLeaveTo(leaveDTO.getLeaveTo());
-        if (leaveDTO.getDuration() != null) entity.setDuration(leaveDTO.getDuration());
         if (leaveDTO.getReason() != null) entity.setReason(leaveDTO.getReason());
-        if (leaveDTO.getCoverPersonId() != null) {
-            EmployeeEntity cover = employeeRepo.findById(leaveDTO.getCoverPersonId())
-                .orElseThrow(() -> new RuntimeException("Cover person not found"));
-            entity.setCoverPerson(cover);
-        }
-        if (leaveDTO.getReportToId() != null) {
-            EmployeeEntity reportTo = employeeRepo.findById(leaveDTO.getReportToId())
-                .orElseThrow(() -> new RuntimeException("Report to not found"));
-            entity.setReportTo(reportTo);
-        }
+        // Remove duration, coverPersonId, reportToId logic
         LeaveEntity saved = leaveRepo.save(entity);
         return toDTO(saved);
     }
@@ -126,18 +120,9 @@ public class LeaveServiceImpl implements LeaveService {
     private LeaveDTO toDTO(LeaveEntity entity) {
         LeaveDTO dto = new LeaveDTO();
         BeanUtils.copyProperties(entity, dto);
-        if (entity.getFileData() != null) {
-            dto.setFileData(Base64.getEncoder().encodeToString(entity.getFileData()));
-        }
-        if (entity.getUser() != null) {
-            dto.setUserId(entity.getUser().getId());
-            EmployeeEntity emp = employeeRepo.findByUser_Id(entity.getUser().getId());
-            dto.setEmployeeFirstName(emp != null ? emp.getFirstName() : null);
-            dto.setUsername(entity.getUser().getUsername());
-        }
-        dto.setCoverPersonId(entity.getCoverPerson() != null ? entity.getCoverPerson().getEmployeeId() : null);
+        // Remove fileData, employeeFirstName, username, coverPersonId, reportToId logic
+        dto.setUserId(entity.getUser() != null ? entity.getUser().getId() : null);
         dto.setCoverPersonName(entity.getCoverPerson() != null ? entity.getCoverPerson().getFirstName() + " " + entity.getCoverPerson().getLastName() : null);
-        dto.setReportToId(entity.getReportTo() != null ? entity.getReportTo().getEmployeeId() : null);
         dto.setReportToName(entity.getReportTo() != null ? entity.getReportTo().getFirstName() + " " + entity.getReportTo().getLastName() : null);
         dto.setLeaveStatus(entity.getLeaveStatus() != null ? entity.getLeaveStatus().name() : null);
         return dto;

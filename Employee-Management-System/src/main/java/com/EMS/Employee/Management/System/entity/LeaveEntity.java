@@ -25,8 +25,7 @@ public class LeaveEntity {
     @Column(name = "leave_to", nullable = false)
     private LocalDate leaveTo;
 
-    @Column(name = "duration", nullable = false)
-    private Integer duration;
+  
 
     // Cover person: Employee from same department
     @ManyToOne
@@ -45,7 +44,5 @@ public class LeaveEntity {
     @Column(name = "leave_status", nullable = false)
     private LeaveStatus leaveStatus = LeaveStatus.PENDING;
 
-    @Lob
-    @Column(name = "file_data")
-    private byte[] fileData;
+   
 } 
