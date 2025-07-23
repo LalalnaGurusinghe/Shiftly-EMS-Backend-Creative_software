@@ -97,10 +97,9 @@ public class ReferCandidateServiceImpl implements ReferCandidateService {
             entity.setApplicantEmail(dto.getApplicantEmail());
         if (dto.getMessage() != null)
             entity.setMessage(dto.getMessage());
-        if (dto.getVacancyName() != null) {
-            VacancyEntity vacancy = vacancyRepo.findByName(dto.getVacancyName());
-            if (vacancy == null)
-                throw new RuntimeException("Vacancy not found");
+        if (dto.getVacancyId() != null) {
+            VacancyEntity vacancy = vacancyRepo.findById(dto.getVacancyId())
+                    .orElseThrow(() -> new RuntimeException("Vacancy not found"));
             entity.setVacancy(vacancy);
         }
         ReferCandidateEntity saved = referCandidateRepo.save(entity);
@@ -139,7 +138,8 @@ public class ReferCandidateServiceImpl implements ReferCandidateService {
     // Helper: Entity to DTO
     private ReferCandidateDTO toDTO(ReferCandidateEntity entity) {
         ReferCandidateDTO dto = new ReferCandidateDTO();
-        dto.setVacancyName(entity.getVacancy() != null ? entity.getVacancy().getName() : null);
+        dto.setId(entity.getId());
+        dto.setVacancyId(entity.getVacancy() != null ? entity.getVacancy().getId() : null);
         dto.setApplicantName(entity.getApplicantName());
         dto.setApplicantEmail(entity.getApplicantEmail());
         dto.setMessage(entity.getMessage());

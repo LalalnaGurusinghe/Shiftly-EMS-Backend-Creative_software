@@ -49,7 +49,7 @@ public class ProjectController {
 
     // Admin & Employee: View all projects
     @GetMapping("/all")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER', 'SUPER_ADMIN')")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<ProjectDTO>> getAllProjects() {
         List<ProjectDTO> projects = projectService.getAllProjects();
         return ResponseEntity.ok(projects);

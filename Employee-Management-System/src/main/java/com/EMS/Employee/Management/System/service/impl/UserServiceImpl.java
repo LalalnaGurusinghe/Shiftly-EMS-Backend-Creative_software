@@ -220,6 +220,7 @@ public class UserServiceImpl implements UserService {
         userDTO.setRoles(user.getRoles());
         userDTO.setDesignation(user.getDesignation());
         userDTO.setDepartment(user.getDepartment());
+        userDTO.setCreatedAt(user.getCreatedAt());
         userDTO.setReportingPerson(user.getReportingPerson());
         userDTO.setReportingPersonEmail(user.getReportingPersonEmail());
         return userDTO;

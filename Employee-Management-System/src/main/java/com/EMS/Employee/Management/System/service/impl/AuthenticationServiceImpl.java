@@ -174,6 +174,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             userDTO.setRoles(user.getRoles() != null ? new HashSet<>(user.getRoles()) : new HashSet<>());
             userDTO.setDesignation(user.getDesignation());
             userDTO.setDepartment(user.getDepartment());
+            userDTO.setCreatedAt(user.getCreatedAt());
         }
         return userDTO;
     }
