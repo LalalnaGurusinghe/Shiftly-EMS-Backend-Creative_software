@@ -2,6 +2,7 @@ package com.EMS.Employee.Management.System.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "claims")
@@ -17,9 +18,11 @@ public class ClaimEntity {
     @Column(name = "description", length = 1000)
     private String description;
 
-    @Lob
-    @Column(name = "file_data")
-    private byte[] fileData;
+    @Column(name = "claim_url")
+    private String claimUrl;
+
+    @Column(name = "claim_date")
+    private LocalDate claimDate;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
@@ -28,4 +31,4 @@ public class ClaimEntity {
     @ManyToOne(optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
-} 
+}

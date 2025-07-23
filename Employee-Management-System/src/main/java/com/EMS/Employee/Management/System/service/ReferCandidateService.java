@@ -17,4 +17,6 @@ public interface ReferCandidateService {
     List<ReferCandidateDTO> getAllReferrals();
 
     ReferCandidateDTO updateReferralStatus(Long id, String status);
+
+    List<ReferCandidateDTO> getReferralsByUserId(Long userId);
 }

@@ -52,6 +52,7 @@ public class SecurityConfig {
                         .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/uploads/files/**").permitAll() // <-- Allow public access to uploaded files
                         .requestMatchers("/uploads/events/**").permitAll() // <-- Allow public access to uploaded event
+                        .requestMatchers("/api/v1/shiftly/ems/vacancies/**").permitAll()
                                                                            // images
 
                         // User endpoints
@@ -77,7 +78,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/shiftly/ems/timesheets/all").hasRole("ADMIN")
                         .requestMatchers("/api/v1/shiftly/ems/leaves/all").hasRole("ADMIN")
                         .requestMatchers("/api/v1/shiftly/ems/claims/all").hasRole("ADMIN")
-                        .requestMatchers("/api/v1/shiftly/ems/vacancies/**").hasRole("ADMIN")
+
                         .requestMatchers("/api/v1/shiftly/ems/referrals/all").hasRole("ADMIN")
                         .requestMatchers("/api/v1/shiftly/ems/events/all").hasRole("ADMIN")
                         .requestMatchers("/api/v1/shiftly/ems/events/all").authenticated()
