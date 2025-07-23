@@ -59,6 +59,7 @@ public class AuthController {
             userDTO.setActive(user.isActive());
             userDTO.setVerified(user.isVerified());
             userDTO.setRoles(user.getRoles() != null ? new HashSet<>(user.getRoles()) : new HashSet<>());
+            userDTO.setCreatedAt(user.getCreatedAt());
         }
         return userDTO;
     }

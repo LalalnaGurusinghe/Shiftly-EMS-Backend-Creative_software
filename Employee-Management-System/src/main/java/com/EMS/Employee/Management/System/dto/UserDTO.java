@@ -1,9 +1,11 @@
 package com.EMS.Employee.Management.System.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.Set;
 
 @Data
@@ -18,7 +20,8 @@ public class UserDTO {
     private boolean isVerified;
     private String designation;
     private String department;
-    private String createdAt;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    private LocalDateTime createdAt;
     private String reportingPerson;
     private String reportingPersonEmail;
 

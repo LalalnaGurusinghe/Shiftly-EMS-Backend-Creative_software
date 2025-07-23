@@ -1,26 +1,25 @@
 package com.EMS.Employee.Management.System.service.impl;
 
-import com.EMS.Employee.Management.System.dto.ChangePasswordDTO;
-import com.EMS.Employee.Management.System.dto.UserDTO;
-import com.EMS.Employee.Management.System.entity.User;
-import com.EMS.Employee.Management.System.repo.UserRepo;
-import com.EMS.Employee.Management.System.service.UserService;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+import com.EMS.Employee.Management.System.dto.ChangePasswordDTO;
+import com.EMS.Employee.Management.System.dto.UserDTO;
 import com.EMS.Employee.Management.System.entity.EmployeeEntity;
-import com.EMS.Employee.Management.System.repo.EmployeeRepo;
+import com.EMS.Employee.Management.System.entity.User;
 import com.EMS.Employee.Management.System.repo.DepartmentRepo;
-import com.EMS.Employee.Management.System.entity.DepartmentEntity;
+import com.EMS.Employee.Management.System.repo.EmployeeRepo;
+import com.EMS.Employee.Management.System.repo.UserRepo;
+import com.EMS.Employee.Management.System.service.UserService;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -105,6 +104,43 @@ public class UserServiceImpl implements UserService {
         }
         User updatedUser = userRepo.save(user);
         return convertToUserDTO(updatedUser);
+    }
+
+    @Override
+    @Transactional
+    public UserDTO updateUserProfile(Long id, String designation, String department, String reportingPerson, String reportingPersonEmail) {
+        logger.info("Updating user profile for user ID: {}", id);
+        logger.info("Designation: {}, Department: {}, ReportingPerson: {}, ReportingPersonEmail: {}", 
+                   designation, department, reportingPerson, reportingPersonEmail);
+        
+        User user = userRepo.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
+        logger.info("Found user: {}", user.getUsername());
+        
+        if (designation != null && !designation.trim().isEmpty()) {
+            user.setDesignation(designation);
+            logger.info("Updated designation to: {}", designation);
+        }
+        if (department != null && !department.trim().isEmpty()) {
+            user.setDepartment(department);
+            logger.info("Updated department to: {}", department);
+        }
+        if (reportingPerson != null && !reportingPerson.trim().isEmpty()) {
+            user.setReportingPerson(reportingPerson);
+            logger.info("Updated reporting person to: {}", reportingPerson);
+        }
+        if (reportingPersonEmail != null && !reportingPersonEmail.trim().isEmpty()) {
+            user.setReportingPersonEmail(reportingPersonEmail);
+            logger.info("Updated reporting person email to: {}", reportingPersonEmail);
+        }
+        
+        try {
+            User updatedUser = userRepo.save(user);
+            logger.info("Successfully saved user profile updates");
+            return convertToUserDTO(updatedUser);
+        } catch (Exception e) {
+            logger.error("Error saving user profile updates: {}", e.getMessage(), e);
+            throw new RuntimeException("Failed to update user profile: " + e.getMessage());
+        }
     }
 
     @Override
@@ -220,6 +256,7 @@ public class UserServiceImpl implements UserService {
         userDTO.setRoles(user.getRoles());
         userDTO.setDesignation(user.getDesignation());
         userDTO.setDepartment(user.getDepartment());
+        userDTO.setCreatedAt(user.getCreatedAt());
         userDTO.setReportingPerson(user.getReportingPerson());
         userDTO.setReportingPersonEmail(user.getReportingPersonEmail());
         return userDTO;
