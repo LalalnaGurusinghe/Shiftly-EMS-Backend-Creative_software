@@ -121,6 +121,9 @@ public class ReferCandidateServiceImpl implements ReferCandidateService {
     }
 
     // Admin: View all referrals
+    @Override
+    public List<ReferCandidateDTO> getAllReferrals() {
+        return referCandidateRepo.findAll().stream().map(this::toDTO).collect(Collectors.toList());
     }
 
     @Override

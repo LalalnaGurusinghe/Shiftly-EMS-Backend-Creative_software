@@ -14,6 +14,8 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 import org.springframework.security.core.Authentication;
+import org.springframework.format.annotation.DateTimeFormat;
+import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/api/v1/shiftly/ems/events")
@@ -27,7 +29,7 @@ public class EventController {
 
     // Admin: View all events
     @GetMapping("/all")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<EventDTO>> getAllEvents() {
         return ResponseEntity.ok(eventService.getAllEvents());
     }
@@ -47,31 +49,42 @@ public class EventController {
     }
 
     // Employee: Create event
-    @PostMapping("/add")
+    @PostMapping(value = "/add", consumes = { "multipart/form-data" })
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<EventDTO> addEvent(@RequestBody EventDTO eventDTO, Authentication authentication) {
-        return ResponseEntity.ok(eventService.createEvent(eventDTO));
+    public ResponseEntity<EventDTO> createEvent(
+            @RequestParam String title,
+            @RequestParam String eventType,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate enableDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate expireDate,
+            @RequestParam(required = false) MultipartFile image,
+            @RequestParam(required = false) String status,
+            Authentication authentication) throws Exception {
+        EventDTO dto = eventService.createEvent(
+                title, eventType, enableDate, expireDate, image, status, authentication.getName());
+        return ResponseEntity.ok(dto);
     }
 
     // Employee: View own events
-    @GetMapping("/my/{employeeId}")
-    @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<List<EventDTO>> getOwnEvents(@PathVariable Integer employeeId) {
-        return ResponseEntity.ok(eventService.getEventsByEmployeeId(employeeId));
-    }
+    // Remove the old endpoint for getEventsByEmployeeId
+    // @GetMapping("/my/{employeeId}")
+    // @PreAuthorize("hasRole('USER')")
+    // public ResponseEntity<List<EventDTO>> getOwnEvents(@PathVariable Integer
+    // employeeId) {
+    // return ResponseEntity.ok(eventService.getEventsByEmployeeId(employeeId));
+    // }
 
     // Employee: Edit own event
     @PutMapping("/update/{id}")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<EventDTO> updateEvent(@PathVariable Long id, @RequestBody EventDTO eventDTO) {
-        return ResponseEntity.ok(eventService.updateEvent(id, eventDTO));
+    public ResponseEntity<EventDTO> updateEvent(@PathVariable Long id, @RequestBody EventDTO eventDTO, Authentication authentication) {
+        return ResponseEntity.ok(eventService.updateEvent(id, eventDTO, authentication.getName()));
     }
 
     // Employee: Delete own event
     @DeleteMapping("/delete/{id}")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<Void> deleteEvent(@PathVariable Long id) {
-        eventService.deleteEvent(id);
+    public ResponseEntity<Void> deleteEvent(@PathVariable Long id, Authentication authentication) {
+        eventService.deleteEvent(id, authentication.getName());
         return ResponseEntity.ok().build();
     }
 
@@ -87,4 +100,4 @@ public class EventController {
     public ResponseEntity<List<EventDTO>> getEventsByUserId(@PathVariable Long userId) {
         return ResponseEntity.ok(eventService.getEventsByUserId(userId));
     }
-} 
+}
