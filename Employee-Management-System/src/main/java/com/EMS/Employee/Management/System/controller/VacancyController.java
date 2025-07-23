@@ -42,7 +42,7 @@ public class VacancyController {
 
     // Employee: View all vacancies
     @GetMapping("/all")
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'SUPER_ADMIN')")
+    @PreAuthorize("hasAnyRole('USER')")
     public ResponseEntity<List<VacancyDTO>> getAllVacancies() {
         List<VacancyDTO> vacancies = vacancyService.getAllVacancies();
         return ResponseEntity.ok(vacancies);

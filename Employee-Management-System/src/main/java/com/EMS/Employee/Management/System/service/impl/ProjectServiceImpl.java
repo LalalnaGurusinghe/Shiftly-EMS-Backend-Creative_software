@@ -8,12 +8,10 @@ import com.EMS.Employee.Management.System.repo.ProjectRepo;
 import com.EMS.Employee.Management.System.repo.TeamRepo;
 import com.EMS.Employee.Management.System.repo.DepartmentRepo;
 import com.EMS.Employee.Management.System.service.ProjectService;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.EMS.Employee.Management.System.entity.User;
@@ -40,36 +38,45 @@ public class ProjectServiceImpl implements ProjectService {
     public ProjectDTO createProject(ProjectDTO dto) {
         TeamEntity team = null;
         DepartmentEntity department = null;
-        User createdBy = null;
+        User user = null;
 
-        if (dto.getTeamName() != null) {
-            team = teamRepo.findByName(dto.getTeamName())
-                    .orElseThrow(() -> new RuntimeException("Team not found"));
-        } else if (dto.getTeamId() != null) {
+        // Handle team - check ID first, then name
+        if (dto.getTeamId() != null) {
             team = teamRepo.findById(dto.getTeamId())
-                    .orElseThrow(() -> new RuntimeException("Team not found"));
-        }
-
-        if (dto.getDepartmentName() != null) {
-            department = departmentRepo.findByName(dto.getDepartmentName())
-                    .orElseThrow(() -> new RuntimeException("Department not found"));
-        } else if (dto.getDepartmentId() != null) {
-            department = departmentRepo.findById(dto.getDepartmentId())
-                    .orElseThrow(() -> new RuntimeException("Department not found"));
-        }
-
-        if (dto.getCreatedByUserId() != null) {
-            createdBy = userRepo.findById(dto.getCreatedByUserId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                    .orElseThrow(() -> new RuntimeException("Team not found with id: " + dto.getTeamId()));
+        } else if (dto.getTeamName() != null) {
+            team = teamRepo.findByName(dto.getTeamName())
+                    .orElseThrow(() -> new RuntimeException("Team not found with name: " + dto.getTeamName()));
         } else {
-            throw new RuntimeException("Created by userId is required");
+            throw new RuntimeException("Team is required. Provide either teamId or teamName");
+        }
+
+        // Handle department - check ID first, then name
+        if (dto.getDepartmentId() != null) {
+            department = departmentRepo.findById(dto.getDepartmentId())
+                    .orElseThrow(() -> new RuntimeException("Department not found with id: " + dto.getDepartmentId()));
+        } else if (dto.getDepartmentName() != null) {
+            department = departmentRepo.findByName(dto.getDepartmentName())
+                    .orElseThrow(() -> new RuntimeException("Department not found with name: " + dto.getDepartmentName()));
+        } else {
+            throw new RuntimeException("Department is required. Provide either departmentId or departmentName");
+        }
+
+        if (dto.getUserId() != null) {
+            user = userRepo.findById(dto.getUserId())
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + dto.getUserId()));
+        } else {
+            throw new RuntimeException("UserId is required");
         }
 
         ProjectEntity entity = new ProjectEntity();
-        BeanUtils.copyProperties(dto, entity);
+        entity.setName(dto.getName());
+        entity.setDescription(dto.getDescription());
+        entity.setStartDate(dto.getStartDate());
+        entity.setEndDate(dto.getEndDate());
         entity.setTeam(team);
         entity.setDepartment(department);
-        entity.setCreatedBy(createdBy);
+        entity.setUser(user);
         entity.setProgress(dto.getProgress());
         ProjectEntity saved = projectRepo.save(entity);
         return toDTO(saved);
@@ -79,18 +86,33 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     @Transactional
     public ProjectDTO updateProject(Long projectId, ProjectDTO dto) {
-        ProjectEntity entity = projectRepo.findById(projectId).orElseThrow(() -> new RuntimeException("Project not found"));
+        ProjectEntity entity = projectRepo.findById(projectId).orElseThrow(() -> new RuntimeException("Project not found with id: " + projectId));
         if (dto.getName() != null) entity.setName(dto.getName());
         if (dto.getDescription() != null) entity.setDescription(dto.getDescription());
         if (dto.getStartDate() != null) entity.setStartDate(dto.getStartDate());
         if (dto.getEndDate() != null) entity.setEndDate(dto.getEndDate());
+        
+        // Handle team update - check ID first, then name
         if (dto.getTeamId() != null) {
-            TeamEntity team = teamRepo.findById(dto.getTeamId()).orElseThrow(() -> new RuntimeException("Team not found"));
+            TeamEntity team = teamRepo.findById(dto.getTeamId()).orElseThrow(() -> new RuntimeException("Team not found with id: " + dto.getTeamId()));
+            entity.setTeam(team);
+        } else if (dto.getTeamName() != null) {
+            TeamEntity team = teamRepo.findByName(dto.getTeamName()).orElseThrow(() -> new RuntimeException("Team not found with name: " + dto.getTeamName()));
             entity.setTeam(team);
         }
+        
+        // Handle department update - check ID first, then name
         if (dto.getDepartmentId() != null) {
-            DepartmentEntity department = departmentRepo.findById(dto.getDepartmentId()).orElseThrow(() -> new RuntimeException("Department not found"));
+            DepartmentEntity department = departmentRepo.findById(dto.getDepartmentId()).orElseThrow(() -> new RuntimeException("Department not found with id: " + dto.getDepartmentId()));
             entity.setDepartment(department);
+        } else if (dto.getDepartmentName() != null) {
+            DepartmentEntity department = departmentRepo.findByName(dto.getDepartmentName()).orElseThrow(() -> new RuntimeException("Department not found with name: " + dto.getDepartmentName()));
+            entity.setDepartment(department);
+        }
+        
+        if (dto.getUserId() != null) {
+            User user = userRepo.findById(dto.getUserId()).orElseThrow(() -> new RuntimeException("User not found with id: " + dto.getUserId()));
+            entity.setUser(user);
         }
         entity.setProgress(dto.getProgress());
         ProjectEntity saved = projectRepo.save(entity);
@@ -117,15 +139,35 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     private ProjectDTO toDTO(ProjectEntity entity) {
+        if (entity == null) {
+            return null;
+        }
+        
         ProjectDTO dto = new ProjectDTO();
-        BeanUtils.copyProperties(entity, dto);
-        dto.setTeamId(entity.getTeam() != null ? entity.getTeam().getTeamId() : null);
-        dto.setTeamName(entity.getTeam() != null ? entity.getTeam().getName() : null);
-        dto.setDepartmentId(entity.getDepartment() != null ? entity.getDepartment().getDepartmentId() : null);
-        dto.setDepartmentName(entity.getDepartment() != null ? entity.getDepartment().getName() : null);
+        dto.setProjectId(entity.getProjectId());
+        dto.setName(entity.getName());
+        dto.setDescription(entity.getDescription());
+        dto.setStartDate(entity.getStartDate());
+        dto.setEndDate(entity.getEndDate());
         dto.setProgress(entity.getProgress());
-        dto.setCreatedByUserId(entity.getCreatedBy() != null ? entity.getCreatedBy().getId() : null);
-        dto.setCreatedByFirstName(entity.getCreatedBy() != null ? entity.getCreatedBy().getUsername() : null);
+        
+        // Safely handle team relationship
+        if (entity.getTeam() != null) {
+            dto.setTeamId(entity.getTeam().getTeamId());
+            dto.setTeamName(entity.getTeam().getName());
+        }
+        
+        // Safely handle department relationship
+        if (entity.getDepartment() != null) {
+            dto.setDepartmentId(entity.getDepartment().getDepartmentId());
+            dto.setDepartmentName(entity.getDepartment().getName());
+        }
+        
+        // Safely handle user relationship
+        if (entity.getUser() != null) {
+            dto.setUserId(entity.getUser().getId());
+        }
+        
         return dto;
     }
 } 

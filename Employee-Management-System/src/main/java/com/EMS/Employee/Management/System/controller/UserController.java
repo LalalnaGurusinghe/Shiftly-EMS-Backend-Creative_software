@@ -1,14 +1,23 @@
 package com.EMS.Employee.Management.System.controller;
 
+import java.util.List;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.EMS.Employee.Management.System.dto.ChangePasswordDTO;
 import com.EMS.Employee.Management.System.dto.UserDTO;
 import com.EMS.Employee.Management.System.service.UserService;
-import jakarta.validation.Valid;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/users")
@@ -50,9 +59,22 @@ public class UserController {
     }
 
     @PutMapping("/update/{id}")
-    @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<UserDTO> updateUser(@PathVariable Long id, @Valid @RequestBody UserDTO userDTO) {
-        return ResponseEntity.ok(userService.updateUser(id, userDTO));
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<UserDTO> updateUserProfile(@PathVariable Long id, @RequestBody java.util.Map<String, String> profileData) {
+        try {
+            String designation = profileData.get("designation");
+            String department = profileData.get("department");
+            String reportingPerson = profileData.get("reportingPerson");
+            String reportingPersonEmail = profileData.get("reportingPersonEmail");
+            
+            UserDTO updatedUser = userService.updateUserProfile(id, designation, department, reportingPerson, reportingPersonEmail);
+            return ResponseEntity.ok(updatedUser);
+        } catch (Exception e) {
+            // Log the error for debugging
+            System.err.println("Error updating user profile: " + e.getMessage());
+            e.printStackTrace();
+            throw e; // Re-throw to let Spring handle it
+        }
     }
 
     @DeleteMapping("/delete/{id}")

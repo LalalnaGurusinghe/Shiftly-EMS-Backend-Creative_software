@@ -76,6 +76,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/shiftly/ems/timesheets/all").hasRole("ADMIN")
                         .requestMatchers("/api/v1/shiftly/ems/leaves/all").hasRole("ADMIN")
                         .requestMatchers("/api/v1/shiftly/ems/claims/all").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/shiftly/ems/vacancies/all").authenticated()
                         .requestMatchers("/api/v1/shiftly/ems/vacancies/**").hasRole("ADMIN")
                         .requestMatchers("/api/v1/shiftly/ems/referrals/all").hasRole("ADMIN")
                         .requestMatchers("/api/v1/shiftly/ems/events/all").hasRole("ADMIN")

@@ -24,8 +24,8 @@ public class ProjectEntity {
     private DepartmentEntity department;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "created_by", nullable = false)
-    private User createdBy;
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @Column(name = "progress", nullable = false)
     private int progress = 0;

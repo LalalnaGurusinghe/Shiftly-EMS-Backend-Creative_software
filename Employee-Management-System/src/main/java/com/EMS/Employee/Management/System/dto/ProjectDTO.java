@@ -8,13 +8,12 @@ public class ProjectDTO {
     private Long projectId;
     private String name;
     private String description;
-    private Long teamId;
     private String teamName;
+    private Long teamId;
     private LocalDate startDate;
     private LocalDate endDate;
-    private Long departmentId;
     private String departmentName;
+    private Long departmentId;
     private int progress;
-    private Long createdByUserId;
-    private String createdByFirstName;
+    private Long userId;
 } 
