@@ -7,20 +7,17 @@ import java.time.LocalDate;
 public class LeaveDTO {
     private Long id;
     private Long userId;
-    private String employeeFirstName;
-    private String username;
+
+   
     private String leaveType;
     private LocalDate leaveFrom;
     private LocalDate leaveTo;
-    private Integer duration;
-    private Integer coverPersonId;
+   
+    
     private String coverPersonName;
-    private Integer reportToId;
+   
     private String reportToName;
     private String reason;
     private String leaveStatus;
-    private String fileName;
-    private String filePath;
-    // fileData is a Base64 string for API, but is stored as byte[] in the entity
-    private String fileData;
+    
 } 
