@@ -11,4 +11,5 @@ public class TimesheetDTO {
     private String activity;
     private double hours;
     private String status;
+    private String departmentName;
 } 

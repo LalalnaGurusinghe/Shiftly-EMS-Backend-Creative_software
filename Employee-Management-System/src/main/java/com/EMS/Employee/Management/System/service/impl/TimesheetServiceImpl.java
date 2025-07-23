@@ -9,13 +9,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
+import com.EMS.Employee.Management.System.entity.EmployeeEntity;
+import com.EMS.Employee.Management.System.repo.EmployeeRepo;
 
 @Service
 public class TimesheetServiceImpl implements TimesheetService {
     private final TimesheetRepo timesheetRepo;
+    private final EmployeeRepo employeeRepo;
 
-    public TimesheetServiceImpl(TimesheetRepo timesheetRepo) {
+    public TimesheetServiceImpl(TimesheetRepo timesheetRepo, EmployeeRepo employeeRepo) {
         this.timesheetRepo = timesheetRepo;
+        this.employeeRepo = employeeRepo;
     }
 
     @Override
@@ -62,6 +66,14 @@ public class TimesheetServiceImpl implements TimesheetService {
     private TimesheetDTO toDTO(Timesheet entity) {
         TimesheetDTO dto = new TimesheetDTO();
         BeanUtils.copyProperties(entity, dto);
+        // Set departmentName using EmployeeEntity
+        if (entity.getUserId() != null) {
+            // You need access to EmployeeRepo here, so add it as a field and constructor param if not present
+            EmployeeEntity employee = employeeRepo.findByUser_Id(entity.getUserId());
+            if (employee != null) {
+                dto.setDepartmentName(employee.getDepartment());
+            }
+        }
         return dto;
     }
 } 

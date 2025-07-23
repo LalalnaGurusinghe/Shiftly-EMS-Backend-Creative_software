@@ -15,6 +15,7 @@ public class LeaveDTO {
    
     
     private String coverPersonName;
+    private String departmentName;
    
     private String reportToName;
     private String reason;
