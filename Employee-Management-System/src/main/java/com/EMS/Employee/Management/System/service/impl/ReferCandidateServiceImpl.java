@@ -151,6 +151,13 @@ public class ReferCandidateServiceImpl implements ReferCandidateService {
         dto.setFileUrl(entity.getFileUrl());
         dto.setStatus(entity.getStatus() != null ? entity.getStatus().name() : null);
         dto.setUserId(entity.getUser() != null ? entity.getUser().getId() : null);
+        // Set departmentName using EmployeeEntity
+        if (entity.getUser() != null) {
+            EmployeeEntity employee = employeeRepo.findByUser_Id(entity.getUser().getId());
+            if (employee != null) {
+                dto.setDepartmentName(employee.getDepartment());
+            }
+        }
         return dto;
     }
 }

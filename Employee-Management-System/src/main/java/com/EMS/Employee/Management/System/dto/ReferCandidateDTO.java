@@ -13,4 +13,5 @@ public class ReferCandidateDTO {
     private String fileUrl;
     private String status;
     private Long userId;
+    private String departmentName;
 }
