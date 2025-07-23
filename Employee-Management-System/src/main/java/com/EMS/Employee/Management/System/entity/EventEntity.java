@@ -28,19 +28,14 @@ public class EventEntity {
     @Column(name = "expire_date", nullable = false)
     private LocalDate expireDate;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "created_by", nullable = false)
-    private EmployeeEntity createdBy;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private EventStatus status = EventStatus.PENDING;
+
+    @Column(name = "image_url")
+    private String imageUrl;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
-    private EventStatus status;
-
-    @Lob
-    @Column(name = "file_data")
-    private byte[] fileData;
 }

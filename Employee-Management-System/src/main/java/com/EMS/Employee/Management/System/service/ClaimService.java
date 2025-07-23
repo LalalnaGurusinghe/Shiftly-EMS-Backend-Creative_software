@@ -1,16 +1,26 @@
 package com.EMS.Employee.Management.System.service;
 
 import com.EMS.Employee.Management.System.dto.ClaimDTO;
+import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
+import java.time.LocalDate;
 
 public interface ClaimService {
-    // Employee
-    ClaimDTO createClaim(ClaimDTO dto, String username);
-    List<ClaimDTO> getOwnClaims(String username);
-    ClaimDTO updateOwnClaim(Long id, ClaimDTO dto, String username);
-    void deleteOwnClaim(Long id, String username);
+    ClaimDTO createClaim(String claimType, String description, MultipartFile file, String status, String username,
+            LocalDate claimDate)
+            throws Exception;
 
-    // Admin
     List<ClaimDTO> getAllClaims();
-    ClaimDTO updateClaimStatus(Long id, String status);
-} 
+
+    List<ClaimDTO> getClaimsByUserId(Long userId);
+
+    ClaimDTO updateClaim(Long id, ClaimDTO claimDTO, String username);
+
+    void deleteClaim(Long id, String username);
+
+    ClaimDTO getClaimById(Long id);
+
+    ClaimDTO approveClaim(Long id);
+
+    ClaimDTO rejectClaim(Long id);
+}

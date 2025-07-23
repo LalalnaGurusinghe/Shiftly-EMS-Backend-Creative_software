@@ -135,6 +135,11 @@ public class ReferCandidateServiceImpl implements ReferCandidateService {
         return toDTO(saved);
     }
 
+    @Override
+    public List<ReferCandidateDTO> getReferralsByUserId(Long userId) {
+        return referCandidateRepo.findByUser_Id(userId).stream().map(this::toDTO).collect(Collectors.toList());
+    }
+
     // Helper: Entity to DTO
     private ReferCandidateDTO toDTO(ReferCandidateEntity entity) {
         ReferCandidateDTO dto = new ReferCandidateDTO();

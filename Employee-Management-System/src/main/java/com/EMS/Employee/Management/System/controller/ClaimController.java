@@ -2,69 +2,88 @@ package com.EMS.Employee.Management.System.controller;
 
 import com.EMS.Employee.Management.System.dto.ClaimDTO;
 import com.EMS.Employee.Management.System.service.ClaimService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.security.core.Authentication;
-
-import java.security.Principal;
 import java.util.List;
+import org.springframework.format.annotation.DateTimeFormat;
+import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/api/v1/shiftly/ems/claims")
 @CrossOrigin(origins = "http://localhost:3000")
 public class ClaimController {
-    @Autowired
-    private ClaimService claimService;
+    private final ClaimService claimService;
 
-    // Employee: Create claim (with optional file upload)
-    @PostMapping("/add")
-    @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<ClaimDTO> createClaim(@RequestBody ClaimDTO dto, Authentication authentication) {
-        return ResponseEntity.ok(claimService.createClaim(dto, authentication.getName()));
+    public ClaimController(ClaimService claimService) {
+        this.claimService = claimService;
     }
 
-    // Employee: View own claims
-    @GetMapping("/my")
-    @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<List<ClaimDTO>> getOwnClaims(Principal principal) {
-        List<ClaimDTO> claims = claimService.getOwnClaims(principal.getName());
-        return ResponseEntity.ok(claims);
+    // Admin: View all claims
+    @GetMapping("/all")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<List<ClaimDTO>> getAllClaims() {
+        return ResponseEntity.ok(claimService.getAllClaims());
     }
 
-    // Employee: Update own claim
+    // Admin: Approve claim
+    @PutMapping("/approve/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ClaimDTO> approveClaim(@PathVariable Long id) {
+        return ResponseEntity.ok(claimService.approveClaim(id));
+    }
+
+    // Admin: Reject claim
+    @PutMapping("/reject/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ClaimDTO> rejectClaim(@PathVariable Long id) {
+        return ResponseEntity.ok(claimService.rejectClaim(id));
+    }
+
+    // Employee: Create claim
+    @PostMapping(value = "/add", consumes = { "multipart/form-data" })
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<ClaimDTO> createClaim(
+            @RequestParam String claimType,
+            @RequestParam String description,
+            @RequestParam(required = false) MultipartFile file,
+            @RequestParam(required = false) String status,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate claimDate,
+            Authentication authentication) throws Exception {
+        ClaimDTO dto = claimService.createClaim(
+                claimType, description, file, status, authentication.getName(), claimDate);
+        return ResponseEntity.ok(dto);
+    }
+
+    // Employee: Edit own claim
     @PutMapping("/update/{id}")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<ClaimDTO> updateOwnClaim(@PathVariable Long id,
-                                                   @RequestBody ClaimDTO dto,
-                                                   Principal principal) {
-        ClaimDTO result = claimService.updateOwnClaim(id, dto, principal.getName());
-        return ResponseEntity.ok(result);
+    public ResponseEntity<ClaimDTO> updateClaim(@PathVariable Long id, @RequestBody ClaimDTO claimDTO,
+            Authentication authentication) {
+        return ResponseEntity.ok(claimService.updateClaim(id, claimDTO, authentication.getName()));
     }
 
     // Employee: Delete own claim
     @DeleteMapping("/delete/{id}")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<Void> deleteOwnClaim(@PathVariable Long id, Principal principal) {
-        claimService.deleteOwnClaim(id, principal.getName());
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<Void> deleteClaim(@PathVariable Long id, Authentication authentication) {
+        claimService.deleteClaim(id, authentication.getName());
+        return ResponseEntity.ok().build();
     }
 
-    // Admin: View all claims
-    @GetMapping("/all")
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
-    public ResponseEntity<List<ClaimDTO>> getAllClaims() {
-        List<ClaimDTO> claims = claimService.getAllClaims();
-        return ResponseEntity.ok(claims);
+    // Get claim by id (admin or employee)
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public ResponseEntity<ClaimDTO> getClaimById(@PathVariable Long id) {
+        return ResponseEntity.ok(claimService.getClaimById(id));
     }
 
-    // Admin: Approve/Reject/Update status
-    @PutMapping("/status/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
-    public ResponseEntity<ClaimDTO> updateClaimStatus(@PathVariable Long id, @RequestParam String status) {
-        ClaimDTO result = claimService.updateClaimStatus(id, status);
-        return ResponseEntity.ok(result);
+    // Get claims by user id (employee)
+    @GetMapping("/user/{userId}")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<List<ClaimDTO>> getClaimsByUserId(@PathVariable Long userId) {
+        return ResponseEntity.ok(claimService.getClaimsByUserId(userId));
     }
-} 
+}

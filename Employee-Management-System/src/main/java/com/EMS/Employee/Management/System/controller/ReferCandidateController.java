@@ -84,4 +84,12 @@ public class ReferCandidateController {
         ReferCandidateDTO result = referCandidateService.updateReferralStatus(id, status);
         return ResponseEntity.ok(result);
     }
+
+    // Get all referrals by userId
+    @GetMapping("/user/{userId}")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<List<ReferCandidateDTO>> getReferralsByUserId(@PathVariable Long userId) {
+        List<ReferCandidateDTO> referrals = referCandidateService.getReferralsByUserId(userId);
+        return ResponseEntity.ok(referrals);
+    }
 }
