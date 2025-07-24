@@ -48,6 +48,8 @@ public class SecurityConfig {
                         // Public endpoints
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/v1/shiftly/ems/events/all").permitAll()
+                        .requestMatchers("/api/v1/shiftly/ems/teams/all").permitAll()
+                        .requestMatchers("/api/v1/shiftly/ems/departments/all").permitAll()
                         .requestMatchers("/api/v1/shiftly/ems/events/{id}").permitAll()
                         .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/uploads/files/**").permitAll() // <-- Allow public access to uploaded files
