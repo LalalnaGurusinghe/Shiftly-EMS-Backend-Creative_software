@@ -5,6 +5,8 @@ import com.EMS.Employee.Management.System.dto.LoginResponseDTO;
 import com.EMS.Employee.Management.System.dto.RegisterRequestDTO;
 import com.EMS.Employee.Management.System.dto.UserDTO;
 import com.EMS.Employee.Management.System.entity.User;
+import com.EMS.Employee.Management.System.exception.AccountNotVerifiedException;
+import com.EMS.Employee.Management.System.exception.UserNotFoundException;
 import com.EMS.Employee.Management.System.repo.UserRepo;
 import com.EMS.Employee.Management.System.service.AuthenticationService;
 import com.EMS.Employee.Management.System.service.JwtService;
@@ -22,7 +24,6 @@ import com.EMS.Employee.Management.System.repo.DepartmentRepo;
 import com.EMS.Employee.Management.System.entity.DepartmentEntity;
 
 import java.util.HashSet;
-import java.util.Set;
 
 @Service
 public class AuthenticationServiceImpl implements AuthenticationService {
@@ -74,10 +75,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public LoginResponseDTO login(LoginRequestDTO loginRequestDTO) {
         User user = userRepo.findByUsername(loginRequestDTO.getUsername())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("Invalid username or password"));
 
         if (!user.isVerified()) {
-            throw new RuntimeException("Account not verified");
+            throw new AccountNotVerifiedException("Account not verified");
         }
 
         authenticationManager.authenticate(
