@@ -1,6 +1,7 @@
 package com.EMS.Employee.Management.System.controller;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.EMS.Employee.Management.System.dto.ChangePasswordDTO;
 import com.EMS.Employee.Management.System.dto.UserDTO;
+import com.EMS.Employee.Management.System.dto.UserDepartmentDTO;
 import com.EMS.Employee.Management.System.service.UserService;
 
 import jakarta.validation.Valid;
@@ -45,6 +47,15 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<UserDTO>> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUsers());
+    }
+
+    @GetMapping("/by-department/{department}")
+    public ResponseEntity<List<UserDepartmentDTO>> getUsernameAndDesignationByDepartment(@PathVariable String department) {
+        List<Object[]> results = userService.getUsernameAndDesignationByDepartment(department);
+        List<UserDepartmentDTO> dtos = results.stream()
+            .map(arr -> new UserDepartmentDTO((String) arr[0], (String) arr[1]))
+            .collect(Collectors.toList());
+        return ResponseEntity.ok(dtos);
     }
 
     @PutMapping("/change-password/{id}")

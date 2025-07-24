@@ -10,7 +10,7 @@ public interface ClaimService {
             LocalDate claimDate)
             throws Exception;
 
-    List<ClaimDTO> getAllClaims();
+    List<ClaimDTO> getAllClaims(String username);
 
     List<ClaimDTO> getClaimsByUserId(Long userId);
 

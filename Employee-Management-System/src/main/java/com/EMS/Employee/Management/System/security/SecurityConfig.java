@@ -56,9 +56,11 @@ public class SecurityConfig {
                         .requestMatchers("/uploads/events/**").permitAll() // <-- Allow public access to uploaded event
                         .requestMatchers("/api/v1/shiftly/ems/vacancies/**").permitAll()
                                                                            // images
+                        .requestMatchers("/api/v1/shiftly/ems/ai-letter/**").permitAll()
+                        .requestMatchers("/users/**").permitAll()
 
                         // User endpoints
-                        .requestMatchers("/users/**").hasAnyRole("USER", "ADMIN", "SUPER_ADMIN")
+                        
                         .requestMatchers("/api/v1/shiftly/ems/employee/self-update").hasRole("USER")
                         .requestMatchers("/api/v1/shiftly/ems/timesheets/**").hasRole("USER")
                         .requestMatchers("/api/v1/shiftly/ems/leaves/**").hasRole("USER")
@@ -70,6 +72,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/shiftly/ems/projects/my").hasRole("USER")
                         .requestMatchers("/api/v1/shiftly/ems/events/my/**").hasRole("USER")
                         .requestMatchers("/api/v1/shiftly/ems/employee/**").hasRole("USER")
+                        .requestMatchers("/api/v1/shiftly/ems/employee/name/**").hasRole("USER")
 
                         // Admin endpoints
 

@@ -89,6 +89,15 @@ public class EmployeeServiceImpl implements EmployeeService {
             .collect(Collectors.toList());
     }
 
+    @Override
+    public String getEmployeeNameById(int id) {
+        EmployeeEntity employee = employeeRepo.findById(id).orElse(null);
+        if (employee == null) return null;
+        String firstName = employee.getFirstName() != null ? employee.getFirstName() : "";
+        String lastName = employee.getLastName() != null ? employee.getLastName() : "";
+        return (firstName + " " + lastName).trim();
+    }
+
     @Transactional
     @Override
     public ResponseEntity<EmployeeDTO> deleteUserById(int id) {

@@ -24,9 +24,10 @@ public class ClaimController {
     // Admin: View all claims
     @GetMapping("/all")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<ClaimDTO>> getAllClaims() {
-        return ResponseEntity.ok(claimService.getAllClaims());
+    public ResponseEntity<List<ClaimDTO>> getAllClaims(Authentication authentication) {
+        return ResponseEntity.ok(claimService.getAllClaims(authentication.getName()));
     }
+
 
     // Admin: Approve claim
     @PutMapping("/approve/{id}")

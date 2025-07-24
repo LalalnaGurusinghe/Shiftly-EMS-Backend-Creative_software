@@ -12,4 +12,5 @@ public interface EmployeeService {
     ResponseEntity<EmployeeDTO> deleteUserById(int id);
     ResponseEntity<EmployeeDTO> updateUserById(int id, EmployeeDTO employeeDTO);
     List<EmployeeDTO> getEmployeesByDepartment(String department);
+    String getEmployeeNameById(int id);
 }

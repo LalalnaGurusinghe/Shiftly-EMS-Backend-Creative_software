@@ -152,3 +152,46 @@ If enabled, Swagger/OpenAPI UI is available at `/swagger-ui.html`.
 ---
 
 **For any questions or issues, please open an issue in this repository.** 
+
+---
+
+## **What This Means**
+
+- The Gemini API endpoint you are calling (`/v1beta/models/gemini-pro:generateContent`) is returning a **404 Not Found** error.
+- This means the endpoint does not exist, is not available, or your API key/project does not have access to it.
+
+---
+
+## **How to Fix**
+
+### 1. **Check the Gemini API Endpoint**
+- The correct endpoint for Gemini 1.5 Pro (as of July 2024) is:
+  ```
+  https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent?key=YOUR_API_KEY
+  ```
+- Your code is using `gemini-pro`, which is not a valid model name.
+
+### 2. **Update Your Endpoint in GeminiClient**
+- Change:
+  ```java
+  private static final String GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent";
+  ```
+- To:
+  ```java
+  private static final String GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent";
+  ```
+
+### 3. **Rebuild and Restart**
+- Save the change.
+- Rebuild your project and restart the backend.
+- Test again with Postman.
+
+---
+
+## **Summary of Steps**
+
+1. **Update the model name in your GeminiClient to `gemini-1.5-pro-latest`.**
+2. **Rebuild and restart your backend.**
+3. **Test the endpoint again.**
+
+Would you like me to make this code change for you? 
