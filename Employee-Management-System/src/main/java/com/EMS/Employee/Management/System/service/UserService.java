@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.EMS.Employee.Management.System.dto.ChangePasswordDTO;
 import com.EMS.Employee.Management.System.dto.UserDTO;
+import com.EMS.Employee.Management.System.dto.AdminUserResponseDTO;
 import com.EMS.Employee.Management.System.entity.User;
 
 public interface UserService {
@@ -19,4 +20,5 @@ public interface UserService {
     List<UserDTO> verifyAllUnverifiedEmployees(String role);
     UserDTO verifyAndUpdateUserRoleAndProfile(Long id, String role, String designation, String department, String reportingPerson, String reportingPersonEmail);
     List<Object[]> getUsernameAndDesignationByDepartment(String department);
+    AdminUserResponseDTO getAdminUserByDepartment(String department);
 }
