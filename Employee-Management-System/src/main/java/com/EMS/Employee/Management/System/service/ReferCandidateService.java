@@ -19,4 +19,9 @@ public interface ReferCandidateService {
     ReferCandidateDTO updateReferralStatus(Long id, String status);
 
     List<ReferCandidateDTO> getReferralsByUserId(Long userId);
+
+    ReferCandidateDTO updateReferral(Long id, Long vacancyId, String applicantName, String applicantEmail,
+            String message, org.springframework.web.multipart.MultipartFile file, String status) throws Exception;
+
+    void deleteReferral(Long id);
 }

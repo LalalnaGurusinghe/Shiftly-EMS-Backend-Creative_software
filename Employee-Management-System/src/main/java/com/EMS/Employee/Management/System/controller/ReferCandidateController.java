@@ -51,21 +51,27 @@ public class ReferCandidateController {
         return ResponseEntity.ok(referrals);
     }
 
-    // Employee: Update own referral
-    @PutMapping("/update/{id}")
+    // Employee: Update referral by id only
+    @PutMapping(value = "/update/{id}", consumes = { "multipart/form-data" })
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<ReferCandidateDTO> updateOwnReferral(@PathVariable Long id,
-            @RequestBody ReferCandidateDTO dto,
-            Principal principal) {
-        ReferCandidateDTO result = referCandidateService.updateOwnReferral(id, dto, principal.getName());
+    public ResponseEntity<ReferCandidateDTO> updateReferral(
+            @PathVariable Long id,
+            @RequestParam(required = false) Long vacancyId,
+            @RequestParam(required = false) String applicantName,
+            @RequestParam(required = false) String applicantEmail,
+            @RequestParam(required = false) String message,
+            @RequestParam(required = false) MultipartFile file,
+            @RequestParam(required = false) String status) throws Exception {
+        ReferCandidateDTO result = referCandidateService.updateReferral(id, vacancyId, applicantName, applicantEmail,
+                message, file, status);
         return ResponseEntity.ok(result);
     }
 
-    // Employee: Delete own referral
+    // Employee: Delete referral by id only
     @DeleteMapping("/delete/{id}")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<Void> deleteOwnReferral(@PathVariable Long id, Principal principal) {
-        referCandidateService.deleteOwnReferral(id, principal.getName());
+    public ResponseEntity<Void> deleteReferral(@PathVariable Long id) {
+        referCandidateService.deleteReferral(id);
         return ResponseEntity.noContent().build();
     }
 
@@ -92,4 +98,5 @@ public class ReferCandidateController {
         List<ReferCandidateDTO> referrals = referCandidateService.getReferralsByUserId(userId);
         return ResponseEntity.ok(referrals);
     }
+
 }

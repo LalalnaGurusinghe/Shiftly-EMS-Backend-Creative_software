@@ -41,12 +41,8 @@ public class TimesheetController {
     // User: Delete timesheet
     @DeleteMapping("/delete/{id}")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<Void> deleteTimesheet(@PathVariable Long id, Principal principal) {
-        // You may want to extract userId from principal
-        // For now, assume userId is provided in the request
-        // Replace with actual userId extraction logic as needed
-        Long userId = Long.valueOf(principal.getName());
-        timesheetService.deleteTimesheet(id, userId);
+    public ResponseEntity<Void> deleteTimesheet(@PathVariable Long id) {
+        timesheetService.deleteTimesheet(id);
         return ResponseEntity.ok().build();
     }
 
@@ -56,4 +52,11 @@ public class TimesheetController {
     public ResponseEntity<TimesheetDTO> updateStatus(@PathVariable Long id, @RequestParam String status) {
         return ResponseEntity.ok(timesheetService.updateStatus(id, status));
     }
-} 
+
+    // User: Update timesheet
+    @PutMapping("/update/{id}")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<TimesheetDTO> updateTimesheet(@PathVariable Long id, @RequestBody TimesheetDTO dto) {
+        return ResponseEntity.ok(timesheetService.updateTimesheet(id, dto));
+    }
+}

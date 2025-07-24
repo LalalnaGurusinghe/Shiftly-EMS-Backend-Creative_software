@@ -136,8 +136,47 @@ public class ReferCandidateServiceImpl implements ReferCandidateService {
     }
 
     @Override
+    @Transactional
+    public ReferCandidateDTO updateReferral(Long id, Long vacancyId, String applicantName, String applicantEmail,
+            String message, MultipartFile file, String status) throws Exception {
+        ReferCandidateEntity entity = referCandidateRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Referral not found"));
+        if (vacancyId != null) {
+            VacancyEntity vacancy = vacancyRepo.findById(vacancyId)
+                    .orElseThrow(() -> new RuntimeException("Vacancy not found"));
+            entity.setVacancy(vacancy);
+        }
+        if (applicantName != null)
+            entity.setApplicantName(applicantName);
+        if (applicantEmail != null)
+            entity.setApplicantEmail(applicantEmail);
+        if (message != null)
+            entity.setMessage(message);
+        if (status != null)
+            entity.setStatus(com.EMS.Employee.Management.System.entity.ReferStatus.valueOf(status));
+        if (file != null && !file.isEmpty()) {
+            String projectRoot = System.getProperty("user.dir");
+            String uploadDir = projectRoot + java.io.File.separator + "uploads" + java.io.File.separator + "files"
+                    + java.io.File.separator;
+            Files.createDirectories(Paths.get(uploadDir));
+            String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
+            Path filePath = Paths.get(uploadDir, fileName);
+            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+            entity.setFileUrl("/uploads/files/" + fileName);
+        }
+        ReferCandidateEntity saved = referCandidateRepo.save(entity);
+        return toDTO(saved);
+    }
+
+    @Override
     public List<ReferCandidateDTO> getReferralsByUserId(Long userId) {
         return referCandidateRepo.findByUser_Id(userId).stream().map(this::toDTO).collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public void deleteReferral(Long id) {
+        referCandidateRepo.deleteById(id);
     }
 
     // Helper: Entity to DTO

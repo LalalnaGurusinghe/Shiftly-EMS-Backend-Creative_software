@@ -46,11 +46,8 @@ public class TimesheetServiceImpl implements TimesheetService {
 
     @Override
     @Transactional
-    public void deleteTimesheet(Long id, Long userId) {
+    public void deleteTimesheet(Long id) {
         Timesheet timesheet = timesheetRepo.findById(id).orElseThrow(() -> new RuntimeException("Timesheet not found"));
-        if (!timesheet.getUserId().equals(userId)) {
-            throw new RuntimeException("Unauthorized to delete this timesheet");
-        }
         timesheetRepo.delete(timesheet);
     }
 
@@ -63,12 +60,31 @@ public class TimesheetServiceImpl implements TimesheetService {
         return toDTO(saved);
     }
 
+    @Override
+    @Transactional
+    public TimesheetDTO updateTimesheet(Long id, TimesheetDTO dto) {
+        Timesheet entity = timesheetRepo.findById(id).orElseThrow(() -> new RuntimeException("Timesheet not found"));
+        if (dto.getDate() != null)
+            entity.setDate(dto.getDate());
+        if (dto.getMode() != null)
+            entity.setMode(dto.getMode());
+        if (dto.getActivity() != null)
+            entity.setActivity(dto.getActivity());
+        if (dto.getHours() != 0)
+            entity.setHours(dto.getHours());
+        if (dto.getStatus() != null)
+            entity.setStatus(dto.getStatus());
+        Timesheet saved = timesheetRepo.save(entity);
+        return toDTO(saved);
+    }
+
     private TimesheetDTO toDTO(Timesheet entity) {
         TimesheetDTO dto = new TimesheetDTO();
         BeanUtils.copyProperties(entity, dto);
         // Set departmentName using EmployeeEntity
         if (entity.getUserId() != null) {
-            // You need access to EmployeeRepo here, so add it as a field and constructor param if not present
+            // You need access to EmployeeRepo here, so add it as a field and constructor
+            // param if not present
             EmployeeEntity employee = employeeRepo.findByUser_Id(entity.getUserId());
             if (employee != null) {
                 dto.setDepartmentName(employee.getDepartment());
@@ -76,4 +92,4 @@ public class TimesheetServiceImpl implements TimesheetService {
         }
         return dto;
     }
-} 
+}
