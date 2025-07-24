@@ -74,7 +74,7 @@ public class EventController {
     // }
 
     // Employee: Edit own event
-    @PutMapping("/update/{id}")
+    @PutMapping(value = "/update/{id}",consumes = { "multipart/form-data" })
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<EventDTO> updateEvent(@PathVariable Long id, @RequestBody EventDTO eventDTO, Authentication authentication) {
         return ResponseEntity.ok(eventService.updateEvent(id, eventDTO, authentication.getName()));

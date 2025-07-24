@@ -16,4 +16,5 @@ public interface UserRepo extends JpaRepository<User, Long> {
     List<User> findByIsVerifiedFalse();
     List<User> findByDepartment(String department);
     List<User> findByDepartmentAndRolesContaining(String department, String role);
+    List<User> findByDepartmentOrderByCreatedAtAsc(String department);
 }
