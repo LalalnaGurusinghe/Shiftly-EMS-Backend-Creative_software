@@ -57,9 +57,10 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/shiftly/ems/vacancies/**").permitAll()
                                                                            // images
                         .requestMatchers("/api/v1/shiftly/ems/ai-letter/**").permitAll()
+                        .requestMatchers("/users/**").permitAll()
 
                         // User endpoints
-                        .requestMatchers("/users/**").hasAnyRole("USER", "ADMIN", "SUPER_ADMIN")
+                        
                         .requestMatchers("/api/v1/shiftly/ems/employee/self-update").hasRole("USER")
                         .requestMatchers("/api/v1/shiftly/ems/timesheets/**").hasRole("USER")
                         .requestMatchers("/api/v1/shiftly/ems/leaves/**").hasRole("USER")

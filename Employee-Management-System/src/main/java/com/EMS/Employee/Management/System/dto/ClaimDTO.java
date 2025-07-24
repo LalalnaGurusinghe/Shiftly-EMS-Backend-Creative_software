@@ -16,4 +16,8 @@ public class ClaimDTO {
     private Long userId;
     private String claimUrl;
     private LocalDate claimDate;
+    // Add these new fields
+    private String employeeName;
+    private String employeeEmail;
+    private String department;
 }

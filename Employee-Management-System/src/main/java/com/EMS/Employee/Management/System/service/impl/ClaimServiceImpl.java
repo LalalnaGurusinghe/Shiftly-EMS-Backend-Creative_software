@@ -56,9 +56,26 @@ public class ClaimServiceImpl implements ClaimService {
     }
 
     @Override
-    public List<ClaimDTO> getAllClaims() {
-        return claimRepo.findAll().stream().map(this::toDTO).collect(Collectors.toList());
+public List<ClaimDTO> getAllClaims(String username) {
+    User currentUser = userRepo.findByUsername(username)
+        .orElseThrow(() -> new RuntimeException("User not found"));
+    
+    List<ClaimEntity> claims;
+    
+    // Role-based filtering
+    if (currentUser.getRoles() != null && currentUser.getRoles().contains("SUPER_ADMIN")) {
+        // Super admin can see all claims
+        claims = claimRepo.findAll();
+    } else if (currentUser.getRoles() != null && currentUser.getRoles().contains("ADMIN")) {
+        // Regular admin can only see claims from their department
+        claims = claimRepo.findByUser_Department(currentUser.getDepartment());
+    } else {
+        // Non-admin users should not access this endpoint
+        throw new RuntimeException("Access denied: insufficient privileges");
     }
+    
+    return claims.stream().map(this::toDTO).collect(Collectors.toList());
+}
 
     @Override
     public List<ClaimDTO> getClaimsByUserId(Long userId) {
@@ -129,6 +146,14 @@ public class ClaimServiceImpl implements ClaimService {
         dto.setUserId(entity.getUser() != null ? entity.getUser().getId() : null);
         dto.setClaimUrl(entity.getClaimUrl());
         dto.setClaimDate(entity.getClaimDate());
+
+        // Add user details including department
+        if (entity.getUser() != null) {
+            dto.setEmployeeName(entity.getUser().getUsername());
+            dto.setEmployeeEmail(entity.getUser().getEmail());
+            dto.setDepartment(entity.getUser().getDepartment());
+        }
+
         return dto;
     }
 }

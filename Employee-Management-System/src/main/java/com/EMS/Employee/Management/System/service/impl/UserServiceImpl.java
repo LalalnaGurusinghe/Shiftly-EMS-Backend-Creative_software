@@ -236,6 +236,14 @@ public class UserServiceImpl implements UserService {
         return convertToUserDTO(user);
     }
 
+    @Override
+    public List<Object[]> getUsernameAndDesignationByDepartment(String department) {
+        List<User> users = userRepo.findByDepartment(department);
+        return users.stream()
+                .map(u -> new Object[]{u.getUsername(), u.getDesignation()})
+                .collect(Collectors.toList());
+    }
+
     private boolean isValidRole(String role) {
         if (role == null) {
             return false;
