@@ -117,4 +117,16 @@ public class EmployeeController {
     public ResponseEntity<List<EmployeeDTO>> getEmployeesByDepartment(@PathVariable String department) {
         return ResponseEntity.ok(employeeService.getEmployeesByDepartment(department));
     }
+
+    @GetMapping("/name/{id}")
+    @PreAuthorize(" hasRole('USER')")
+    public ResponseEntity<?> getEmployeeNameById(@PathVariable int id) {
+        String fullName = employeeService.getEmployeeNameById(id);
+        if (fullName == null) {
+            return ResponseEntity.notFound().build();
+        }
+        java.util.Map<String, String> result = new java.util.HashMap<>();
+        result.put("fullName", fullName);
+        return ResponseEntity.ok(result);
+    }
 }

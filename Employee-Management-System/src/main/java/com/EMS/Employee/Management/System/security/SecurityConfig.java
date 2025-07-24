@@ -70,6 +70,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/shiftly/ems/projects/my").hasRole("USER")
                         .requestMatchers("/api/v1/shiftly/ems/events/my/**").hasRole("USER")
                         .requestMatchers("/api/v1/shiftly/ems/employee/**").hasRole("USER")
+                        .requestMatchers("/api/v1/shiftly/ems/employee/name/**").hasRole("USER")
 
                         // Admin endpoints
 
