@@ -54,6 +54,7 @@ public class SecurityConfig {
                         .requestMatchers("/uploads/events/**").permitAll() // <-- Allow public access to uploaded event
                         .requestMatchers("/api/v1/shiftly/ems/vacancies/**").permitAll()
                                                                            // images
+                        .requestMatchers("/api/v1/shiftly/ems/ai-letter/**").permitAll()
 
                         // User endpoints
                         .requestMatchers("/users/**").hasAnyRole("USER", "ADMIN", "SUPER_ADMIN")
