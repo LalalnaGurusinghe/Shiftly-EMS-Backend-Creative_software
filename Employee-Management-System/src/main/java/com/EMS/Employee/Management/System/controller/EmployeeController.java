@@ -1,7 +1,9 @@
 package com.EMS.Employee.Management.System.controller;
 
 import com.EMS.Employee.Management.System.dto.EmployeeDTO;
+import com.EMS.Employee.Management.System.dto.AdminUserResponseDTO;
 import com.EMS.Employee.Management.System.service.EmployeeService;
+import com.EMS.Employee.Management.System.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -14,23 +16,21 @@ import com.EMS.Employee.Management.System.repo.EmployeeRepo;
 import com.EMS.Employee.Management.System.entity.EmployeeEntity;
 import com.EMS.Employee.Management.System.entity.User;
 import org.springframework.beans.BeanUtils;
-import com.EMS.Employee.Management.System.entity.DepartmentEntity;
-import com.EMS.Employee.Management.System.repo.DepartmentRepo;
 
 @RestController
 @RequestMapping("/api/v1/shiftly/ems/employee")
 @CrossOrigin(origins = "http://localhost:3000")
 public class EmployeeController {
     private final EmployeeService employeeService;
+    private final UserService userService;
     private final UserRepo userRepo;
     private final EmployeeRepo employeeRepo;
-    private final DepartmentRepo departmentRepo;
 
-    public EmployeeController(EmployeeService employeeService, UserRepo userRepo, EmployeeRepo employeeRepo, DepartmentRepo departmentRepo) {
+    public EmployeeController(EmployeeService employeeService, UserService userService, UserRepo userRepo, EmployeeRepo employeeRepo) {
         this.employeeService = employeeService;
+        this.userService = userService;
         this.userRepo = userRepo;
         this.employeeRepo = employeeRepo;
-        this.departmentRepo = departmentRepo;
     }
 
     @PostMapping("/add")
@@ -101,7 +101,6 @@ public class EmployeeController {
             employee = new EmployeeEntity();
             employee.setUser(user);
         }
-        boolean isAdmin = user.getRoles().contains("ADMIN") || user.getRoles().contains("SUPER_ADMIN");
         BeanUtils.copyProperties(employeeDTO, employee, "employeeId", "user");
         employee.setUser(user);
         EmployeeEntity saved = employeeRepo.save(employee);
@@ -116,6 +115,17 @@ public class EmployeeController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<EmployeeDTO>> getEmployeesByDepartment(@PathVariable String department) {
         return ResponseEntity.ok(employeeService.getEmployeesByDepartment(department));
+    }
+
+    @GetMapping("/admins-by-department/{department}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<AdminUserResponseDTO> getAdminUserByDepartment(@PathVariable String department) {
+        AdminUserResponseDTO adminUser = userService.getAdminUserByDepartment(department);
+        if (adminUser != null) {
+            return ResponseEntity.ok(adminUser);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @GetMapping("/name/{id}")

@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.EMS.Employee.Management.System.dto.ChangePasswordDTO;
 import com.EMS.Employee.Management.System.dto.UserDTO;
+import com.EMS.Employee.Management.System.dto.AdminUserResponseDTO;
 import com.EMS.Employee.Management.System.entity.EmployeeEntity;
 import com.EMS.Employee.Management.System.entity.User;
 import com.EMS.Employee.Management.System.repo.DepartmentRepo;
@@ -260,6 +261,24 @@ public class UserServiceImpl implements UserService {
         userDTO.setReportingPerson(user.getReportingPerson());
         userDTO.setReportingPersonEmail(user.getReportingPersonEmail());
         return userDTO;
+    }
+
+    @Override
+    public AdminUserResponseDTO getAdminUserByDepartment(String department) {
+        List<User> adminUsers = userRepo.findByDepartmentAndRolesContaining(department, "ADMIN");
+        
+        // Return the first admin user found, or null if no admin users exist
+        for (User user : adminUsers) {
+            EmployeeEntity employee = employeeRepo.findByUser_Id(user.getId());
+            if (employee != null) {
+                return new AdminUserResponseDTO(
+                    employee.getFirstName(),
+                    employee.getLastName(),
+                    user.getEmail()
+                );
+            }
+        }
+        return null; // No admin user found for this department
     }
 
 
