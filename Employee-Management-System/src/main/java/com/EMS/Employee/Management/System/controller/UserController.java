@@ -58,15 +58,6 @@ public class UserController {
         return ResponseEntity.ok(dtos);
     }
 
-    @GetMapping("/first-by-department/{department}")
-    public ResponseEntity<UserDTO> getFirstUserByDepartment(@PathVariable String department) {
-        UserDTO user = userService.getFirstUserByDepartment(department);
-        if (user == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(user);
-    }
-
     @PutMapping("/change-password/{id}")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<UserDTO> changePassword(@PathVariable Long id, @Valid @RequestBody ChangePasswordDTO changePasswordDTO) {

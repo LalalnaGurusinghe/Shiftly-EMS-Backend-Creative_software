@@ -245,15 +245,6 @@ public class UserServiceImpl implements UserService {
                 .collect(Collectors.toList());
     }
 
-    @Override
-    public UserDTO getFirstUserByDepartment(String department) {
-        List<User> users = userRepo.findByDepartmentOrderByCreatedAtAsc(department);
-        if (users == null || users.isEmpty()) {
-            return null;
-        }
-        return convertToUserDTO(users.get(0));
-    }
-
     private boolean isValidRole(String role) {
         if (role == null) {
             return false;
@@ -282,22 +273,20 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public AdminUserResponseDTO getAdminUserByDepartment(String department) {
-        List<User> users = userRepo.findByDepartment(department);
-        if (users == null || users.isEmpty()) {
-            return null;
+        List<User> adminUsers = userRepo.findByDepartmentAndRolesContaining(department, "ADMIN");
+        
+        // Return the first admin user found, or null if no admin users exist
+        for (User user : adminUsers) {
+            EmployeeEntity employee = employeeRepo.findByUser_Id(user.getId());
+            if (employee != null) {
+                return new AdminUserResponseDTO(
+                    employee.getFirstName(),
+                    employee.getLastName(),
+                    user.getEmail()
+                );
+            }
         }
-        // Sort users by createdAt ascending to get the first user (admin)
-        users.sort(java.util.Comparator.comparing(User::getCreatedAt));
-        User firstUser = users.get(0);
-        EmployeeEntity employee = employeeRepo.findByUser_Id(firstUser.getId());
-        if (employee != null) {
-            return new AdminUserResponseDTO(
-                employee.getFirstName(),
-                employee.getLastName(),
-                firstUser.getEmail()
-            );
-        }
-        return null;
+        return null; // No admin user found for this department
     }
 
 

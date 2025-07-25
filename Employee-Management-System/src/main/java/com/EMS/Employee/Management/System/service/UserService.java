@@ -21,5 +21,4 @@ public interface UserService {
     UserDTO verifyAndUpdateUserRoleAndProfile(Long id, String role, String designation, String department, String reportingPerson, String reportingPersonEmail);
     List<Object[]> getUsernameAndDesignationByDepartment(String department);
     AdminUserResponseDTO getAdminUserByDepartment(String department);
-    UserDTO getFirstUserByDepartment(String department);
 }
