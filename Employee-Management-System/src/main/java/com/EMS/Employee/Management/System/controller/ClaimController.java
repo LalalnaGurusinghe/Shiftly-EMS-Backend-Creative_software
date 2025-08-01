@@ -10,6 +10,7 @@ import org.springframework.security.core.Authentication;
 import java.util.List;
 import org.springframework.format.annotation.DateTimeFormat;
 import java.time.LocalDate;
+import java.security.Principal;
 
 @RestController
 @RequestMapping("/api/v1/shiftly/ems/claims")
@@ -27,7 +28,6 @@ public class ClaimController {
     public ResponseEntity<List<ClaimDTO>> getAllClaims(Authentication authentication) {
         return ResponseEntity.ok(claimService.getAllClaims(authentication.getName()));
     }
-
 
     // Admin: Approve claim
     @PutMapping("/approve/{id}")
@@ -58,12 +58,28 @@ public class ClaimController {
         return ResponseEntity.ok(dto);
     }
 
-    // Employee: Edit own claim
-    @PutMapping("/update/{id}")
+    // Employee: View own claims
+    @GetMapping("/my")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<ClaimDTO> updateClaim(@PathVariable Long id, @RequestBody ClaimDTO claimDTO,
-            Authentication authentication) {
-        return ResponseEntity.ok(claimService.updateClaim(id, claimDTO, authentication.getName()));
+    public ResponseEntity<List<ClaimDTO>> getOwnClaims(Principal principal) {
+        List<ClaimDTO> claims = claimService.getOwnClaims(principal.getName());
+        return ResponseEntity.ok(claims);
+    }
+
+    // Employee: Edit own claim
+    @PutMapping(value = "/update/{id}", consumes = { "multipart/form-data" })
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<ClaimDTO> updateClaim(
+            @PathVariable Long id,
+            @RequestParam(required = false) String claimType,
+            @RequestParam(required = false) String description,
+            @RequestParam(required = false) MultipartFile file,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate claimDate,
+            Authentication authentication) throws Exception {
+        ClaimDTO dto = claimService.updateClaim(id, claimType, description, file, status, claimDate,
+                authentication.getName());
+        return ResponseEntity.ok(dto);
     }
 
     // Employee: Delete own claim
@@ -81,10 +97,11 @@ public class ClaimController {
         return ResponseEntity.ok(claimService.getClaimById(id));
     }
 
-    // Get claims by user id (employee)
+    // Get all claims by userId
     @GetMapping("/user/{userId}")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<List<ClaimDTO>> getClaimsByUserId(@PathVariable Long userId) {
-        return ResponseEntity.ok(claimService.getClaimsByUserId(userId));
+        List<ClaimDTO> claims = claimService.getClaimsByUserId(userId);
+        return ResponseEntity.ok(claims);
     }
 }

@@ -32,7 +32,8 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public EventDTO createEvent(String title, String eventType, LocalDate enableDate, LocalDate expireDate, MultipartFile image, String status, String username) throws Exception {
+    public EventDTO createEvent(String title, String eventType, LocalDate enableDate, LocalDate expireDate,
+            MultipartFile image, String status, String username) throws Exception {
         User user = userRepo.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
         EventEntity entity = new EventEntity();
         entity.setTitle(title);
@@ -44,7 +45,8 @@ public class EventServiceImpl implements EventService {
 
         if (image != null && !image.isEmpty()) {
             String projectRoot = System.getProperty("user.dir");
-            String uploadDir = projectRoot + java.io.File.separator + "uploads" + java.io.File.separator + "events" + java.io.File.separator;
+            String uploadDir = projectRoot + java.io.File.separator + "uploads" + java.io.File.separator + "events"
+                    + java.io.File.separator;
             Files.createDirectories(Paths.get(uploadDir));
             String fileName = UUID.randomUUID() + "_" + image.getOriginalFilename();
             Path filePath = Paths.get(uploadDir, fileName);
@@ -67,18 +69,42 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    public List<EventDTO> getOwnEvents(String username) {
+        User user = userRepo.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
+        return eventRepo.findByUser_Id(user.getId()).stream().map(this::toDTO).collect(Collectors.toList());
+    }
+
+    @Override
     @Transactional
-    public EventDTO updateEvent(Long id, EventDTO dto, String username) {
+    public EventDTO updateEvent(Long id, String title, String eventType, LocalDate enableDate, LocalDate expireDate,
+            MultipartFile image, String status, String username) throws Exception {
         User user = userRepo.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
         EventEntity entity = eventRepo.findById(id).orElseThrow(() -> new RuntimeException("Event not found"));
         if (!entity.getUser().getId().equals(user.getId())) {
             throw new RuntimeException("Unauthorized");
         }
-        if (dto.getTitle() != null) entity.setTitle(dto.getTitle());
-        if (dto.getEventType() != null) entity.setEventType(dto.getEventType());
-        if (dto.getEnableDate() != null) entity.setEnableDate(dto.getEnableDate());
-        if (dto.getExpireDate() != null) entity.setExpireDate(dto.getExpireDate());
-        if (dto.getStatus() != null) entity.setStatus(EventStatus.valueOf(dto.getStatus()));
+        if (title != null)
+            entity.setTitle(title);
+        if (eventType != null)
+            entity.setEventType(eventType);
+        if (enableDate != null)
+            entity.setEnableDate(enableDate);
+        if (expireDate != null)
+            entity.setExpireDate(expireDate);
+        if (status != null)
+            entity.setStatus(EventStatus.valueOf(status));
+
+        if (image != null && !image.isEmpty()) {
+            String projectRoot = System.getProperty("user.dir");
+            String uploadDir = projectRoot + java.io.File.separator + "uploads" + java.io.File.separator + "events"
+                    + java.io.File.separator;
+            Files.createDirectories(Paths.get(uploadDir));
+            String fileName = UUID.randomUUID() + "_" + image.getOriginalFilename();
+            Path filePath = Paths.get(uploadDir, fileName);
+            Files.copy(image.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+            entity.setImageUrl("/uploads/events/" + fileName);
+        }
+
         EventEntity saved = eventRepo.save(entity);
         return toDTO(saved);
     }

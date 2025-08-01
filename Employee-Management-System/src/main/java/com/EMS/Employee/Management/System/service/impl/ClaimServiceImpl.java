@@ -56,26 +56,26 @@ public class ClaimServiceImpl implements ClaimService {
     }
 
     @Override
-public List<ClaimDTO> getAllClaims(String username) {
-    User currentUser = userRepo.findByUsername(username)
-        .orElseThrow(() -> new RuntimeException("User not found"));
-    
-    List<ClaimEntity> claims;
-    
-    // Role-based filtering
-    if (currentUser.getRoles() != null && currentUser.getRoles().contains("SUPER_ADMIN")) {
-        // Super admin can see all claims
-        claims = claimRepo.findAll();
-    } else if (currentUser.getRoles() != null && currentUser.getRoles().contains("ADMIN")) {
-        // Regular admin can only see claims from their department
-        claims = claimRepo.findByUser_Department(currentUser.getDepartment());
-    } else {
-        // Non-admin users should not access this endpoint
-        throw new RuntimeException("Access denied: insufficient privileges");
+    public List<ClaimDTO> getAllClaims(String username) {
+        User currentUser = userRepo.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        List<ClaimEntity> claims;
+
+        // Role-based filtering
+        if (currentUser.getRoles() != null && currentUser.getRoles().contains("SUPER_ADMIN")) {
+            // Super admin can see all claims
+            claims = claimRepo.findAll();
+        } else if (currentUser.getRoles() != null && currentUser.getRoles().contains("ADMIN")) {
+            // Regular admin can only see claims from their department
+            claims = claimRepo.findByUser_Department(currentUser.getDepartment());
+        } else {
+            // Non-admin users should not access this endpoint
+            throw new RuntimeException("Access denied: insufficient privileges");
+        }
+
+        return claims.stream().map(this::toDTO).collect(Collectors.toList());
     }
-    
-    return claims.stream().map(this::toDTO).collect(Collectors.toList());
-}
 
     @Override
     public List<ClaimDTO> getClaimsByUserId(Long userId) {
@@ -83,21 +83,40 @@ public List<ClaimDTO> getAllClaims(String username) {
     }
 
     @Override
+    public List<ClaimDTO> getOwnClaims(String username) {
+        User user = userRepo.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
+        return claimRepo.findByUser_Id(user.getId()).stream().map(this::toDTO).collect(Collectors.toList());
+    }
+
+    @Override
     @Transactional
-    public ClaimDTO updateClaim(Long id, ClaimDTO dto, String username) {
+    public ClaimDTO updateClaim(Long id, String claimType, String description, MultipartFile file, String status,
+            LocalDate claimDate, String username) throws Exception {
         User user = userRepo.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
         ClaimEntity entity = claimRepo.findById(id).orElseThrow(() -> new RuntimeException("Claim not found"));
         if (!entity.getUser().getId().equals(user.getId())) {
             throw new RuntimeException("Unauthorized");
         }
-        if (dto.getClaimType() != null)
-            entity.setClaimType(dto.getClaimType());
-        if (dto.getDescription() != null)
-            entity.setDescription(dto.getDescription());
-        if (dto.getStatus() != null)
-            entity.setStatus(ClaimStatus.valueOf(dto.getStatus()));
-        if (dto.getClaimDate() != null)
-            entity.setClaimDate(dto.getClaimDate());
+        if (claimType != null)
+            entity.setClaimType(claimType);
+        if (description != null)
+            entity.setDescription(description);
+        if (status != null)
+            entity.setStatus(ClaimStatus.valueOf(status));
+        if (claimDate != null)
+            entity.setClaimDate(claimDate);
+
+        if (file != null && !file.isEmpty()) {
+            String projectRoot = System.getProperty("user.dir");
+            String uploadDir = projectRoot + java.io.File.separator + "uploads" + java.io.File.separator + "files"
+                    + java.io.File.separator;
+            Files.createDirectories(Paths.get(uploadDir));
+            String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
+            Path filePath = Paths.get(uploadDir, fileName);
+            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+            entity.setClaimUrl("/uploads/files/" + fileName);
+        }
+
         ClaimEntity saved = claimRepo.save(entity);
         return toDTO(saved);
     }
