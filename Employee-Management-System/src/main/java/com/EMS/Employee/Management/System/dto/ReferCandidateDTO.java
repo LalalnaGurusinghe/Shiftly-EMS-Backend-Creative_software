@@ -5,7 +5,6 @@ import lombok.Data;
 @Data
 public class ReferCandidateDTO {
     private Long id;
-    private Long vacancyId;
     private String vacancyName;
     private String applicantName;
     private String applicantEmail;
@@ -13,5 +12,4 @@ public class ReferCandidateDTO {
     private String fileUrl;
     private String status;
     private Long userId;
-    private String departmentName;
 }

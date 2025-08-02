@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/Employee-Management-System/Employee-Management-System.iml" filepath="$PROJECT_DIR$/Employee-Management-System/Employee-Management-System.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/Shiftly-EMS-Backend-Creative_software.iml" filepath="$PROJECT_DIR$/.idea/Shiftly-EMS-Backend-Creative_software.iml" />
     </modules>
   </component>

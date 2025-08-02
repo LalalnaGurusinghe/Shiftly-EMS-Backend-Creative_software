@@ -1,8 +1,10 @@
 package com.EMS.Employee.Management.System.service;
 
-import com.EMS.Employee.Management.System.dto.ReferCandidateDTO;
-import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
+
+import org.springframework.web.multipart.MultipartFile;
+
+import com.EMS.Employee.Management.System.dto.ReferCandidateDTO;
 
 public interface ReferCandidateService {
     ReferCandidateDTO createReferral(Long vacancyId, String applicantName, String applicantEmail, String message,

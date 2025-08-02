@@ -63,6 +63,13 @@ public class UserServiceImpl implements UserService {
                 .collect(Collectors.toList());
     }
 
+    @Override 
+    public List<UserDTO> getAllAdmins() {
+        return userRepo.findByRolesContaining("ADMIN").stream()
+            .map(this::convertToUserDTO)
+            .collect(Collectors.toList());
+}
+
     @Override
     public UserDTO changePassword(Long id, ChangePasswordDTO changePasswordDTO) {
         User user = userRepo.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
@@ -116,23 +123,6 @@ public class UserServiceImpl implements UserService {
         
         User user = userRepo.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
         logger.info("Found user: {}", user.getUsername());
-        
-        if (designation != null && !designation.trim().isEmpty()) {
-            user.setDesignation(designation);
-            logger.info("Updated designation to: {}", designation);
-        }
-        if (department != null && !department.trim().isEmpty()) {
-            user.setDepartment(department);
-            logger.info("Updated department to: {}", department);
-        }
-        if (reportingPerson != null && !reportingPerson.trim().isEmpty()) {
-            user.setReportingPerson(reportingPerson);
-            logger.info("Updated reporting person to: {}", reportingPerson);
-        }
-        if (reportingPersonEmail != null && !reportingPersonEmail.trim().isEmpty()) {
-            user.setReportingPersonEmail(reportingPersonEmail);
-            logger.info("Updated reporting person email to: {}", reportingPersonEmail);
-        }
         
         try {
             User updatedUser = userRepo.save(user);
@@ -207,7 +197,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public UserDTO verifyAndUpdateUserRoleAndProfile(Long id, String role, String designation, String department, String reportingPerson, String reportingPersonEmail) {
+    public UserDTO verifyAndUpdateUserRoleAndProfile(Long id, String role) {
         if (!isValidRole(role)) {
             throw new IllegalArgumentException("Invalid role specified: " + role);
         }
@@ -229,21 +219,17 @@ public class UserServiceImpl implements UserService {
         }
         user.setRoles(roles);
         user.setVerified(true);
-        if (designation != null) user.setDesignation(designation);
-        if (department != null) user.setDepartment(department);
-        if (reportingPerson != null) user.setReportingPerson(reportingPerson);
-        if (reportingPersonEmail != null) user.setReportingPersonEmail(reportingPersonEmail);
         userRepo.save(user);
         return convertToUserDTO(user);
     }
 
-    @Override
-    public List<Object[]> getUsernameAndDesignationByDepartment(String department) {
-        List<User> users = userRepo.findByDepartment(department);
-        return users.stream()
-                .map(u -> new Object[]{u.getUsername(), u.getDesignation()})
-                .collect(Collectors.toList());
-    }
+    // @Override
+    // public List<Object[]> getUsernameAndDesignationByDepartment(String department) {
+    //     List<User> users = userRepo.findByDepartment(department);
+    //     return users.stream()
+    //             .map(u -> new Object[]{u.getUsername(), u.getDesignation()})
+    //             .collect(Collectors.toList());
+    // }
 
     private boolean isValidRole(String role) {
         if (role == null) {
@@ -263,31 +249,32 @@ public class UserServiceImpl implements UserService {
         userDTO.setActive(user.isActive());
         userDTO.setVerified(user.isVerified());
         userDTO.setRoles(user.getRoles());
-        userDTO.setDesignation(user.getDesignation());
-        userDTO.setDepartment(user.getDepartment());
-        userDTO.setCreatedAt(user.getCreatedAt());
-        userDTO.setReportingPerson(user.getReportingPerson());
-        userDTO.setReportingPersonEmail(user.getReportingPersonEmail());
         return userDTO;
     }
 
-    @Override
-    public AdminUserResponseDTO getAdminUserByDepartment(String department) {
-        List<User> adminUsers = userRepo.findByDepartmentAndRolesContaining(department, "ADMIN");
+    // @Override
+    // public AdminUserResponseDTO getAdminUserByDepartment(String department) {
+    //     // TODO Auto-generated method stub
+    //     throw new UnsupportedOperationException("Unimplemented method 'getAdminUserByDepartment'");
+    // }
+
+    // @Override
+    // public AdminUserResponseDTO getAdminUserByDepartment(String department) {
+    //     List<User> adminUsers = userRepo.findByDepartmentAndRolesContaining(department, "ADMIN");
         
-        // Return the first admin user found, or null if no admin users exist
-        for (User user : adminUsers) {
-            EmployeeEntity employee = employeeRepo.findByUser_Id(user.getId());
-            if (employee != null) {
-                return new AdminUserResponseDTO(
-                    employee.getFirstName(),
-                    employee.getLastName(),
-                    user.getEmail()
-                );
-            }
-        }
-        return null; // No admin user found for this department
-    }
+    //     // Return the first admin user found, or null if no admin users exist
+    //     for (User user : adminUsers) {
+    //         EmployeeEntity employee = employeeRepo.findByUser_Id(user.getId());
+    //         if (employee != null) {
+    //             return new AdminUserResponseDTO(
+    //                 employee.getFirstName(),
+    //                 employee.getLastName(),
+    //                 user.getEmail()
+    //             );
+    //         }
+    //     }
+    //     return null; // No admin user found for this department
+    // }
 
 
 }

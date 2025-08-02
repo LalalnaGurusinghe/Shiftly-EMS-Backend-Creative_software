@@ -33,10 +33,10 @@ public class TeamServiceImpl implements TeamService {
         return teamRepo.findAll().stream().map(this::toDTO).collect(Collectors.toList());
     }
 
-    @Override
-    public List<TeamDTO> getTeamsByDepartment(Long departmentId) {
-        return teamRepo.findByDepartment_DepartmentId(departmentId).stream().map(this::toDTO).collect(Collectors.toList());
-    }
+    // @Override
+    // public List<TeamDTO> getTeamsByDepartment(Long departmentId) {
+    //     return teamRepo.findByDepartment_DepartmentId(departmentId).stream().map(this::toDTO).collect(Collectors.toList());
+    // }
 
     @Override
     public String getTeamNameById(Long teamId) {
@@ -52,7 +52,7 @@ public class TeamServiceImpl implements TeamService {
     private TeamDTO toDTO(TeamEntity entity) {
         TeamDTO dto = new TeamDTO();
         BeanUtils.copyProperties(entity, dto);
-        dto.setDepartmentId(entity.getDepartment() != null ? entity.getDepartment().getDepartmentId() : null);
+        dto.setDepartmentId(entity.getDepartment() != null ? entity.getDepartment().getId() : null);
         dto.setDepartmentName(entity.getDepartment() != null ? entity.getDepartment().getName() : null);
         return dto;
     }

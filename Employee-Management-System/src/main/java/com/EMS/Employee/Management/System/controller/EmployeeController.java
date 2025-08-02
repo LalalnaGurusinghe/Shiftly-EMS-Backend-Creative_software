@@ -57,18 +57,18 @@ public class EmployeeController {
         return employeeService.deleteUserById(id);
     }
 
-    @PutMapping("/update/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<EmployeeDTO> updateEmployeeById(@PathVariable int id, @Valid @RequestBody EmployeeDTO employeeDTO) {
-        return employeeService.updateUserById(id, employeeDTO);
-    }
+    // @PutMapping("/update/{id}")
+    // @PreAuthorize("hasRole('ADMIN')")
+    // public ResponseEntity<EmployeeDTO> updateEmployeeById(@PathVariable int id, @Valid @RequestBody EmployeeDTO employeeDTO) {
+    //     return employeeService.updateUserById(id, employeeDTO);
+    // }
 
-    @PutMapping("/self-update")
-    @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<EmployeeDTO> updateOwnInfo(@RequestBody EmployeeDTO employeeDTO) {
-        // Assume employeeId is set in DTO and userId is validated by security context in real implementation
-        return employeeService.updateUserById(employeeDTO.getEmployeeId(), employeeDTO);
-    }
+    // @PutMapping("/self-update")
+    // @PreAuthorize("hasRole('USER')")
+    // public ResponseEntity<EmployeeDTO> updateOwnInfo(@RequestBody EmployeeDTO employeeDTO) {
+    //     // Assume employeeId is set in DTO and userId is validated by security context in real implementation
+    //     return employeeService.updateUserById(employeeDTO.getEmployeeId(), employeeDTO);
+    // }
 
     @GetMapping("/profile")
     @PreAuthorize("hasRole('USER')")
@@ -111,22 +111,22 @@ public class EmployeeController {
         return ResponseEntity.ok(dto);
     }
 
-    @GetMapping("/by-department/{department}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<EmployeeDTO>> getEmployeesByDepartment(@PathVariable String department) {
-        return ResponseEntity.ok(employeeService.getEmployeesByDepartment(department));
-    }
+    // @GetMapping("/by-department/{department}")
+    // @PreAuthorize("hasRole('ADMIN')")
+    // public ResponseEntity<List<EmployeeDTO>> getEmployeesByDepartment(@PathVariable int departmentId) {
+    //     return ResponseEntity.ok(employeeService.getEmployeesByDepartment(departmentId));
+    // }
 
-    @GetMapping("/admins-by-department/{department}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<AdminUserResponseDTO> getAdminUserByDepartment(@PathVariable String department) {
-        AdminUserResponseDTO adminUser = userService.getAdminUserByDepartment(department);
-        if (adminUser != null) {
-            return ResponseEntity.ok(adminUser);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
+    // @GetMapping("/admins-by-department/{department}")
+    // @PreAuthorize("hasRole('ADMIN')")
+    // public ResponseEntity<AdminUserResponseDTO> getAdminUserByDepartment(@PathVariable int departmentId) {
+    //     AdminUserResponseDTO adminUser = userService.getAdminUserByDepartment(departmentId);
+    //     if (adminUser != null) {
+    //         return ResponseEntity.ok(adminUser);
+    //     } else {
+    //         return ResponseEntity.notFound().build();
+    //     }
+    // }
 
     @GetMapping("/name/{id}")
     @PreAuthorize(" hasRole('USER')")

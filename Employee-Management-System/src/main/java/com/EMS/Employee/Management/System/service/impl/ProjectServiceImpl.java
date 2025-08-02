@@ -1,21 +1,22 @@
 package com.EMS.Employee.Management.System.service.impl;
 
-import com.EMS.Employee.Management.System.dto.ProjectDTO;
-import com.EMS.Employee.Management.System.entity.ProjectEntity;
-import com.EMS.Employee.Management.System.entity.TeamEntity;
-import com.EMS.Employee.Management.System.entity.DepartmentEntity;
-import com.EMS.Employee.Management.System.repo.ProjectRepo;
-import com.EMS.Employee.Management.System.repo.TeamRepo;
-import com.EMS.Employee.Management.System.repo.DepartmentRepo;
-import com.EMS.Employee.Management.System.service.ProjectService;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.stream.Collectors;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.EMS.Employee.Management.System.dto.ProjectDTO;
+import com.EMS.Employee.Management.System.entity.DepartmentEntity;
+import com.EMS.Employee.Management.System.entity.ProjectEntity;
+import com.EMS.Employee.Management.System.entity.TeamEntity;
 import com.EMS.Employee.Management.System.entity.User;
+import com.EMS.Employee.Management.System.repo.DepartmentRepo;
+import com.EMS.Employee.Management.System.repo.ProjectRepo;
+import com.EMS.Employee.Management.System.repo.TeamRepo;
 import com.EMS.Employee.Management.System.repo.UserRepo;
+import com.EMS.Employee.Management.System.service.ProjectService;
 
 @Service
 public class ProjectServiceImpl implements ProjectService {
@@ -159,7 +160,7 @@ public class ProjectServiceImpl implements ProjectService {
         
         // Safely handle department relationship
         if (entity.getDepartment() != null) {
-            dto.setDepartmentId(entity.getDepartment().getDepartmentId());
+            dto.setDepartmentId(entity.getDepartment().getId());
             dto.setDepartmentName(entity.getDepartment().getName());
         }
         

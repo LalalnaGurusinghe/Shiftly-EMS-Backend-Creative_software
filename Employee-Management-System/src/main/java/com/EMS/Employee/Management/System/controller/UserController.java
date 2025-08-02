@@ -49,14 +49,13 @@ public class UserController {
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
-    @GetMapping("/by-department/{department}")
-    public ResponseEntity<List<UserDepartmentDTO>> getUsernameAndDesignationByDepartment(@PathVariable String department) {
-        List<Object[]> results = userService.getUsernameAndDesignationByDepartment(department);
-        List<UserDepartmentDTO> dtos = results.stream()
-            .map(arr -> new UserDepartmentDTO((String) arr[0], (String) arr[1]))
-            .collect(Collectors.toList());
-        return ResponseEntity.ok(dtos);
-    }
+    // @GetMapping("/by-department/{department}")
+    // public ResponseEntity<List<UserDepartmentDTO>> getUsernameAndDesignationByDepartment(@PathVariable String department) {
+    //     List<UserDepartmentDTO> dtos = results.stream()
+    //         .map(arr -> new UserDepartmentDTO((String) arr[0], (String) arr[1]))
+    //         .collect(Collectors.toList());
+    //     return ResponseEntity.ok(dtos);
+    // }
 
     @PutMapping("/change-password/{id}")
     @PreAuthorize("hasRole('USER')")

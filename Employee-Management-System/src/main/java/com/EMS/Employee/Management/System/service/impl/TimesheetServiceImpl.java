@@ -82,14 +82,6 @@ public class TimesheetServiceImpl implements TimesheetService {
         TimesheetDTO dto = new TimesheetDTO();
         BeanUtils.copyProperties(entity, dto);
         // Set departmentName using EmployeeEntity
-        if (entity.getUserId() != null) {
-            // You need access to EmployeeRepo here, so add it as a field and constructor
-            // param if not present
-            EmployeeEntity employee = employeeRepo.findByUser_Id(entity.getUserId());
-            if (employee != null) {
-                dto.setDepartmentName(employee.getDepartment());
-            }
-        }
         return dto;
     }
 }

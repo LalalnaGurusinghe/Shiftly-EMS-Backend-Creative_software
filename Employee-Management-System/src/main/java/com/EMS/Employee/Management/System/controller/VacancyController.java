@@ -1,13 +1,17 @@
 package com.EMS.Employee.Management.System.controller;
 
-import com.EMS.Employee.Management.System.dto.VacancyDTO;
-import com.EMS.Employee.Management.System.service.VacancyService;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import com.EMS.Employee.Management.System.dto.VacancyDTO;
+import com.EMS.Employee.Management.System.service.VacancyService;
 
 @RestController
 @RequestMapping("/api/v1/shiftly/ems/vacancies")
@@ -15,8 +19,6 @@ import java.util.List;
 public class VacancyController {
     @Autowired
     private VacancyService vacancyService;
-
-
 
     // Employee: View all vacancies
     @GetMapping("/all")

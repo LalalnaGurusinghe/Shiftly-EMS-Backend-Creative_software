@@ -166,13 +166,6 @@ public class ClaimServiceImpl implements ClaimService {
         dto.setClaimUrl(entity.getClaimUrl());
         dto.setClaimDate(entity.getClaimDate());
 
-        // Add user details including department
-        if (entity.getUser() != null) {
-            dto.setEmployeeName(entity.getUser().getUsername());
-            dto.setEmployeeEmail(entity.getUser().getEmail());
-            dto.setDepartment(entity.getUser().getDepartment());
-        }
-
         return dto;
     }
 }

@@ -35,11 +35,11 @@ public class TeamController {
         return ResponseEntity.ok(teams);
     }
 
-    @GetMapping("/by-department/{departmentId}")
-    public ResponseEntity<List<TeamDTO>> getTeamsByDepartment(@PathVariable Long departmentId) {
-        List<TeamDTO> teams = teamService.getTeamsByDepartment(departmentId);
-        return ResponseEntity.ok(teams);
-    }
+    // @GetMapping("/by-department/{departmentId}")
+    // public ResponseEntity<List<TeamDTO>> getTeamsByDepartment(@PathVariable Long departmentId) {
+    //     List<TeamDTO> teams = teamService.getTeamsByDepartment(departmentId);
+    //     return ResponseEntity.ok(teams);
+    // }
 
     @GetMapping("/name/{teamId}")
     public ResponseEntity<String> getTeamNameById(@PathVariable Long teamId) {
