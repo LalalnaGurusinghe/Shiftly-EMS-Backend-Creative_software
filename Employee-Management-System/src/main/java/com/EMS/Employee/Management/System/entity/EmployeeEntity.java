@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class EmployeeEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "employee_id")
@@ -35,8 +36,19 @@ public class EmployeeEntity {
     @Column(name = "location", nullable = false, length = 100)
     private String location;
 
-    @Column(name = "department", length = 100)
-    private String department;
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "departmentid")
+    private DepartmentEntity department;
+
+    // Add to EmployeeEntity.java
+    @Column(name = "designation", length = 100)
+    private String designation;
+
+    @Column(name = "reporting_person", length = 100)
+    private String reportingPerson;
+
+    @Column(name = "reporting_person_email", length = 100)
+    private String reportingPersonEmail;
 
     @Column(name = "team_name", length = 100)
     private String teamName;

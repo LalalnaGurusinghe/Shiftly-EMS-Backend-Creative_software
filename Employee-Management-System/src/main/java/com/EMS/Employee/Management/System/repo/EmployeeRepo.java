@@ -9,6 +9,6 @@ import java.util.List;
 @Repository
 public interface EmployeeRepo extends JpaRepository<EmployeeEntity, Integer> {
     EmployeeEntity findByUser_Id(Long userId);
-    List<EmployeeEntity> findByDepartment(String department);
+    // List<EmployeeEntity> findByDepartment(String department);
     EmployeeEntity findByFirstNameAndLastName(String firstName, String lastName);
 }

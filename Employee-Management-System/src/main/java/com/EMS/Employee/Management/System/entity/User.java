@@ -38,17 +38,6 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
-    @Column
-    private String designation;
-
-    @Column
-    private String department;
-
-    @Column
-    private String reportingPerson;
-
-    @Column
-    private String reportingPersonEmail;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
@@ -105,19 +94,6 @@ public class User implements UserDetails {
 
     public boolean isVerified() {
         return this.isVerified;
-    }
-
-    public String getReportingPerson() {
-        return reportingPerson;
-    }
-    public void setReportingPerson(String reportingPerson) {
-        this.reportingPerson = reportingPerson;
-    }
-    public String getReportingPersonEmail() {
-        return reportingPersonEmail;
-    }
-    public void setReportingPersonEmail(String reportingPersonEmail) {
-        this.reportingPersonEmail = reportingPersonEmail;
     }
 
 }

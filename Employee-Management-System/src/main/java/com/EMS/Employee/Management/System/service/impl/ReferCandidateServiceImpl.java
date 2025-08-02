@@ -1,30 +1,27 @@
 package com.EMS.Employee.Management.System.service.impl;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.EMS.Employee.Management.System.dto.ReferCandidateDTO;
 import com.EMS.Employee.Management.System.entity.ReferCandidateEntity;
 import com.EMS.Employee.Management.System.entity.ReferStatus;
 import com.EMS.Employee.Management.System.entity.User;
 import com.EMS.Employee.Management.System.entity.VacancyEntity;
-import com.EMS.Employee.Management.System.entity.EmployeeEntity;
+import com.EMS.Employee.Management.System.repo.EmployeeRepo;
 import com.EMS.Employee.Management.System.repo.ReferCandidateRepo;
 import com.EMS.Employee.Management.System.repo.UserRepo;
 import com.EMS.Employee.Management.System.repo.VacancyRepo;
-import com.EMS.Employee.Management.System.repo.EmployeeRepo;
 import com.EMS.Employee.Management.System.service.ReferCandidateService;
-import org.springframework.beans.BeanUtils;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
-import java.util.UUID;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.Base64;
 
 @Service
 public class ReferCandidateServiceImpl implements ReferCandidateService {
@@ -97,9 +94,8 @@ public class ReferCandidateServiceImpl implements ReferCandidateService {
             entity.setApplicantEmail(dto.getApplicantEmail());
         if (dto.getMessage() != null)
             entity.setMessage(dto.getMessage());
-        if (dto.getVacancyId() != null) {
-            VacancyEntity vacancy = vacancyRepo.findById(dto.getVacancyId())
-                    .orElseThrow(() -> new RuntimeException("Vacancy not found"));
+        if (dto.getVacancyName() != null) {
+            VacancyEntity vacancy = vacancyRepo.findByName(dto.getVacancyName());
             entity.setVacancy(vacancy);
         }
         ReferCandidateEntity saved = referCandidateRepo.save(entity);
@@ -183,20 +179,14 @@ public class ReferCandidateServiceImpl implements ReferCandidateService {
     private ReferCandidateDTO toDTO(ReferCandidateEntity entity) {
         ReferCandidateDTO dto = new ReferCandidateDTO();
         dto.setId(entity.getId());
-        dto.setVacancyId(entity.getVacancy() != null ? entity.getVacancy().getId() : null);
+        dto.setVacancyName(entity.getVacancy() != null ? entity.getVacancy().getName() : null);
         dto.setApplicantName(entity.getApplicantName());
         dto.setApplicantEmail(entity.getApplicantEmail());
         dto.setMessage(entity.getMessage());
         dto.setFileUrl(entity.getFileUrl());
         dto.setStatus(entity.getStatus() != null ? entity.getStatus().name() : null);
         dto.setUserId(entity.getUser() != null ? entity.getUser().getId() : null);
-        // Set departmentName using EmployeeEntity
-        if (entity.getUser() != null) {
-            EmployeeEntity employee = employeeRepo.findByUser_Id(entity.getUser().getId());
-            if (employee != null) {
-                dto.setDepartmentName(employee.getDepartment());
-            }
-        }
+        
         return dto;
     }
 }

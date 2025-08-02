@@ -6,7 +6,7 @@ import java.util.List;
 public interface TeamService {
     // Admin
     List<TeamDTO> getAllTeams();
-    List<TeamDTO> getTeamsByDepartment(Long departmentId);
+    // List<TeamDTO> getTeamsByDepartment(Long departmentId);
     String getTeamNameById(Long teamId);
     String getDepartmentNameById(Long departmentId);
 } 

@@ -47,6 +47,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Public endpoints
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/v1/shiftly/ems/departments/add").permitAll()
                         .requestMatchers("/api/v1/shiftly/ems/events/all").permitAll()
                         .requestMatchers("/api/v1/shiftly/ems/teams/all").permitAll()
                         .requestMatchers("/api/v1/shiftly/ems/departments/all").permitAll()

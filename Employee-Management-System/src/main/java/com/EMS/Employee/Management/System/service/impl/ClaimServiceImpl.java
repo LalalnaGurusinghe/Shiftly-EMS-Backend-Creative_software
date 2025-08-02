@@ -66,9 +66,6 @@ public List<ClaimDTO> getAllClaims(String username) {
     if (currentUser.getRoles() != null && currentUser.getRoles().contains("SUPER_ADMIN")) {
         // Super admin can see all claims
         claims = claimRepo.findAll();
-    } else if (currentUser.getRoles() != null && currentUser.getRoles().contains("ADMIN")) {
-        // Regular admin can only see claims from their department
-        claims = claimRepo.findByUser_Department(currentUser.getDepartment());
     } else {
         // Non-admin users should not access this endpoint
         throw new RuntimeException("Access denied: insufficient privileges");
@@ -146,13 +143,6 @@ public List<ClaimDTO> getAllClaims(String username) {
         dto.setUserId(entity.getUser() != null ? entity.getUser().getId() : null);
         dto.setClaimUrl(entity.getClaimUrl());
         dto.setClaimDate(entity.getClaimDate());
-
-        // Add user details including department
-        if (entity.getUser() != null) {
-            dto.setEmployeeName(entity.getUser().getUsername());
-            dto.setEmployeeEmail(entity.getUser().getEmail());
-            dto.setDepartment(entity.getUser().getDepartment());
-        }
 
         return dto;
     }

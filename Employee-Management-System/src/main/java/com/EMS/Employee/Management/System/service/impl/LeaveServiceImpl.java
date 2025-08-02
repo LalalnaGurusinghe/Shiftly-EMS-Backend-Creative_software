@@ -126,12 +126,6 @@ public class LeaveServiceImpl implements LeaveService {
         dto.setReportToName(entity.getReportTo() != null ? entity.getReportTo().getFirstName() + " " + entity.getReportTo().getLastName() : null);
         dto.setLeaveStatus(entity.getLeaveStatus() != null ? entity.getLeaveStatus().name() : null);
         // Set departmentName using EmployeeEntity
-        if (entity.getUser() != null) {
-            EmployeeEntity employee = employeeRepo.findByUser_Id(entity.getUser().getId());
-            if (employee != null) {
-                dto.setDepartmentName(employee.getDepartment());
-            }
-        }
         return dto;
     }
 } 

@@ -120,10 +120,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         String emailContent = "Dear " + user.getUsername() + ",\n\n" +
                 "Your account has been verified by the Super Admin.\n" +
                 "Assigned Role: " + displayRole + "\n" +
-                "Designation: " + (designation != null ? designation : "-") + "\n" +
-                "Department: " + (!departmentName.isEmpty() ? departmentName : "-") + "\n" +
-                "Reporting Person: " + (user.getReportingPerson() != null ? user.getReportingPerson() : "-") + "\n" +
-                "Reporting Person Email: " + (user.getReportingPersonEmail() != null ? user.getReportingPersonEmail() : "-") + "\n" +
                 "Username: " + user.getUsername() + "\n" +
                 "Please log in using your credentials at: http://localhost:3000/login\n\n" +
                 "Best regards,\nEmployee Management Team";
@@ -173,8 +169,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             userDTO.setActive(user.isActive());
             userDTO.setVerified(user.isVerified());
             userDTO.setRoles(user.getRoles() != null ? new HashSet<>(user.getRoles()) : new HashSet<>());
-            userDTO.setDesignation(user.getDesignation());
-            userDTO.setDepartment(user.getDepartment());
             userDTO.setCreatedAt(user.getCreatedAt());
         }
         return userDTO;

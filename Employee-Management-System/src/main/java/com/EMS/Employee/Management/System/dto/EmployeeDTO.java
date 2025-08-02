@@ -1,5 +1,9 @@
 package com.EMS.Employee.Management.System.dto;
 
+import java.time.LocalDateTime;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -17,6 +21,10 @@ public class EmployeeDTO {
     private String gender;
     private String dob;
     private String location;
+    private String designation;
+    private String department;
+    private String reportingPerson;
+    private String reportingPersonEmail;
     private java.util.List<String> skills;
     private java.util.List<String> education;
     private java.util.List<String> experience;

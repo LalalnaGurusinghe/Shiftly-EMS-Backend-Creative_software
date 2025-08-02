@@ -18,7 +18,8 @@ public interface UserService {
     UserDTO updateUserProfile(Long id, String designation, String department, String reportingPerson, String reportingPersonEmail);
     UserDTO verifyAndUpdateUserRole(Long id, String role);
     List<UserDTO> verifyAllUnverifiedEmployees(String role);
-    UserDTO verifyAndUpdateUserRoleAndProfile(Long id, String role, String designation, String department, String reportingPerson, String reportingPersonEmail);
-    List<Object[]> getUsernameAndDesignationByDepartment(String department);
-    AdminUserResponseDTO getAdminUserByDepartment(String department);
+    UserDTO verifyAndUpdateUserRoleAndProfile(Long id, String role);
+    // AdminUserResponseDTO getAdminUserByDepartment(String department);
+    List<UserDTO> getAllAdmins();
+    
 }
