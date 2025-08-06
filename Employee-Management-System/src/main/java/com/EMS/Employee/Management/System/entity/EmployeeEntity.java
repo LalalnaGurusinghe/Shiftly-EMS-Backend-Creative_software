@@ -1,6 +1,16 @@
 package com.EMS.Employee.Management.System.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,23 +27,23 @@ public class EmployeeEntity {
     @Column(name = "employee_id")
     private int employeeId;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(name = "first_name", nullable = false, length = 50)
+    @Column(name = "first_name",length = 50)
     private String firstName;
 
-    @Column(name = "last_name", nullable = false, length = 50)
+    @Column(name = "last_name",length = 50)
     private String lastName;
 
-    @Column(name = "gender", nullable = false, length = 10)
+    @Column(name = "gender", length = 10)
     private String gender;
 
-    @Column(name = "dob", nullable = false)
+    @Column(name = "dob")
     private String dob;
 
-    @Column(name = "location", nullable = false, length = 100)
+    @Column(name = "location",length = 100)
     private String location;
 
     @ManyToOne(optional = false)
@@ -44,8 +54,9 @@ public class EmployeeEntity {
     @Column(name = "designation", length = 100)
     private String designation;
 
-    @Column(name = "reporting_person", length = 100)
-    private String reportingPerson;
+    @OneToOne
+    @JoinColumn(name = "reporting_person_id", nullable = false)
+    private User reportingPerson;
 
     @Column(name = "reporting_person_email", length = 100)
     private String reportingPersonEmail;

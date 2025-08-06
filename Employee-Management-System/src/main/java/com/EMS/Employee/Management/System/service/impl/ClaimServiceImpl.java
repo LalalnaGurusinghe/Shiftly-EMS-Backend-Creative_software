@@ -66,9 +66,6 @@ public class ClaimServiceImpl implements ClaimService {
         if (currentUser.getRoles() != null && currentUser.getRoles().contains("SUPER_ADMIN")) {
             // Super admin can see all claims
             claims = claimRepo.findAll();
-        } else if (currentUser.getRoles() != null && currentUser.getRoles().contains("ADMIN")) {
-            // Regular admin can only see claims from their department
-            claims = claimRepo.findByUser_Department(currentUser.getDepartment());
         } else {
             // Non-admin users should not access this endpoint
             throw new RuntimeException("Access denied: insufficient privileges");

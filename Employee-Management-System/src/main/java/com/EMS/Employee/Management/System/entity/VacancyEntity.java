@@ -19,8 +19,4 @@ public class VacancyEntity {
     @Column(name = "name", nullable = false, length = 100)
     private String name;
 
-    public VacancyEntity orElseThrow(Object object) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'orElseThrow'");
-    }
 } 

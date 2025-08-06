@@ -23,11 +23,12 @@ public class EmployeeDTO {
     private String location;
     private String designation;
     private String department;
+    private Long departmentId;
     private String reportingPerson;
+    private Long reportingPersonId;
     private String reportingPersonEmail;
     private java.util.List<String> skills;
     private java.util.List<String> education;
     private java.util.List<String> experience;
-    private String username;
     private String teamName;
 }

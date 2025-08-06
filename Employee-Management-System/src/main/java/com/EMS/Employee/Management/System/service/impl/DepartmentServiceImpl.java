@@ -32,6 +32,13 @@ public class DepartmentServiceImpl implements DepartmentService {
     }
 
     @Override
+    public List<DepartmentDTO> getAllDepartmentsWithAdmin() {
+        return departmentRepo.findAll().stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     @Transactional
     public DepartmentDTO createDepartment(DepartmentDTO departmentDto) {
         DepartmentEntity entity = new DepartmentEntity();
@@ -49,9 +56,7 @@ public class DepartmentServiceImpl implements DepartmentService {
         DepartmentEntity departmentEntity = departmentRepo.findById(departmentId)
                 .orElseThrow(() -> new RuntimeException("Department not found"));
 
-        departmentEntity.setAdminId(user.getId());
-        departmentEntity.setName(departmentEntity.getName());
-        departmentEntity.setId(departmentId);
+        departmentEntity.setAdmin(user); // Set the admin as User object
         DepartmentEntity saved = departmentRepo.save(departmentEntity);
 
         return toDTO(saved);
@@ -62,12 +67,25 @@ public class DepartmentServiceImpl implements DepartmentService {
         return departmentRepo.findById(departmentId).map(DepartmentEntity::getName).orElse(null);
     }
 
+    @Override
+    public void deleteDepartment(Long departmentId) {
+        if (!departmentRepo.existsById(departmentId)) {
+            throw new RuntimeException("Department not found");
+        }
+        departmentRepo.deleteById(departmentId);
+    }
+
     private DepartmentDTO toDTO(DepartmentEntity entity) {
         DepartmentDTO dto = new DepartmentDTO();
         dto.setDepartmentId(entity.getId());
         dto.setDepartmentName(entity.getName());
-        dto.setAdminId(entity.getAdminId());
-
+        if (entity.getAdmin() != null) {
+            dto.setAdminId(entity.getAdmin().getId());
+            dto.setAdminUserName(entity.getAdmin().getUsername());
+        } else {
+            dto.setAdminId(null);
+            dto.setAdminUserName(null);
+        }
         return dto;
     }
 }
