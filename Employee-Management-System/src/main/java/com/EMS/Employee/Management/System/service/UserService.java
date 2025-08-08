@@ -4,14 +4,16 @@ import java.util.List;
 
 import com.EMS.Employee.Management.System.dto.ChangePasswordDTO;
 import com.EMS.Employee.Management.System.dto.UserDTO;
-import com.EMS.Employee.Management.System.dto.AdminUserResponseDTO;
+import com.EMS.Employee.Management.System.dto.DetailUserDTO;
 import com.EMS.Employee.Management.System.entity.User;
 
 public interface UserService {
+    List<UserDTO> getAllUnverifiedUsers();
     UserDTO getUserById(Long id);
     User getUserEntityById(Long id);
     UserDTO getUserByUsername(String username);
-    List<UserDTO> getAllUsers();
+    List<UserDTO> getAll();
+    List<DetailUserDTO> getAllUsers();
     UserDTO changePassword(Long id, ChangePasswordDTO changePasswordDTO);
     void deleteUser(Long id);
     UserDTO updateUser(Long id, UserDTO userDTO);
@@ -20,6 +22,6 @@ public interface UserService {
     List<UserDTO> verifyAllUnverifiedEmployees(String role);
     UserDTO verifyAndUpdateUserRoleAndProfile(Long id, String role);
     // AdminUserResponseDTO getAdminUserByDepartment(String department);
-    List<UserDTO> getAllAdmins();
-    
+    List<DetailUserDTO> getAllAdmins();
+    List<UserDTO> getAllAdminsWithoutDepartment();
 }

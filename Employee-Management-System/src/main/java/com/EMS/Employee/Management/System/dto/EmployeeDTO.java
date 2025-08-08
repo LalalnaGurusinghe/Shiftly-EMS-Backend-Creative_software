@@ -21,7 +21,8 @@ public class EmployeeDTO {
     private String gender;
     private String dob;
     private String location;
-    private String designation;
+    private Long designationId;
+    private String designationName;
     private String department;
     private Long departmentId;
     private String reportingPerson;

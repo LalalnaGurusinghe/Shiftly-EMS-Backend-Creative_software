@@ -1,21 +1,30 @@
 package com.EMS.Employee.Management.System.controller;
 
-import com.EMS.Employee.Management.System.dto.EmployeeDTO;
-import com.EMS.Employee.Management.System.dto.AdminUserResponseDTO;
-import com.EMS.Employee.Management.System.service.EmployeeService;
-import com.EMS.Employee.Management.System.service.UserService;
-import jakarta.validation.Valid;
+import java.util.List;
+
+import org.springframework.beans.BeanUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 import org.springframework.security.core.Authentication;
-import com.EMS.Employee.Management.System.repo.UserRepo;
-import com.EMS.Employee.Management.System.repo.EmployeeRepo;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.EMS.Employee.Management.System.dto.EmployeeDTO;
 import com.EMS.Employee.Management.System.entity.EmployeeEntity;
 import com.EMS.Employee.Management.System.entity.User;
-import org.springframework.beans.BeanUtils;
+import com.EMS.Employee.Management.System.repo.EmployeeRepo;
+import com.EMS.Employee.Management.System.repo.UserRepo;
+import com.EMS.Employee.Management.System.service.EmployeeService;
+import com.EMS.Employee.Management.System.service.UserService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/v1/shiftly/ems/employee")
@@ -33,10 +42,12 @@ public class EmployeeController {
         this.employeeRepo = employeeRepo;
     }
 
-    @PostMapping("/add")
+    @PostMapping("/add/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<EmployeeDTO> addEmployee(@Valid @RequestBody EmployeeDTO employeeDTO) {
-        return employeeService.addUser(employeeDTO);
+    public ResponseEntity<EmployeeDTO> addEmployee(
+            @PathVariable Long userId,
+            @Valid @RequestBody EmployeeDTO employeeDTO) {
+        return employeeService.addEmployee(userId, employeeDTO);
     }
 
     @GetMapping("/all")
@@ -86,28 +97,28 @@ public class EmployeeController {
         return ResponseEntity.ok(dto);
     }
 
-    @PutMapping("/profile")
-    @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<EmployeeDTO> updateProfile(
-        Authentication authentication,
-        @RequestBody EmployeeDTO employeeDTO
-    ) {
-        String username = authentication.getName();
-        User user = userRepo.findByUsername(username)
-            .orElseThrow(() -> new RuntimeException("User not found"));
-        EmployeeEntity employee = employeeRepo.findByUser_Id(user.getId());
-        if (employee == null) {
-            employee = new EmployeeEntity();
-            employee.setUser(user);
-        }
-        BeanUtils.copyProperties(employeeDTO, employee, "employeeId", "user");
-        employee.setUser(user);
-        EmployeeEntity saved = employeeRepo.save(employee);
-        EmployeeDTO dto = new EmployeeDTO();
-        BeanUtils.copyProperties(saved, dto);
-        dto.setUserId(user.getId());
-        return ResponseEntity.ok(dto);
-    }
+    // @PutMapping("/profile")
+    // @PreAuthorize("hasRole('USER')")
+    // public ResponseEntity<EmployeeDTO> updateProfile(
+    //     Authentication authentication,
+    //     @RequestBody EmployeeDTO employeeDTO
+    // ) {
+    //     String username = authentication.getName();
+    //     User user = userRepo.findByUsername(username)
+    //         .orElseThrow(() -> new RuntimeException("User not found"));
+    //     EmployeeEntity employee = employeeRepo.findByUser_Id(user.getId());
+    //     if (employee == null) {
+    //         employee = new EmployeeEntity();
+    //         employee.setUser(user);
+    //     }
+    //     BeanUtils.copyProperties(employeeDTO, employee, "employeeId", "user");
+    //     employee.setUser(user);
+    //     EmployeeEntity saved = employeeRepo.save(employee);
+    //     EmployeeDTO dto = new EmployeeDTO();
+    //     BeanUtils.copyProperties(saved, dto);
+    //     dto.setUserId(user.getId());
+    //     return ResponseEntity.ok(dto);
+    // }
 
     // @GetMapping("/by-department/{department}")
     // @PreAuthorize("hasRole('ADMIN')")

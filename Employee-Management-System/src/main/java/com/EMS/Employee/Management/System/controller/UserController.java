@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.EMS.Employee.Management.System.dto.ChangePasswordDTO;
+import com.EMS.Employee.Management.System.dto.DetailUserDTO;
 import com.EMS.Employee.Management.System.dto.UserDTO;
 import com.EMS.Employee.Management.System.dto.UserDepartmentDTO;
 import com.EMS.Employee.Management.System.service.UserService;
@@ -43,9 +44,26 @@ public class UserController {
         return ResponseEntity.ok(userService.getUserByUsername(username));
     }
 
+    
     @GetMapping("/all")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<UserDTO>> getAllUsers() {
+    public ResponseEntity<List<UserDTO>> getAll() {
+        return ResponseEntity.ok(userService.getAll());
+    }
+    
+    @GetMapping("/admins/all")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<DetailUserDTO>> getAllAdmins() {
+         try {
+            return ResponseEntity.ok(userService.getAllAdmins());
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(null);
+        }
+    }
+
+    @GetMapping("/all-users")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<DetailUserDTO>> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUsers());
     }
 

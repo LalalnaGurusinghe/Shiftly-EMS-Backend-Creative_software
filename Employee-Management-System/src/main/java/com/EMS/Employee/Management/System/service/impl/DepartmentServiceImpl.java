@@ -63,16 +63,20 @@ public class DepartmentServiceImpl implements DepartmentService {
     }
 
     @Override
-    public String getDepartmentNameById(Long departmentId) {
-        return departmentRepo.findById(departmentId).map(DepartmentEntity::getName).orElse(null);
-    }
-
-    @Override
     public void deleteDepartment(Long departmentId) {
         if (!departmentRepo.existsById(departmentId)) {
             throw new RuntimeException("Department not found");
         }
         departmentRepo.deleteById(departmentId);
+    }
+
+    @Override
+    public DepartmentDTO getDepartmentIdByAdminUserId(Long adminUserId) {
+        return departmentRepo.findAll().stream()
+                .filter(dept -> dept.getAdmin() != null && dept.getAdmin().getId().equals(adminUserId))
+                .findFirst()
+                .map(this::toDTO)
+                .orElse(null);
     }
 
     private DepartmentDTO toDTO(DepartmentEntity entity) {

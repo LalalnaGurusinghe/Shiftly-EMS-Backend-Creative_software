@@ -7,20 +7,23 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.EMS.Employee.Management.System.dto.ChangePasswordDTO;
+import com.EMS.Employee.Management.System.dto.EmployeeDTO;
 import com.EMS.Employee.Management.System.dto.UserDTO;
-import com.EMS.Employee.Management.System.dto.AdminUserResponseDTO;
+import com.EMS.Employee.Management.System.dto.DetailUserDTO;
 import com.EMS.Employee.Management.System.entity.EmployeeEntity;
 import com.EMS.Employee.Management.System.entity.User;
 import com.EMS.Employee.Management.System.repo.DepartmentRepo;
 import com.EMS.Employee.Management.System.repo.EmployeeRepo;
 import com.EMS.Employee.Management.System.repo.UserRepo;
 import com.EMS.Employee.Management.System.service.UserService;
+import com.EMS.Employee.Management.System.service.EmployeeService;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -30,14 +33,24 @@ public class UserServiceImpl implements UserService {
     private final JavaMailSender mailSender;
     private final EmployeeRepo employeeRepo;
     private final DepartmentRepo departmentRepo;
+    private EmployeeService employeeService;
 
-    public UserServiceImpl(UserRepo userRepo, PasswordEncoder passwordEncoder, JavaMailSender mailSender, EmployeeRepo employeeRepo, DepartmentRepo departmentRepo) {
+    public UserServiceImpl(UserRepo userRepo, PasswordEncoder passwordEncoder, JavaMailSender mailSender, EmployeeRepo employeeRepo, DepartmentRepo departmentRepo, EmployeeService employeeService) {
         this.userRepo = userRepo;
         this.passwordEncoder = passwordEncoder;
         this.mailSender = mailSender;
         this.employeeRepo = employeeRepo;
         this.departmentRepo = departmentRepo;
+        this.employeeService = employeeService;
     }
+
+     @Override
+    public List<UserDTO> getAllUnverifiedUsers() {
+        return userRepo.findByIsVerifiedFalse().stream()
+                .map(this::convertToUserDTO)
+                .collect(Collectors.toList());
+    }
+
 
     @Override
     public UserDTO getUserById(Long id) {
@@ -57,18 +70,71 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDTO> getAllUsers() {
+    public List<UserDTO> getAll() {
         return userRepo.findAll().stream()
                 .map(this::convertToUserDTO)
                 .collect(Collectors.toList());
     }
 
-    @Override 
-    public List<UserDTO> getAllAdmins() {
-        return userRepo.findByRolesContaining("ADMIN").stream()
-            .map(this::convertToUserDTO)
+    @Override
+    public List<DetailUserDTO> getAllUsers() {
+        return userRepo.findAll().stream()
+            // include users that have USER role
+            .filter(user -> user.getRoles() != null &&
+                    user.getRoles().stream().anyMatch(r -> "USER".equalsIgnoreCase(r)))
+            // exclude any that also have ADMIN or SUPER_ADMIN
+            .filter(user -> user.getRoles().stream()
+                    .noneMatch(r -> "ADMIN".equalsIgnoreCase(r) || "SUPER_ADMIN".equalsIgnoreCase(r)))
+            .map(user -> {
+                DetailUserDTO dto = new DetailUserDTO();
+                dto.setId(user.getId());
+                dto.setUsername(user.getUsername());
+                dto.setEmail(user.getEmail());
+                dto.setRoles(user.getRoles().stream().map(Object::toString).collect(Collectors.toList()));
+
+                // enrich with employee details (if any)
+                EmployeeDTO employee = employeeService.getEmployeeByUserId(user.getId());
+                if (employee != null) {
+                    dto.setDesignationId(employee.getDesignationId());
+                    dto.setDesignationName(employee.getDesignationName());
+                    dto.setDepartment(employee.getDepartment());
+                    dto.setDepartmentId(employee.getDepartmentId());
+                    dto.setReportingPerson(employee.getReportingPerson());
+                    dto.setReportingPersonId(employee.getReportingPersonId());
+                    dto.setReportingPersonEmail(employee.getReportingPersonEmail());
+                }
+                return dto;
+            })
             .collect(Collectors.toList());
-}
+    }
+
+    @Override
+    public List<DetailUserDTO> getAllAdmins() {
+        List<User> adminUsers = userRepo.findByRolesContaining("ADMIN").stream()
+        .filter(user -> user.getRoles().stream()
+            .noneMatch(role -> role.equalsIgnoreCase("SUPER_ADMIN")))
+        .collect(Collectors.toList());
+
+        return adminUsers.stream().map(user -> {
+            DetailUserDTO dto = new DetailUserDTO();
+            dto.setId(user.getId());
+            dto.setUsername(user.getUsername());
+            dto.setEmail(user.getEmail());
+            dto.setRoles(user.getRoles().stream().map(Object::toString).collect(Collectors.toList()));
+
+            EmployeeDTO employee = employeeService.getEmployeeByUserId(user.getId());
+            if (employee != null) {
+                dto.setDesignationId(employee.getDesignationId());
+                dto.setDesignationName(employee.getDesignationName());
+                dto.setDepartment(employee.getDepartment());
+                dto.setDepartmentId(employee.getDepartmentId());
+                dto.setReportingPerson(employee.getReportingPerson());
+                dto.setReportingPersonId(employee.getReportingPersonId());
+                dto.setReportingPersonEmail(employee.getReportingPersonEmail());
+            }
+            return dto;
+        }).collect(Collectors.toList());
+    }
 
     @Override
     public UserDTO changePassword(Long id, ChangePasswordDTO changePasswordDTO) {
@@ -221,6 +287,23 @@ public class UserServiceImpl implements UserService {
         user.setVerified(true);
         userRepo.save(user);
         return convertToUserDTO(user);
+    }
+
+    @Override
+    public List<UserDTO> getAllAdminsWithoutDepartment() {
+        // Get all departments with an admin assigned
+        List<Long> adminIdsWithDepartment = departmentRepo.findAll().stream()
+                .filter(dept -> dept.getAdmin() != null)
+                .map(dept -> dept.getAdmin().getId())
+                .collect(Collectors.toList());
+
+        // Get all users with ADMIN role, and filter out those who are admins of any department
+        return userRepo.findByRolesContaining("ADMIN").stream()
+                .filter(user -> user.getRoles().stream()
+                    .noneMatch(role -> role.equalsIgnoreCase("SUPER_ADMIN")))
+                .filter(user -> !adminIdsWithDepartment.contains(user.getId()))
+                .map(this::convertToUserDTO)
+                .collect(Collectors.toList());
     }
 
     // @Override

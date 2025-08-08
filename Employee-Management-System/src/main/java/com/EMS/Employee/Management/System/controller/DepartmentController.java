@@ -36,7 +36,7 @@ public class DepartmentController {
         return ResponseEntity.ok(departments);
     }
 
-    @GetMapping("/departmentsWithAdmin")
+    @GetMapping("/with-admin")
     public ResponseEntity<List<DepartmentDTO>> getAllDepartmentsWithAdmin() {
         List<DepartmentDTO> departments = departmentService.getAllDepartmentsWithAdmin();
         return ResponseEntity.ok(departments);
@@ -56,11 +56,6 @@ public class DepartmentController {
         return ResponseEntity.ok(department);
     }
 
-    @GetMapping("/name/{departmentId}")
-    public ResponseEntity<String> getDepartmentNameById(@PathVariable Long departmentId) {
-        String name = departmentService.getDepartmentNameById(departmentId);
-        return name != null ? ResponseEntity.ok(name) : ResponseEntity.notFound().build();
-    }
 
     @DeleteMapping("/delete/{departmentId}")
     @PreAuthorize("hasRole('ROLE_SUPER_ADMIN')")
@@ -68,4 +63,11 @@ public class DepartmentController {
         departmentService.deleteDepartment(departmentId);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/by-admin/{adminUserId}")
+    public ResponseEntity<DepartmentDTO> getDepartmentIdByAdminUserId(@PathVariable Long adminUserId) {
+        DepartmentDTO department = departmentService.getDepartmentIdByAdminUserId(adminUserId);
+        return department != null ? ResponseEntity.ok(department) : ResponseEntity.notFound().build();
+    }
+
 }

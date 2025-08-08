@@ -1,25 +1,27 @@
 package com.EMS.Employee.Management.System.service.impl;
 
-import com.EMS.Employee.Management.System.dto.EmployeeDTO;
-import com.EMS.Employee.Management.System.entity.EmployeeEntity;
-import com.EMS.Employee.Management.System.entity.User;
-import com.EMS.Employee.Management.System.repo.EmployeeRepo;
-import com.EMS.Employee.Management.System.service.EmployeeService;
-import com.EMS.Employee.Management.System.repo.DepartmentRepo;
-import com.EMS.Employee.Management.System.entity.DepartmentEntity;
-import com.EMS.Employee.Management.System.repo.TeamRepo;
-import com.EMS.Employee.Management.System.entity.TeamEntity;
-import com.EMS.Employee.Management.System.repo.UserRepo;
-import jakarta.validation.ValidationException;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import com.EMS.Employee.Management.System.dto.EmployeeDTO;
+import com.EMS.Employee.Management.System.entity.DepartmentEntity;
+import com.EMS.Employee.Management.System.entity.DesignationEntity;
+import com.EMS.Employee.Management.System.entity.EmployeeEntity;
+import com.EMS.Employee.Management.System.entity.User;
+import com.EMS.Employee.Management.System.repo.DepartmentRepo;
+import com.EMS.Employee.Management.System.repo.DesignationRepo;
+import com.EMS.Employee.Management.System.repo.EmployeeRepo;
+import com.EMS.Employee.Management.System.repo.TeamRepo;
+import com.EMS.Employee.Management.System.repo.UserRepo;
+import com.EMS.Employee.Management.System.service.DepartmentService;
+import com.EMS.Employee.Management.System.service.EmployeeService;
 
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
@@ -27,75 +29,76 @@ public class EmployeeServiceImpl implements EmployeeService {
     private final DepartmentRepo departmentRepo;
     private final TeamRepo teamRepo;
     private final UserRepo userRepo;
+    private final DepartmentService departmentService;
+    private final DesignationRepo designationRepo;
 
-    public EmployeeServiceImpl(EmployeeRepo employeeRepo, DepartmentRepo departmentRepo, TeamRepo teamRepo, UserRepo userRepo) {
+    public EmployeeServiceImpl(EmployeeRepo employeeRepo, DepartmentRepo departmentRepo, TeamRepo teamRepo,
+            UserRepo userRepo, DepartmentService departmentService, DesignationRepo designationRepo) {
         this.employeeRepo = employeeRepo;
         this.departmentRepo = departmentRepo;
         this.teamRepo = teamRepo;
         this.userRepo = userRepo;
+        this.departmentService = departmentService;
+        this.designationRepo = designationRepo;
     }
 
     @Override
-    public ResponseEntity<EmployeeDTO> addUser(EmployeeDTO employeeDTO) {
+    @Transactional
+    public ResponseEntity<EmployeeDTO> addEmployee(Long userId, EmployeeDTO employeeDTO) {
+        // Set userId from path variable
+        employeeDTO.setUserId(userId);
+
         EmployeeEntity employeeEntity = new EmployeeEntity();
 
-        // Set User reference from userId
-        if (employeeDTO.getUserId() != null) {
-            User user = userRepo.findById(employeeDTO.getUserId())
+        // User
+        User user = userRepo.findById(employeeDTO.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
-            employeeEntity.setUser(user);
-        } else {
-            throw new RuntimeException("UserId is required");
-        }
+        employeeEntity.setUser(user);
 
-        // Set Department reference from departmentId
+        // Department
         if (employeeDTO.getDepartmentId() != null) {
             DepartmentEntity department = departmentRepo.findById(employeeDTO.getDepartmentId())
-                .orElseThrow(() -> new RuntimeException("Department not found"));
+                    .orElseThrow(() -> new RuntimeException("Department not found"));
             employeeEntity.setDepartment(department);
         } else {
             throw new RuntimeException("DepartmentId is required");
         }
 
-        // Set designation
-        employeeEntity.setDesignation(employeeDTO.getDesignation());
-
-        // Set Reporting Person reference from reportingPersonId
-        if (employeeDTO.getReportingPersonId() != null) {
-            User reportingPerson = userRepo.findById(employeeDTO.getReportingPersonId())
-                .orElseThrow(() -> new RuntimeException("Reporting person not found"));
-            employeeEntity.setReportingPerson(reportingPerson);
+        // Designation
+        if (employeeDTO.getDesignationId() != null) {
+            DesignationEntity designation = designationRepo.findById(employeeDTO.getDesignationId())
+                    .orElseThrow(() -> new RuntimeException("Designation not found"));
+            employeeEntity.setDesignation(designation);
+        } else {
+            throw new RuntimeException("DesignationId is required");
         }
 
-        // Set reporting person email
-        employeeEntity.setReportingPersonEmail(employeeDTO.getReportingPersonEmail());
+        // Reporting person (store only relation)
+        if (employeeDTO.getReportingPersonId() != null) {
+            User reportingPerson = userRepo.findById(employeeDTO.getReportingPersonId())
+                    .orElseThrow(() -> new RuntimeException("Reporting person not found"));
+            employeeEntity.setReportPerson(reportingPerson);
+        } else {
+            throw new RuntimeException("ReportingPersonId is required");
+        }
 
-        // Save the employee record
-        EmployeeEntity savedEntity = employeeRepo.save(employeeEntity);
+        // Optional fields (can be null initially)
+        employeeEntity.setFirstName(employeeDTO.getFirstName());
+        employeeEntity.setLastName(employeeDTO.getLastName());
+        employeeEntity.setGender(employeeDTO.getGender());
+        employeeEntity.setDob(employeeDTO.getDob());
+        employeeEntity.setLocation(employeeDTO.getLocation());
+        employeeEntity.setTeamName(employeeDTO.getTeamName());
 
-        // Prepare response DTO
-        EmployeeDTO responseDTO = new EmployeeDTO();
-        responseDTO.setEmployeeId(savedEntity.getEmployeeId());
-        responseDTO.setUserId(savedEntity.getUser().getId());
-        responseDTO.setDesignation(savedEntity.getDesignation());
-        responseDTO.setDepartmentId(savedEntity.getDepartment().getId());
-        responseDTO.setDepartment(savedEntity.getDepartment().getName());
-        responseDTO.setReportingPersonId(savedEntity.getReportingPerson() != null ? savedEntity.getReportingPerson().getId() : null);
-        responseDTO.setReportingPersonEmail(savedEntity.getReportingPersonEmail());
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
+        EmployeeEntity saved = employeeRepo.save(employeeEntity);
+        return new ResponseEntity<>(toDTO(saved), HttpStatus.CREATED);
     }
 
     @Override
     public List<EmployeeDTO> getAll() {
         return employeeRepo.findAll()
                 .stream()
-                .map(entity -> {
-                    EmployeeDTO dto = new EmployeeDTO();
-                    BeanUtils.copyProperties(entity, dto);
-                    dto.setUserId(entity.getUser() != null ? entity.getUser().getId() : null);
-                    return dto;
-                })
+                .map(this::toDTO)
                 .collect(Collectors.toList());
     }
 
@@ -103,28 +106,26 @@ public class EmployeeServiceImpl implements EmployeeService {
     public ResponseEntity<EmployeeDTO> getUserById(int id) {
         EmployeeEntity entity = employeeRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Employee not found"));
-        EmployeeDTO dto = new EmployeeDTO();
-        BeanUtils.copyProperties(entity, dto);
-        dto.setUserId(entity.getUser() != null ? entity.getUser().getId() : null);
-        return ResponseEntity.ok(dto);
+        return ResponseEntity.ok(toDTO(entity));
     }
 
     // @Override
     // public List<EmployeeDTO> getEmployeesByDepartment(int departmentId) {
-    //     return employeeRepo.findByDepartment(departmentId).stream()
-    //         .map(entity -> {
-    //             EmployeeDTO dto = new EmployeeDTO();
-    //             BeanUtils.copyProperties(entity, dto);
-    //             dto.setUserId(entity.getUser() != null ? entity.getUser().getId() : null);
-    //             return dto;
-    //         })
-    //         .collect(Collectors.toList());
+    // return employeeRepo.findByDepartment(departmentId).stream()
+    // .map(entity -> {
+    // EmployeeDTO dto = new EmployeeDTO();
+    // BeanUtils.copyProperties(entity, dto);
+    // dto.setUserId(entity.getUser() != null ? entity.getUser().getId() : null);
+    // return dto;
+    // })
+    // .collect(Collectors.toList());
     // }
 
     @Override
     public String getEmployeeNameById(int id) {
         EmployeeEntity employee = employeeRepo.findById(id).orElse(null);
-        if (employee == null) return null;
+        if (employee == null)
+            return null;
         String firstName = employee.getFirstName() != null ? employee.getFirstName() : "";
         String lastName = employee.getLastName() != null ? employee.getLastName() : "";
         return (firstName + " " + lastName).trim();
@@ -148,15 +149,24 @@ public class EmployeeServiceImpl implements EmployeeService {
         EmployeeEntity entity = employeeRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Employee not found"));
 
-        if (employeeDTO.getFirstName() != null) entity.setFirstName(employeeDTO.getFirstName());
-        if (employeeDTO.getLastName() != null) entity.setLastName(employeeDTO.getLastName());
-        if (employeeDTO.getGender() != null) entity.setGender(employeeDTO.getGender());
-        if (employeeDTO.getDob() != null) entity.setDob(employeeDTO.getDob());
-        if (employeeDTO.getLocation() != null) entity.setLocation(employeeDTO.getLocation());
-        if (employeeDTO.getSkills() != null) entity.setSkills(employeeDTO.getSkills());
-        if (employeeDTO.getEducation() != null) entity.setEducation(employeeDTO.getEducation());
-        if (employeeDTO.getExperience() != null) entity.setExperience(employeeDTO.getExperience());
-        if (employeeDTO.getTeamName() != null) entity.setTeamName(employeeDTO.getTeamName());
+        if (employeeDTO.getFirstName() != null)
+            entity.setFirstName(employeeDTO.getFirstName());
+        if (employeeDTO.getLastName() != null)
+            entity.setLastName(employeeDTO.getLastName());
+        if (employeeDTO.getGender() != null)
+            entity.setGender(employeeDTO.getGender());
+        if (employeeDTO.getDob() != null)
+            entity.setDob(employeeDTO.getDob());
+        if (employeeDTO.getLocation() != null)
+            entity.setLocation(employeeDTO.getLocation());
+        if (employeeDTO.getSkills() != null)
+            entity.setSkills(employeeDTO.getSkills());
+        if (employeeDTO.getEducation() != null)
+            entity.setEducation(employeeDTO.getEducation());
+        if (employeeDTO.getExperience() != null)
+            entity.setExperience(employeeDTO.getExperience());
+        if (employeeDTO.getTeamName() != null)
+            entity.setTeamName(employeeDTO.getTeamName());
         // Set User reference from userId if provided
         if (employeeDTO.getUserId() != null) {
             User user = userRepo.findById(employeeDTO.getUserId()).orElse(null);
@@ -169,43 +179,68 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     private EmployeeDTO toDTO(EmployeeEntity entity) {
         EmployeeDTO dto = new EmployeeDTO();
-        BeanUtils.copyProperties(entity, dto, "employeeId", "user", "username");
+        // Copy scalar fields but exclude relations; include employeeId
+        BeanUtils.copyProperties(entity, dto, "user", "designation", "department", "reportPerson");
+
         // User info
         if (entity.getUser() != null) {
-            User user = userRepo.findById(entity.getUser().getId()).orElse(null);
-            if (user != null) {
-                dto.setUserId(user.getId());
-            }
+            dto.setUserId(entity.getUser().getId());
         }
-         if (dto.getDepartmentId() != null) {
-            DepartmentEntity department = departmentRepo.findById(dto.getDepartmentId())
-                .orElseThrow(() -> new RuntimeException("Department not found"));
-            dto.setDepartment(department.getName());
+
+        // Department info
+        if (entity.getDepartment() != null) {
+            dto.setDepartmentId(entity.getDepartment().getId());
+            dto.setDepartment(entity.getDepartment().getName());
+        }
+
+        // Designation info
+        if (entity.getDesignation() != null) {
+            dto.setDesignationId(entity.getDesignation().getId());
+            dto.setDesignationName(entity.getDesignation().getName());
+        }
+
+        // Reporting person info (derived from User)
+        if (entity.getReportPerson() != null) {
+            dto.setReportingPersonId(entity.getReportPerson().getId());
+            dto.setReportingPerson(entity.getReportPerson().getUsername());
+            dto.setReportingPersonEmail(entity.getReportPerson().getEmail());
         } else {
-            throw new RuntimeException("DepartmentId is required");
+            dto.setReportingPersonId(null);
+            dto.setReportingPerson(null);
+            dto.setReportingPersonEmail(null);
         }
-        dto.setDepartment(entity.getDepartment().getName());
-        dto.setSkills(entity.getSkills());
-        dto.setEducation(entity.getEducation());
-        dto.setExperience(entity.getExperience());
-        dto.setTeamName(entity.getTeamName());
+
         return dto;
     }
 
     // @Override
-    // public ResponseEntity<EmployeeDTO> updateProfileFields(int id, EmployeeDTO employeeDTO) {
-    //     EmployeeEntity entity = employeeRepo.findById(id)
-    //             .orElseThrow(() -> new RuntimeException("Employee not found"));
+    // public ResponseEntity<EmployeeDTO> updateProfileFields(int id, EmployeeDTO
+    // employeeDTO) {
+    // EmployeeEntity entity = employeeRepo.findById(id)
+    // .orElseThrow(() -> new RuntimeException("Employee not found"));
 
-    //     // Example: update only profile fields (customize as needed)
-    //     if (employeeDTO.getFirstName() != null) entity.setFirstName(employeeDTO.getFirstName());
-    //     if (employeeDTO.getLastName() != null) entity.setLastName(employeeDTO.getLastName());
-    //     if (employeeDTO.getGender() != null) entity.setGender(employeeDTO.getGender());
-    //     if (employeeDTO.getDob() != null) entity.setDob(employeeDTO.getDob());
-    //     if (employeeDTO.getLocation() != null) entity.setLocation(employeeDTO.getLocation());
+    // // Example: update only profile fields (customize as needed)
+    // if (employeeDTO.getFirstName() != null)
+    // entity.setFirstName(employeeDTO.getFirstName());
+    // if (employeeDTO.getLastName() != null)
+    // entity.setLastName(employeeDTO.getLastName());
+    // if (employeeDTO.getGender() != null)
+    // entity.setGender(employeeDTO.getGender());
+    // if (employeeDTO.getDob() != null) entity.setDob(employeeDTO.getDob());
+    // if (employeeDTO.getLocation() != null)
+    // entity.setLocation(employeeDTO.getLocation());
 
-    //     employeeRepo.save(entity);
-    //     EmployeeDTO updatedDTO = toDTO(entity);
-    //     return ResponseEntity.ok(updatedDTO);
+    // employeeRepo.save(entity);
+    // EmployeeDTO updatedDTO = toDTO(entity);
+    // return ResponseEntity.ok(updatedDTO);
     // }
+
+    @Override
+    public EmployeeDTO getEmployeeByUserId(Long userId) {
+        return employeeRepo.findAll().stream()
+            .filter(emp -> emp.getUser() != null && emp.getUser().getId().equals(userId))
+            .findFirst()
+            .map(this::toDTO)
+            .orElse(null);
+    }
 }

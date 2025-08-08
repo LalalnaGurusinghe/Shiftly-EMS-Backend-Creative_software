@@ -40,26 +40,23 @@ public class EmployeeEntity {
     @Column(name = "gender", length = 10)
     private String gender;
 
-    @Column(name = "dob")
+    @Column(name = "dob", nullable = true)
     private String dob;
 
     @Column(name = "location",length = 100)
     private String location;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "departmentid")
+    @JoinColumn(name = "department_id", nullable = false) 
     private DepartmentEntity department;
 
-    // Add to EmployeeEntity.java
-    @Column(name = "designation", length = 100)
-    private String designation;
+    @ManyToOne
+    @JoinColumn(name = "designation_id", nullable = false)
+    private DesignationEntity designation;
 
-    @OneToOne
-    @JoinColumn(name = "reporting_person_id", nullable = false)
-    private User reportingPerson;
-
-    @Column(name = "reporting_person_email", length = 100)
-    private String reportingPersonEmail;
+    @ManyToOne
+    @JoinColumn(name = "reportperson_id", nullable = false)
+    private User reportPerson;
 
     @Column(name = "team_name", length = 100)
     private String teamName;
