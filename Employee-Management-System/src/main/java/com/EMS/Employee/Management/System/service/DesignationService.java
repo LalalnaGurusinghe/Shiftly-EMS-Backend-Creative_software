@@ -8,6 +8,6 @@ public interface DesignationService {
     DesignationDTO updateDesignation(Long id, DesignationDTO dto);
     void deleteDesignation(Long id);
     List<DesignationDTO> getAllDesignations();
-    DesignationDTO getDesignationById(Long id);
+    // DesignationDTO getDesignationById(Long id);
     List<DesignationDTO> getDesignationsByDepartmentId(Long departmentId);
 }

@@ -1,6 +1,7 @@
 package com.EMS.Employee.Management.System.controller;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.http.ResponseEntity;
@@ -50,22 +51,23 @@ public class EmployeeController {
         return employeeService.addEmployee(userId, employeeDTO);
     }
 
-    @GetMapping("/all")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<EmployeeDTO>> getAllEmployees() {
-        return ResponseEntity.ok(employeeService.getAll());
-    }
+    // @GetMapping("/all")
+    // @PreAuthorize("hasRole('ADMIN')")
+    // public ResponseEntity<List<EmployeeDTO>> getAllEmployees() {
+    //     return ResponseEntity.ok(employeeService.getAll());
+    // }
 
-    @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<EmployeeDTO> getEmployeeById(@PathVariable int id) {
-        return employeeService.getUserById(id);
-    }
+    // @GetMapping("/{id}")
+    // @PreAuthorize("hasRole('ADMIN')")
+    // public ResponseEntity<EmployeeDTO> getEmployeeById(@PathVariable int id) {
+    //     return employeeService.getUserById(id);
+    // }
 
     @DeleteMapping("/delete/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<EmployeeDTO> deleteEmployeeById(@PathVariable int id) {
-        return employeeService.deleteUserById(id);
+    public ResponseEntity<Void> deleteEmployeeByUserId(@PathVariable Long id) {
+        employeeService.deleteEmployeeByUserId(id);
+        return ResponseEntity.ok().build();
     }
 
     // @PutMapping("/update/{id}")
@@ -87,7 +89,7 @@ public class EmployeeController {
         String username = authentication.getName();
         User user = userRepo.findByUsername(username)
             .orElseThrow(() -> new RuntimeException("User not found"));
-        EmployeeEntity employee = employeeRepo.findByUser_Id(user.getId());
+        Optional<EmployeeEntity> employee = employeeRepo.findByUser_Id(user.getId());
         if (employee == null) {
             return ResponseEntity.notFound().build();
         }

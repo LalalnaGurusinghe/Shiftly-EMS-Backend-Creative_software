@@ -31,12 +31,12 @@ public class DepartmentServiceImpl implements DepartmentService {
                 .collect(Collectors.toList());
     }
 
-    @Override
-    public List<DepartmentDTO> getAllDepartmentsWithAdmin() {
-        return departmentRepo.findAll().stream()
-                .map(this::toDTO)
-                .collect(Collectors.toList());
-    }
+    // @Override
+    // public List<DepartmentDTO> getAllDepartmentsWithAdmin() {
+    //     return departmentRepo.findAll().stream()
+    //             .map(this::toDTO)
+    //             .collect(Collectors.toList());
+    // }
 
     @Override
     @Transactional

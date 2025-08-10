@@ -5,7 +5,7 @@ import java.util.List;
 
 public interface LeaveService {
     // Employee
-    LeaveDTO applyLeave(LeaveDTO leaveDTO, String username);
+    // LeaveDTO applyLeave(LeaveDTO leaveDTO, String username);
     List<LeaveDTO> getOwnLeaves(String username);
     LeaveDTO updateOwnLeave(Long leaveId, LeaveDTO leaveDTO, String username);
     void deleteOwnLeave(Long leaveId, String username);

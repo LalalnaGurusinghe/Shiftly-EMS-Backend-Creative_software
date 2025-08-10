@@ -7,23 +7,22 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.EMS.Employee.Management.System.dto.ChangePasswordDTO;
+import com.EMS.Employee.Management.System.dto.DetailUserDTO;
 import com.EMS.Employee.Management.System.dto.EmployeeDTO;
 import com.EMS.Employee.Management.System.dto.UserDTO;
-import com.EMS.Employee.Management.System.dto.DetailUserDTO;
-import com.EMS.Employee.Management.System.entity.EmployeeEntity;
+import com.EMS.Employee.Management.System.entity.DepartmentEntity;
 import com.EMS.Employee.Management.System.entity.User;
 import com.EMS.Employee.Management.System.repo.DepartmentRepo;
 import com.EMS.Employee.Management.System.repo.EmployeeRepo;
 import com.EMS.Employee.Management.System.repo.UserRepo;
-import com.EMS.Employee.Management.System.service.UserService;
 import com.EMS.Employee.Management.System.service.EmployeeService;
+import com.EMS.Employee.Management.System.service.UserService;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -44,9 +43,16 @@ public class UserServiceImpl implements UserService {
         this.employeeService = employeeService;
     }
 
-     @Override
+    @Override
     public List<UserDTO> getAllUnverifiedUsers() {
         return userRepo.findByIsVerifiedFalse().stream()
+                .map(this::convertToUserDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<UserDTO> getAllVerifiedUsers() {
+        return userRepo.findByIsVerifiedTrue().stream()
                 .map(this::convertToUserDTO)
                 .collect(Collectors.toList());
     }
@@ -150,13 +156,17 @@ public class UserServiceImpl implements UserService {
         return convertToUserDTO(updatedUser);
     }
 
-    @Override
+     @Override
     @Transactional
     public void deleteUser(Long id) {
-        // Delete employee entry by user id first
-        EmployeeEntity employee = employeeRepo.findByUser_Id(id);
-        if (employee != null) {
-            employeeRepo.delete(employee);
+        List<DepartmentEntity> depts = departmentRepo.findByAdmin_Id(id);
+        if (!depts.isEmpty()) {
+            depts.forEach(d -> d.setAdmin(null));
+            departmentRepo.saveAll(depts);
+        }
+
+        if (employeeRepo.existsByUser_Id(id)) {
+            employeeRepo.deleteByUser_Id(id);
         }
         userRepo.deleteById(id);
     }

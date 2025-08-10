@@ -9,6 +9,7 @@ import com.EMS.Employee.Management.System.entity.User;
 
 public interface UserService {
     List<UserDTO> getAllUnverifiedUsers();
+    List<UserDTO> getAllVerifiedUsers();
     UserDTO getUserById(Long id);
     User getUserEntityById(Long id);
     UserDTO getUserByUsername(String username);

@@ -36,11 +36,11 @@ public class DepartmentController {
         return ResponseEntity.ok(departments);
     }
 
-    @GetMapping("/with-admin")
-    public ResponseEntity<List<DepartmentDTO>> getAllDepartmentsWithAdmin() {
-        List<DepartmentDTO> departments = departmentService.getAllDepartmentsWithAdmin();
-        return ResponseEntity.ok(departments);
-    }
+    // @GetMapping("/with-admin")
+    // public ResponseEntity<List<DepartmentDTO>> getAllDepartmentsWithAdmin() {
+    //     List<DepartmentDTO> departments = departmentService.getAllDepartmentsWithAdmin();
+    //     return ResponseEntity.ok(departments);
+    // }
 
     @PostMapping("/add")
     @PreAuthorize("hasRole('ROLE_SUPER_ADMIN')")

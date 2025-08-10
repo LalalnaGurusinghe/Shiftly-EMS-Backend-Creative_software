@@ -22,11 +22,11 @@ public class LeaveController {
     private LeaveService leaveService;
 
     // Employee: Apply for leave (with optional file upload)
-    @PostMapping("/apply")
-    @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<LeaveDTO> applyLeave(@RequestBody LeaveDTO leaveDTO, Authentication authentication) {
-        return ResponseEntity.ok(leaveService.applyLeave(leaveDTO, authentication.getName()));
-    }
+    // @PostMapping("/apply")
+    // @PreAuthorize("hasRole('USER')")
+    // public ResponseEntity<LeaveDTO> applyLeave(@RequestBody LeaveDTO leaveDTO, Authentication authentication) {
+    //     return ResponseEntity.ok(leaveService.applyLeave(leaveDTO, authentication.getName()));
+    // }
 
     // Employee: View own leaves
     @GetMapping("/my")

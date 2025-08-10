@@ -5,7 +5,7 @@ import java.util.List;
 
 public interface DepartmentService {
     List<DepartmentDTO> getAllDepartments();
-    List<DepartmentDTO> getAllDepartmentsWithAdmin();
+    // List<DepartmentDTO> getAllDepartmentsWithAdmin();
     DepartmentDTO createDepartment(DepartmentDTO departmentDto);
     DepartmentDTO assignAdmin(Long userId, Long departmentId);
     void deleteDepartment(Long departmentId);

@@ -30,35 +30,35 @@ public class LeaveServiceImpl implements LeaveService {
         this.employeeRepo = employeeRepo;
     }
 
-    // Employee: Apply for leave
-    @Override
-    @Transactional
-    public LeaveDTO applyLeave(LeaveDTO leaveDTO, String username) {
-        User user = userRepo.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
-        LeaveEntity entity = new LeaveEntity();
-        BeanUtils.copyProperties(leaveDTO, entity);
-        entity.setUser(user);
-        // Remove fileData logic since DTO does not have it
-        // Map coverPerson by name
-        if (leaveDTO.getCoverPersonName() != null && !leaveDTO.getCoverPersonName().isEmpty()) {
-            String[] names = leaveDTO.getCoverPersonName().split(" ", 2);
-            if (names.length < 2) throw new RuntimeException("Cover person name must include first and last name");
-            EmployeeEntity cover = employeeRepo.findByFirstNameAndLastName(names[0], names[1]);
-            if (cover == null) throw new RuntimeException("Cover person not found");
-            entity.setCoverPerson(cover);
-        }
-        // Map reportTo by name
-        if (leaveDTO.getReportToName() != null && !leaveDTO.getReportToName().isEmpty()) {
-            String[] names = leaveDTO.getReportToName().split(" ", 2);
-            if (names.length < 2) throw new RuntimeException("Report to name must include first and last name");
-            EmployeeEntity reportTo = employeeRepo.findByFirstNameAndLastName(names[0], names[1]);
-            if (reportTo == null) throw new RuntimeException("Report to not found");
-            entity.setReportTo(reportTo);
-        }
-        entity.setLeaveStatus(LeaveStatus.PENDING);
-        LeaveEntity saved = leaveRepo.save(entity);
-        return toDTO(saved);
-    }
+    // // Employee: Apply for leave
+    // @Override
+    // @Transactional
+    // public LeaveDTO applyLeave(LeaveDTO leaveDTO, String username) {
+    //     User user = userRepo.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
+    //     LeaveEntity entity = new LeaveEntity();
+    //     BeanUtils.copyProperties(leaveDTO, entity);
+    //     entity.setUser(user);
+    //     // Remove fileData logic since DTO does not have it
+    //     // Map coverPerson by name
+    //     if (leaveDTO.getCoverPersonName() != null && !leaveDTO.getCoverPersonName().isEmpty()) {
+    //         String[] names = leaveDTO.getCoverPersonName().split(" ", 2);
+    //         if (names.length < 2) throw new RuntimeException("Cover person name must include first and last name");
+    //         EmployeeEntity cover = employeeRepo.findByFirstNameAndLastName(names[0], names[1]);
+    //         if (cover == null) throw new RuntimeException("Cover person not found");
+    //         entity.setCoverPerson(cover);
+    //     }
+    //     // Map reportTo by name
+    //     if (leaveDTO.getReportToName() != null && !leaveDTO.getReportToName().isEmpty()) {
+    //         String[] names = leaveDTO.getReportToName().split(" ", 2);
+    //         if (names.length < 2) throw new RuntimeException("Report to name must include first and last name");
+    //         EmployeeEntity reportTo = employeeRepo.findByFirstNameAndLastName(names[0], names[1]);
+    //         if (reportTo == null) throw new RuntimeException("Report to not found");
+    //         entity.setReportTo(reportTo);
+    //     }
+    //     entity.setLeaveStatus(LeaveStatus.PENDING);
+    //     LeaveEntity saved = leaveRepo.save(entity);
+    //     return toDTO(saved);
+    // }
 
     // Employee: View own leaves
     @Override

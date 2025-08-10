@@ -75,12 +75,12 @@ public class DesignationServiceImpl implements DesignationService {
                 .collect(Collectors.toList());
     }
 
-    @Override
-    public DesignationDTO getDesignationById(Long id) {
-        DesignationEntity entity = designationRepo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Designation not found"));
-        return toDTO(entity);
-    }
+    // @Override
+    // public DesignationDTO getDesignationById(Long id) {
+    //     DesignationEntity entity = designationRepo.findById(id)
+    //             .orElseThrow(() -> new RuntimeException("Designation not found"));
+    //     return toDTO(entity);
+    // }
 
     private DesignationDTO toDTO(DesignationEntity entity) {
         DesignationDTO dto = new DesignationDTO();

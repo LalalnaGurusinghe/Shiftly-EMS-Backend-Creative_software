@@ -41,6 +41,20 @@ public class SuperAdminController {
         }
     }
 
+    @GetMapping("/verified")
+    public ResponseEntity<List<UserDTO>> getAllVerifiedUsers() {
+        try {
+            return ResponseEntity.ok(userService.getAllVerifiedUsers());
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(null);
+        }
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<UserDTO>> getAll() {
+        return ResponseEntity.ok(userService.getAll());
+    }
+
     @GetMapping("/admins/without-department")
     public ResponseEntity<List<UserDTO>> getAllAdminsWithoutDepartment() {
         try {
@@ -76,17 +90,17 @@ public class SuperAdminController {
     // return employeeService.updateProfileFields(id, employeeDTO);
     // }
 
-    @PutMapping("/verify-all")
-    public ResponseEntity<List<UserDTO>> verifyAllEmployees(@RequestBody RoleDTO roleDTO) {
-        try {
-            List<UserDTO> verifiedUsers = userService.verifyAllUnverifiedEmployees(roleDTO.role());
-            verifiedUsers.forEach(user -> authenticationService.sendVerificationEmail(
-                    userService.getUserEntityById(user.getId()), roleDTO.role(), null, null));
-            return ResponseEntity.ok(verifiedUsers);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(null);
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body(null);
-        }
-    }
+    // @PutMapping("/verify-all")
+    // public ResponseEntity<List<UserDTO>> verifyAllEmployees(@RequestBody RoleDTO roleDTO) {
+    //     try {
+    //         List<UserDTO> verifiedUsers = userService.verifyAllUnverifiedEmployees(roleDTO.role());
+    //         verifiedUsers.forEach(user -> authenticationService.sendVerificationEmail(
+    //                 userService.getUserEntityById(user.getId()), roleDTO.role(), null, null));
+    //         return ResponseEntity.ok(verifiedUsers);
+    //     } catch (IllegalArgumentException e) {
+    //         return ResponseEntity.badRequest().body(null);
+    //     } catch (Exception e) {
+    //         return ResponseEntity.status(500).body(null);
+    //     }
+    // }
 }

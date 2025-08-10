@@ -53,10 +53,10 @@ public class DesignationController {
         return ResponseEntity.ok(designationService.getAllDesignations());
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<DesignationDTO> getDesignationById(@PathVariable Long id) {
-        return ResponseEntity.ok(designationService.getDesignationById(id));
-    }
+    // @GetMapping("/{id}")
+    // public ResponseEntity<DesignationDTO> getDesignationById(@PathVariable Long id) {
+    //     return ResponseEntity.ok(designationService.getDesignationById(id));
+    // }
 
     @GetMapping("/by-department/{departmentId}")
     public ResponseEntity<List<DesignationDTO>> getDesignationsByDepartmentId(@PathVariable Long departmentId) {

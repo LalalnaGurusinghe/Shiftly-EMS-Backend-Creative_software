@@ -55,21 +55,21 @@ public class ProjectController {
         return ResponseEntity.ok(projects);
     }
 
-    // Employee: View own projects (by assigned team)
-    @GetMapping("/my")
-    @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<List<ProjectDTO>> getOwnProjects(Principal principal) {
-        String username = principal.getName();
-        Long userId = userRepo.findByUsername(username).map(u -> u.getId()).orElse(null);
-        if (userId == null) return ResponseEntity.status(404).build();
-        EmployeeEntity employee = employeeRepo.findByUser_Id(userId);
-        if (employee == null) return ResponseEntity.status(404).build();
-        String teamName = employee.getTeamName();
-        if (teamName == null || teamName.isEmpty()) return ResponseEntity.ok(List.of());
-        List<ProjectDTO> allProjects = projectService.getAllProjects();
-        List<ProjectDTO> myProjects = allProjects.stream()
-            .filter(p -> teamName.equals(p.getTeamName()))
-            .toList();
-        return ResponseEntity.ok(myProjects);
-    }
+    // // Employee: View own projects (by assigned team)
+    // @GetMapping("/my")
+    // @PreAuthorize("hasRole('USER')")
+    // public ResponseEntity<List<ProjectDTO>> getOwnProjects(Principal principal) {
+    //     String username = principal.getName();
+    //     Long userId = userRepo.findByUsername(username).map(u -> u.getId()).orElse(null);
+    //     if (userId == null) return ResponseEntity.status(404).build();
+    //     EmployeeEntity employee = employeeRepo.findByUser_Id(userId);
+    //     if (employee == null) return ResponseEntity.status(404).build();
+    //     String teamName = employee.getTeamName();
+    //     if (teamName == null || teamName.isEmpty()) return ResponseEntity.ok(List.of());
+    //     List<ProjectDTO> allProjects = projectService.getAllProjects();
+    //     List<ProjectDTO> myProjects = allProjects.stream()
+    //         .filter(p -> teamName.equals(p.getTeamName()))
+    //         .toList();
+    //     return ResponseEntity.ok(myProjects);
+    // }
 } 
