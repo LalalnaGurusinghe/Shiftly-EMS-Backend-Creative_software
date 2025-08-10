@@ -5,5 +5,7 @@ import lombok.Data;
 @Data
 public class VacancyDTO {
     private Long id;
-    private String name;
+    private Long departmentId;
+    private String departmentName;
+    private String vacancyName;
 } 

@@ -69,11 +69,11 @@ public class UserServiceImpl implements UserService {
         return userRepo.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
     }
 
-    @Override
-    public UserDTO getUserByUsername(String username) {
-        User user = userRepo.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
-        return convertToUserDTO(user);
-    }
+    // @Override
+    // public UserDTO getUserByUsername(String username) {
+    //     User user = userRepo.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
+    //     return convertToUserDTO(user);
+    // }
 
     @Override
     public List<UserDTO> getAll() {
@@ -142,19 +142,19 @@ public class UserServiceImpl implements UserService {
         }).collect(Collectors.toList());
     }
 
-    @Override
-    public UserDTO changePassword(Long id, ChangePasswordDTO changePasswordDTO) {
-        User user = userRepo.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
-        if (!passwordEncoder.matches(changePasswordDTO.getCurrentPassword(), user.getPassword())) {
-            throw new RuntimeException("Current password is incorrect");
-        }
-        if (!changePasswordDTO.getNewPassword().equals(changePasswordDTO.getConfirmPassword())) {
-            throw new RuntimeException("New password and confirm password do not match");
-        }
-        user.setPassword(passwordEncoder.encode(changePasswordDTO.getNewPassword()));
-        User updatedUser = userRepo.save(user);
-        return convertToUserDTO(updatedUser);
-    }
+    // @Override
+    // public UserDTO changePassword(Long id, ChangePasswordDTO changePasswordDTO) {
+    //     User user = userRepo.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
+    //     if (!passwordEncoder.matches(changePasswordDTO.getCurrentPassword(), user.getPassword())) {
+    //         throw new RuntimeException("Current password is incorrect");
+    //     }
+    //     if (!changePasswordDTO.getNewPassword().equals(changePasswordDTO.getConfirmPassword())) {
+    //         throw new RuntimeException("New password and confirm password do not match");
+    //     }
+    //     user.setPassword(passwordEncoder.encode(changePasswordDTO.getNewPassword()));
+    //     User updatedUser = userRepo.save(user);
+    //     return convertToUserDTO(updatedUser);
+    // }
 
      @Override
     @Transactional
@@ -171,105 +171,105 @@ public class UserServiceImpl implements UserService {
         userRepo.deleteById(id);
     }
 
-    @Override
-    public UserDTO updateUser(Long id, UserDTO userDTO) {
-        User user = userRepo.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
-        if (userDTO.getUsername() != null && !userDTO.getUsername().equals(user.getUsername())) {
-            if (userRepo.existsByUsername(userDTO.getUsername())) {
-                throw new RuntimeException("Username already exists");
-            }
-            user.setUsername(userDTO.getUsername());
-        }
-        if (userDTO.getEmail() != null && !userDTO.getEmail().equals(user.getEmail())) {
-            if (userRepo.existsByEmail(userDTO.getEmail())) {
-                throw new RuntimeException("Email already exists");
-            }
-            user.setEmail(userDTO.getEmail());
-        }
-        User updatedUser = userRepo.save(user);
-        return convertToUserDTO(updatedUser);
-    }
+    // @Override
+    // public UserDTO updateUser(Long id, UserDTO userDTO) {
+    //     User user = userRepo.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
+    //     if (userDTO.getUsername() != null && !userDTO.getUsername().equals(user.getUsername())) {
+    //         if (userRepo.existsByUsername(userDTO.getUsername())) {
+    //             throw new RuntimeException("Username already exists");
+    //         }
+    //         user.setUsername(userDTO.getUsername());
+    //     }
+    //     if (userDTO.getEmail() != null && !userDTO.getEmail().equals(user.getEmail())) {
+    //         if (userRepo.existsByEmail(userDTO.getEmail())) {
+    //             throw new RuntimeException("Email already exists");
+    //         }
+    //         user.setEmail(userDTO.getEmail());
+    //     }
+    //     User updatedUser = userRepo.save(user);
+    //     return convertToUserDTO(updatedUser);
+    // }
 
-    @Override
-    @Transactional
-    public UserDTO updateUserProfile(Long id, String designation, String department, String reportingPerson, String reportingPersonEmail) {
-        logger.info("Updating user profile for user ID: {}", id);
-        logger.info("Designation: {}, Department: {}, ReportingPerson: {}, ReportingPersonEmail: {}", 
-                   designation, department, reportingPerson, reportingPersonEmail);
+    // @Override
+    // @Transactional
+    // public UserDTO updateUserProfile(Long id, String designation, String department, String reportingPerson, String reportingPersonEmail) {
+    //     logger.info("Updating user profile for user ID: {}", id);
+    //     logger.info("Designation: {}, Department: {}, ReportingPerson: {}, ReportingPersonEmail: {}", 
+    //                designation, department, reportingPerson, reportingPersonEmail);
         
-        User user = userRepo.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
-        logger.info("Found user: {}", user.getUsername());
+    //     User user = userRepo.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
+    //     logger.info("Found user: {}", user.getUsername());
         
-        try {
-            User updatedUser = userRepo.save(user);
-            logger.info("Successfully saved user profile updates");
-            return convertToUserDTO(updatedUser);
-        } catch (Exception e) {
-            logger.error("Error saving user profile updates: {}", e.getMessage(), e);
-            throw new RuntimeException("Failed to update user profile: " + e.getMessage());
-        }
-    }
+    //     try {
+    //         User updatedUser = userRepo.save(user);
+    //         logger.info("Successfully saved user profile updates");
+    //         return convertToUserDTO(updatedUser);
+    //     } catch (Exception e) {
+    //         logger.error("Error saving user profile updates: {}", e.getMessage(), e);
+    //         throw new RuntimeException("Failed to update user profile: " + e.getMessage());
+    //     }
+    // }
 
-    @Override
-    @Transactional
-    public UserDTO verifyAndUpdateUserRole(Long id, String role) {
-        if (!isValidRole(role)) {
-            throw new IllegalArgumentException("Invalid role specified: " + role);
-        }
-        User user = userRepo.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
-        Set<String> roles = new HashSet<>();
-        switch (role.toUpperCase()) {
-            case "SUPER_ADMIN":
-                roles.add("SUPER_ADMIN");
-                roles.add("ADMIN");
-                roles.add("USER");
-                break;
-            case "ADMIN":
-                roles.add("ADMIN");
-                roles.add("USER");
-                break;
-            case "USER":
-                roles.add("USER");
-                break;
-        }
-        user.setRoles(roles);
-        user.setVerified(true);
-        User updatedUser = userRepo.save(user);
-        return convertToUserDTO(updatedUser);
-    }
+    // @Override
+    // @Transactional
+    // public UserDTO verifyAndUpdateUserRole(Long id, String role) {
+    //     if (!isValidRole(role)) {
+    //         throw new IllegalArgumentException("Invalid role specified: " + role);
+    //     }
+    //     User user = userRepo.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
+    //     Set<String> roles = new HashSet<>();
+    //     switch (role.toUpperCase()) {
+    //         case "SUPER_ADMIN":
+    //             roles.add("SUPER_ADMIN");
+    //             roles.add("ADMIN");
+    //             roles.add("USER");
+    //             break;
+    //         case "ADMIN":
+    //             roles.add("ADMIN");
+    //             roles.add("USER");
+    //             break;
+    //         case "USER":
+    //             roles.add("USER");
+    //             break;
+    //     }
+    //     user.setRoles(roles);
+    //     user.setVerified(true);
+    //     User updatedUser = userRepo.save(user);
+    //     return convertToUserDTO(updatedUser);
+    // }
 
-    @Override
-    @Transactional
-    public List<UserDTO> verifyAllUnverifiedEmployees(String role) {
-        if (!isValidRole(role)) {
-            throw new IllegalArgumentException("Invalid role specified: " + role);
-        }
-        List<User> unverifiedUsers = userRepo.findByIsVerifiedFalse();
-        Set<String> roles = new HashSet<>();
-        switch (role.toUpperCase()) {
-            case "SUPER_ADMIN":
-                roles.add("SUPER_ADMIN");
-                roles.add("ADMIN");
-                roles.add("USER");
-                break;
-            case "ADMIN":
-                roles.add("ADMIN");
-                roles.add("USER");
-                break;
-            case "USER":
-                roles.add("USER");
-                break;
-        }
-        unverifiedUsers.forEach(user -> {
-            user.setRoles(roles);
-            user.setVerified(true);
-            userRepo.save(user);
-            logger.info("Verified user: {} with role: {}", user.getUsername(), role);
-        });
-        return unverifiedUsers.stream()
-                .map(this::convertToUserDTO)
-                .collect(Collectors.toList());
-    }
+    // @Override
+    // @Transactional
+    // public List<UserDTO> verifyAllUnverifiedEmployees(String role) {
+    //     if (!isValidRole(role)) {
+    //         throw new IllegalArgumentException("Invalid role specified: " + role);
+    //     }
+    //     List<User> unverifiedUsers = userRepo.findByIsVerifiedFalse();
+    //     Set<String> roles = new HashSet<>();
+    //     switch (role.toUpperCase()) {
+    //         case "SUPER_ADMIN":
+    //             roles.add("SUPER_ADMIN");
+    //             roles.add("ADMIN");
+    //             roles.add("USER");
+    //             break;
+    //         case "ADMIN":
+    //             roles.add("ADMIN");
+    //             roles.add("USER");
+    //             break;
+    //         case "USER":
+    //             roles.add("USER");
+    //             break;
+    //     }
+    //     unverifiedUsers.forEach(user -> {
+    //         user.setRoles(roles);
+    //         user.setVerified(true);
+    //         userRepo.save(user);
+    //         logger.info("Verified user: {} with role: {}", user.getUsername(), role);
+    //     });
+    //     return unverifiedUsers.stream()
+    //             .map(this::convertToUserDTO)
+    //             .collect(Collectors.toList());
+    // }
 
     @Override
     @Transactional
@@ -345,11 +345,6 @@ public class UserServiceImpl implements UserService {
         return userDTO;
     }
 
-    // @Override
-    // public AdminUserResponseDTO getAdminUserByDepartment(String department) {
-    //     // TODO Auto-generated method stub
-    //     throw new UnsupportedOperationException("Unimplemented method 'getAdminUserByDepartment'");
-    // }
 
     // @Override
     // public AdminUserResponseDTO getAdminUserByDepartment(String department) {

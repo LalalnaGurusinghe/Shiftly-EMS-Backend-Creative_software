@@ -1,11 +1,16 @@
 package com.EMS.Employee.Management.System.service.impl;
 
+import com.EMS.Employee.Management.System.dto.DesignationDTO;
 import com.EMS.Employee.Management.System.dto.VacancyDTO;
+import com.EMS.Employee.Management.System.entity.DepartmentEntity;
+import com.EMS.Employee.Management.System.entity.DesignationEntity;
+import com.EMS.Employee.Management.System.repo.DepartmentRepo;
 import com.EMS.Employee.Management.System.entity.VacancyEntity;
 import com.EMS.Employee.Management.System.repo.VacancyRepo;
 import com.EMS.Employee.Management.System.service.VacancyService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,52 +19,82 @@ import java.util.stream.Collectors;
 @Service
 public class VacancyServiceImpl implements VacancyService {
     private final VacancyRepo vacancyRepo;
+    private final DepartmentRepo departmentRepo;
 
-    public VacancyServiceImpl(VacancyRepo vacancyRepo) {
+    public VacancyServiceImpl(VacancyRepo vacancyRepo,DepartmentRepo departmentRepo) {
         this.vacancyRepo = vacancyRepo;
+        this.departmentRepo = departmentRepo;
     }
 
     @Override
-    public VacancyDTO addVacancy(VacancyDTO vacancyDTO) {
+    @Transactional
+    public VacancyDTO createVacancy(VacancyDTO dto) {
+        DepartmentEntity department = departmentRepo.findById(dto.getDepartmentId())
+                .orElseThrow(() -> new RuntimeException("Department not found"));
         VacancyEntity entity = new VacancyEntity();
-        BeanUtils.copyProperties(vacancyDTO, entity);
+        entity.setName(dto.getVacancyName());
+        entity.setDepartment(department);
         VacancyEntity saved = vacancyRepo.save(entity);
-        VacancyDTO dto = new VacancyDTO();
-        BeanUtils.copyProperties(saved, dto);
-        return dto;
+        return toDTO(saved);
     }
 
     @Override
-    public VacancyDTO updateVacancy(Long id, VacancyDTO vacancyDTO) {
+    @Transactional
+    public VacancyDTO updateVacancy(Long id, VacancyDTO dto) {
         VacancyEntity entity = vacancyRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Vacancy not found"));
-        if (vacancyDTO.getName() != null) entity.setName(vacancyDTO.getName());
+        entity.setName(dto.getVacancyName());
+        if (dto.getDepartmentId() != null) {
+            DepartmentEntity department = departmentRepo.findById(dto.getDepartmentId())
+                    .orElseThrow(() -> new RuntimeException("Department not found"));
+            entity.setDepartment(department);
+        }
         VacancyEntity saved = vacancyRepo.save(entity);
-        VacancyDTO dto = new VacancyDTO();
-        BeanUtils.copyProperties(saved, dto);
-        return dto;
+        return toDTO(saved);
     }
 
     @Override
+    @Transactional
     public void deleteVacancy(Long id) {
+        if (!vacancyRepo.existsById(id)) {
+            throw new RuntimeException("Vacancy not found");
+        }
         vacancyRepo.deleteById(id);
     }
 
     @Override
     public List<VacancyDTO> getAllVacancies() {
-        return vacancyRepo.findAll().stream().map(entity -> {
-            VacancyDTO dto = new VacancyDTO();
-            BeanUtils.copyProperties(entity, dto);
-            return dto;
-        }).collect(Collectors.toList());
+        return vacancyRepo.findAll().stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public VacancyDTO getVacancyById(Long id) {
-        Optional<VacancyEntity> entity = vacancyRepo.findById(id);
-        if (entity.isEmpty()) return null;
+    public List<VacancyDTO> getVacancyByDepartmentId(Long departmentId) {
+        return vacancyRepo.findAll().stream()
+                .filter(vacancy -> vacancy.getDepartment() != null
+                        && vacancy.getDepartment().getId().equals(departmentId))
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    // @Override
+    // public VacancyDTO getVacancyById(Long id) {
+    //     Optional<VacancyEntity> entity = vacancyRepo.findById(id);
+    //     if (entity.isEmpty()) return null;
+    //     VacancyDTO dto = new VacancyDTO();
+    //     BeanUtils.copyProperties(entity.get(), dto);
+    //     return dto;
+    // }
+
+    private VacancyDTO toDTO(VacancyEntity entity) {
         VacancyDTO dto = new VacancyDTO();
-        BeanUtils.copyProperties(entity.get(), dto);
+        dto.setId(entity.getId());
+        dto.setVacancyName(entity.getName());
+        dto.setDepartmentId(entity.getDepartment().getId());
+        dto.setDepartmentName(entity.getDepartment().getName());
         return dto;
     }
+
+
 } 

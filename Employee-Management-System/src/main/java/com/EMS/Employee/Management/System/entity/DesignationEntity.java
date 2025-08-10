@@ -15,6 +15,6 @@ public class DesignationEntity {
     private String name;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "department_id")
+    @JoinColumn(name = "department_id",nullable = false)
     private DepartmentEntity department;
 }
