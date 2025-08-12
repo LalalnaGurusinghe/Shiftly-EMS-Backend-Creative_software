@@ -13,32 +13,37 @@ import java.util.List;
 @RequestMapping("/api/v1/shiftly/ems/timesheets")
 @CrossOrigin(origins = "http://localhost:3000")
 public class TimesheetController {
-    @Autowired
-    private TimesheetService timesheetService;
+    
+    private final TimesheetService timesheetService;
 
-    // User: Create timesheet
-    @PostMapping("/add")
-    @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<TimesheetDTO> createTimesheet(@RequestBody TimesheetDTO dto, Principal principal) {
-        // Set userId from principal if needed
-        return ResponseEntity.ok(timesheetService.createTimesheet(dto));
+    public TimesheetController(TimesheetService timesheetService) {
+        this.timesheetService = timesheetService;
     }
 
-    // SuperAdmin: Get all timesheets
+    @PostMapping("/add/{employeeId}")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<TimesheetDTO> create(@PathVariable int employeeId,@RequestBody TimesheetDTO dto) {
+        return ResponseEntity.ok(timesheetService.create(employeeId,dto));
+    }
+
+    @GetMapping("/employee/{employeeId}")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<List<TimesheetDTO>> getByEmployeeId(@PathVariable int employeeId) {
+        return ResponseEntity.ok(timesheetService.getByEmployeeId(employeeId));
+    }
+
+    @GetMapping("/admin/{adminUserId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<TimesheetDTO>> getTimesheetsForAdmin(@PathVariable Long adminUserId) {
+        return ResponseEntity.ok(timesheetService.getTimesheetsForAdmin(adminUserId));
+    }
+
     @GetMapping("/all")
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<TimesheetDTO>> getAllTimesheets() {
         return ResponseEntity.ok(timesheetService.getAllTimesheets());
     }
 
-    // User: Get timesheets by userId
-    @GetMapping("/user/{userId}")
-    @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<List<TimesheetDTO>> getTimesheetsByUserId(@PathVariable Long userId) {
-        return ResponseEntity.ok(timesheetService.getTimesheetsByUserId(userId));
-    }
-
-    // User: Delete timesheet
     @DeleteMapping("/delete/{id}")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<Void> deleteTimesheet(@PathVariable Long id) {
@@ -46,14 +51,12 @@ public class TimesheetController {
         return ResponseEntity.ok().build();
     }
 
-    // SuperAdmin: Update timesheet status
     @PutMapping("/status/{id}")
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<TimesheetDTO> updateStatus(@PathVariable Long id, @RequestParam String status) {
         return ResponseEntity.ok(timesheetService.updateStatus(id, status));
     }
 
-    // User: Update timesheet
     @PutMapping("/update/{id}")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<TimesheetDTO> updateTimesheet(@PathVariable Long id, @RequestBody TimesheetDTO dto) {
