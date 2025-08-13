@@ -1,24 +1,18 @@
 package com.EMS.Employee.Management.System.dto;
 
 import lombok.Data;
-import java.time.LocalDate;
 
 @Data
 public class LeaveDTO {
     private Long id;
-    private Long userId;
-
-   
+    private int employeeId;
+    private String employeeName;
     private String leaveType;
-    private LocalDate leaveFrom;
-    private LocalDate leaveTo;
-   
-    
+    private String leaveFrom;
+    private String leaveTo;
+    private int coverPersonId;
     private String coverPersonName;
     private String departmentName;
-   
-    private String reportToName;
     private String reason;
-    private String leaveStatus;
-    
+    private String status;
 } 

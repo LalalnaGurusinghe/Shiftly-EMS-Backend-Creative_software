@@ -85,6 +85,13 @@ public class EmployeeServiceImpl implements EmployeeService {
         return new ResponseEntity<>(toDTO(saved), HttpStatus.CREATED);
     }
 
+    @Override
+    public List<EmployeeDTO> getEmployeesByDepartment(Long departmentId) {
+    return employeeRepo.findByDepartment_Id(departmentId).stream()
+     .map(this::toDTO)
+    .collect(Collectors.toList());
+    }
+
     // @Override
     // public List<EmployeeDTO> getAll() {
     //     return employeeRepo.findAll()
@@ -100,27 +107,16 @@ public class EmployeeServiceImpl implements EmployeeService {
     //     return ResponseEntity.ok(toDTO(entity));
     // }
 
-    // @Override
-    // public List<EmployeeDTO> getEmployeesByDepartment(int departmentId) {
-    // return employeeRepo.findByDepartment(departmentId).stream()
-    // .map(entity -> {
-    // EmployeeDTO dto = new EmployeeDTO();
-    // BeanUtils.copyProperties(entity, dto);
-    // dto.setUserId(entity.getUser() != null ? entity.getUser().getId() : null);
-    // return dto;
-    // })
-    // .collect(Collectors.toList());
-    // }
 
-    @Override
-    public String getEmployeeNameById(int id) {
-        EmployeeEntity employee = employeeRepo.findById(id).orElse(null);
-        if (employee == null)
-            return null;
-        String firstName = employee.getFirstName() != null ? employee.getFirstName() : "";
-        String lastName = employee.getLastName() != null ? employee.getLastName() : "";
-        return (firstName + " " + lastName).trim();
-    }
+    // @Override
+    // public String getEmployeeNameById(int id) {
+    //     EmployeeEntity employee = employeeRepo.findById(id).orElse(null);
+    //     if (employee == null)
+    //         return null;
+    //     String firstName = employee.getFirstName() != null ? employee.getFirstName() : "";
+    //     String lastName = employee.getLastName() != null ? employee.getLastName() : "";
+    //     return (firstName + " " + lastName).trim();
+    // }
 
     @Transactional
     @Override
@@ -163,27 +159,21 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     private EmployeeDTO toDTO(EmployeeEntity entity) {
         EmployeeDTO dto = new EmployeeDTO();
-        // Copy scalar fields but exclude relations; include employeeId
-        BeanUtils.copyProperties(entity, dto, "user", "designation", "department", "reportPerson");
 
-        // User info
+        if (entity.getEmployeeId() != 0) {
+            dto.setEmployeeId(entity.getEmployeeId());
+        }
         if (entity.getUser() != null) {
             dto.setUserId(entity.getUser().getId());
         }
-
-        // Department info
         if (entity.getDepartment() != null) {
             dto.setDepartmentId(entity.getDepartment().getId());
             dto.setDepartment(entity.getDepartment().getName());
         }
-
-        // Designation info
         if (entity.getDesignation() != null) {
             dto.setDesignationId(entity.getDesignation().getId());
             dto.setDesignationName(entity.getDesignation().getName());
         }
-
-        // Reporting person info (derived from User)
         if (entity.getReportPerson() != null) {
             dto.setReportingPersonId(entity.getReportPerson().getId());
             dto.setReportingPerson(entity.getReportPerson().getUsername());
@@ -192,6 +182,36 @@ public class EmployeeServiceImpl implements EmployeeService {
             dto.setReportingPersonId(null);
             dto.setReportingPerson(null);
             dto.setReportingPersonEmail(null);
+        }
+        if(entity.getFirstName() !=null){
+            dto.setFirstName(entity.getFirstName());
+        }
+        if(entity.getLastName() !=null){
+            dto.setLastName(entity.getLastName());
+        }
+        if(entity.getFirstName() !=null && entity.getLastName() !=null){
+            dto.setFullName(entity.getFirstName() + " " + entity.getLastName());
+        }
+        if(entity.getGender() !=null){
+            dto.setGender(entity.getGender());
+        }
+        if(entity.getDob() !=null){
+            dto.setDob(entity.getDob());
+        }
+        if(entity.getLocation() !=null){
+            dto.setLocation(entity.getLocation());
+        }
+        if(entity.getSkills() !=null){
+            dto.setSkills(entity.getSkills());
+        }
+        if(entity.getEducation() !=null){
+            dto.setEducation(entity.getEducation());
+        }
+        if(entity.getExperience() !=null){
+            dto.setExperience(entity.getExperience());
+        }
+        if(entity.getTeamName() !=null){
+            dto.setTeamName(entity.getTeamName());
         }
 
         return dto;

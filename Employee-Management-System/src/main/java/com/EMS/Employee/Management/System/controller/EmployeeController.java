@@ -52,6 +52,14 @@ public class EmployeeController {
         return employeeService.addEmployee(userId, employeeDTO);
     }
 
+    @GetMapping("/by-department/{departmentId}")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<List<EmployeeDTO>>
+    getEmployeesByDepartment(@PathVariable Long departmentId) {
+    return
+    ResponseEntity.ok(employeeService.getEmployeesByDepartment(departmentId));
+    }
+
     // @GetMapping("/all")
     // @PreAuthorize("hasRole('ADMIN')")
     // public ResponseEntity<List<EmployeeDTO>> getAllEmployees() {
@@ -127,14 +135,6 @@ public class EmployeeController {
     // return ResponseEntity.ok(dto);
     // }
 
-    // @GetMapping("/by-department/{department}")
-    // @PreAuthorize("hasRole('ADMIN')")
-    // public ResponseEntity<List<EmployeeDTO>>
-    // getEmployeesByDepartment(@PathVariable int departmentId) {
-    // return
-    // ResponseEntity.ok(employeeService.getEmployeesByDepartment(departmentId));
-    // }
-
     // @GetMapping("/admins-by-department/{department}")
     // @PreAuthorize("hasRole('ADMIN')")
     // public ResponseEntity<AdminUserResponseDTO>
@@ -158,15 +158,15 @@ public class EmployeeController {
         return ResponseEntity.ok(employee);
     }
 
-    @GetMapping("/name/{id}")
-    @PreAuthorize(" hasRole('USER')")
-    public ResponseEntity<?> getEmployeeNameById(@PathVariable int id) {
-        String fullName = employeeService.getEmployeeNameById(id);
-        if (fullName == null) {
-            return ResponseEntity.notFound().build();
-        }
-        java.util.Map<String, String> result = new java.util.HashMap<>();
-        result.put("fullName", fullName);
-        return ResponseEntity.ok(result);
-    }
+    // @GetMapping("/name/{id}")
+    // @PreAuthorize(" hasRole('USER')")
+    // public ResponseEntity<?> getEmployeeNameById(@PathVariable int id) {
+    //     String fullName = employeeService.getEmployeeNameById(id);
+    //     if (fullName == null) {
+    //         return ResponseEntity.notFound().build();
+    //     }
+    //     java.util.Map<String, String> result = new java.util.HashMap<>();
+    //     result.put("fullName", fullName);
+    //     return ResponseEntity.ok(result);
+    // }
 }

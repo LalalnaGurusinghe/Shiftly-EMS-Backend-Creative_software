@@ -6,13 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.security.Principal;
 import java.util.List;
-import org.springframework.security.core.Authentication;
 
 @RestController
 @RequestMapping("/api/v1/shiftly/ems/leaves")
@@ -21,52 +16,47 @@ public class LeaveController {
     @Autowired
     private LeaveService leaveService;
 
-    // Employee: Apply for leave (with optional file upload)
-    // @PostMapping("/apply")
-    // @PreAuthorize("hasRole('USER')")
-    // public ResponseEntity<LeaveDTO> applyLeave(@RequestBody LeaveDTO leaveDTO, Authentication authentication) {
-    //     return ResponseEntity.ok(leaveService.applyLeave(leaveDTO, authentication.getName()));
-    // }
-
-    // Employee: View own leaves
-    @GetMapping("/my")
+    @PostMapping("/add/{employeeId}")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<List<LeaveDTO>> getOwnLeaves(Principal principal) {
-        List<LeaveDTO> leaves = leaveService.getOwnLeaves(principal.getName());
-        return ResponseEntity.ok(leaves);
+    public ResponseEntity<LeaveDTO> applyLeave(@PathVariable int employeeId,@RequestBody LeaveDTO dto) {
+        return ResponseEntity.ok(leaveService.applyLeave(employeeId,dto));
     }
 
-    // Employee: Update own leave
-    @PutMapping("/update/{id}")
+    @GetMapping("/employee/{employeeId}")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<LeaveDTO> updateOwnLeave(@PathVariable Long id,
-                                                   @RequestBody LeaveDTO leaveDTO,
-                                                   Principal principal) {
-        LeaveDTO result = leaveService.updateOwnLeave(id, leaveDTO, principal.getName());
-        return ResponseEntity.ok(result);
+    public ResponseEntity<List<LeaveDTO>> getByEmployeeId(@PathVariable int employeeId) {
+        return ResponseEntity.ok(leaveService.getByEmployeeId(employeeId));
     }
 
-    // Employee: Delete own leave
+     @GetMapping("/admin/{adminUserId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<LeaveDTO>> getLeavesForAdmin(@PathVariable Long adminUserId) {
+        return ResponseEntity.ok(leaveService.getLeavesForAdmin(adminUserId));
+    }
+
+    @GetMapping("/all")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<LeaveDTO>> getAllLeaves() {
+        return ResponseEntity.ok(leaveService.getAllLeaves());
+    }
+
     @DeleteMapping("/delete/{id}")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<Void> deleteOwnLeave(@PathVariable Long id, Principal principal) {
-        leaveService.deleteOwnLeave(id, principal.getName());
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<Void> deleteLeave(@PathVariable Long id) {
+        leaveService.deleteLeave(id);
+        return ResponseEntity.ok().build();
     }
 
-    // Admin: View all leaves
-    @GetMapping("/all")
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
-    public ResponseEntity<List<LeaveDTO>> getAllLeaves() {
-        List<LeaveDTO> leaves = leaveService.getAllLeaves();
-        return ResponseEntity.ok(leaves);
-    }
-
-    // Admin: Approve/Reject/Update status
     @PutMapping("/status/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
-    public ResponseEntity<LeaveDTO> updateLeaveStatus(@PathVariable Long id, @RequestParam String status) {
-        LeaveDTO result = leaveService.updateLeaveStatus(id, status);
-        return ResponseEntity.ok(result);
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<LeaveDTO> updateStatus(@PathVariable Long id, @RequestParam String status) {
+        return ResponseEntity.ok(leaveService.updateStatus(id, status));
     }
+
+    @PutMapping("/update/{id}")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<LeaveDTO> updateLeave(@PathVariable Long id, @RequestBody LeaveDTO dto) {
+        return ResponseEntity.ok(leaveService.updateLeave(id, dto));
+    }
+
 } 

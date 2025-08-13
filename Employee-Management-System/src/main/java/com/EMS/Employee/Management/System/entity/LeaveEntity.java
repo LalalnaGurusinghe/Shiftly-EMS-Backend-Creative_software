@@ -13,36 +13,28 @@ public class LeaveEntity {
     private Long id;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @JoinColumn(name = "employee_id", nullable = false)
+    private EmployeeEntity employee;
 
     @Column(name = "leave_type", nullable = false)
     private String leaveType;
 
     @Column(name = "leave_from", nullable = false)
-    private LocalDate leaveFrom;
+    private String leaveFrom;
 
     @Column(name = "leave_to", nullable = false)
-    private LocalDate leaveTo;
+    private String leaveTo;
 
-  
-
-    // Cover person: Employee from same department
     @ManyToOne
-    @JoinColumn(name = "cover_person_id")
+    @JoinColumn(name = "cover_person_id",nullable = false)
     private EmployeeEntity coverPerson;
 
-    // Report to: auto-filled from Employee table
-    @ManyToOne
-    @JoinColumn(name = "report_to_id")
-    private EmployeeEntity reportTo;
-
-    @Column(name = "reason", length = 500)
+    @Column(name = "reason", length = 500,nullable = false)
     private String reason;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "leave_status", nullable = false)
-    private LeaveStatus leaveStatus = LeaveStatus.PENDING;
+    private LeaveStatus status = LeaveStatus.PENDING;
 
    
 } 

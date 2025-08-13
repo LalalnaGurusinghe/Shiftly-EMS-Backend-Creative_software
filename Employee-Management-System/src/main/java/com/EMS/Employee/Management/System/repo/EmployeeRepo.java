@@ -12,6 +12,7 @@ import com.EMS.Employee.Management.System.entity.EmployeeEntity;
 @Repository
 public interface EmployeeRepo extends JpaRepository<EmployeeEntity, Integer> {
     Optional<EmployeeEntity> findByUser_Id(Long userId);
+    Optional<EmployeeEntity> findByDepartment_Id(Long departmentId);
 
     boolean existsByUser_Id(Long userId);
 
