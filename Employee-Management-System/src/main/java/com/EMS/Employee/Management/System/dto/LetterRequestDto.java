@@ -12,7 +12,10 @@ public class LetterRequestDto {
     private Long id;
     private String letterType;
     private String status;
-    private String requestedBy;
+
     private String generatedLetterHtml;
     private Map<String, Object> fields;
+    private int employeeId;
+    private String departmentName;
+    private String employeeName;
 }

@@ -5,9 +5,12 @@ import com.EMS.Employee.Management.System.entity.LetterRequest;
 import java.util.List;
 
 public interface LetterRequestService {
-    LetterRequestDto createRequest(LetterRequestDto dto, String username);
-    List<LetterRequestDto> getUserRequests(String username);
+    LetterRequestDto createRequest(int employeeId, LetterRequestDto dto);
+    List<LetterRequestDto> getByEmployeeId(int employeeId);
     List<LetterRequestDto> getAllRequests();
+    List<LetterRequestDto> getRequestsForAdmin(Long adminUserId);
     String generateLetter(Long requestId);
-    void deleteRequest(Long id, String username);
+    void deleteRequest(Long id);
+    LetterRequestDto updateStatus(Long id, String status);
+    LetterRequestDto updateRequest(Long id, LetterRequestDto dto);
 }

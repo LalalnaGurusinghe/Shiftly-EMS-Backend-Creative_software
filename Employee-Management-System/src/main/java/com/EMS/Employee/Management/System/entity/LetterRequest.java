@@ -24,8 +24,10 @@ public class LetterRequest {
     @Column(name = "fields_json", columnDefinition = "TEXT")
     private String fieldsJson;
 
-    @Column(name = "requested_by")
-    private String requestedBy;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "employee_id", nullable = false)
+    private EmployeeEntity employee;
 
     @Column(name = "requested_at")
     private LocalDateTime requestedAt;
@@ -36,4 +38,6 @@ public class LetterRequest {
 
     @Column(name = "generated_letter_html", columnDefinition = "TEXT")
     private String generatedLetterHtml;
+
+
 }
