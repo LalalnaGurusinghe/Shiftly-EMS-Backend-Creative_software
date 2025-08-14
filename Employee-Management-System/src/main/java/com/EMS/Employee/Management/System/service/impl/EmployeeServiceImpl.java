@@ -124,38 +124,34 @@ public class EmployeeServiceImpl implements EmployeeService {
          employeeRepo.deleteByUser_Id(id);
     }
 
-    // @Override
-    // public ResponseEntity<EmployeeDTO> updateUserById(int id, EmployeeDTO employeeDTO) {
-    //     EmployeeEntity entity = employeeRepo.findById(id)
-    //             .orElseThrow(() -> new RuntimeException("Employee not found"));
+     @Override
+     public ResponseEntity<EmployeeDTO> updateEmployeeById(int id, EmployeeDTO employeeDTO) {
+         EmployeeEntity entity = employeeRepo.findById(id)
+                 .orElseThrow(() -> new RuntimeException("Employee not found"));
 
-    //     if (employeeDTO.getFirstName() != null)
-    //         entity.setFirstName(employeeDTO.getFirstName());
-    //     if (employeeDTO.getLastName() != null)
-    //         entity.setLastName(employeeDTO.getLastName());
-    //     if (employeeDTO.getGender() != null)
-    //         entity.setGender(employeeDTO.getGender());
-    //     if (employeeDTO.getDob() != null)
-    //         entity.setDob(employeeDTO.getDob());
-    //     if (employeeDTO.getLocation() != null)
-    //         entity.setLocation(employeeDTO.getLocation());
-    //     if (employeeDTO.getSkills() != null)
-    //         entity.setSkills(employeeDTO.getSkills());
-    //     if (employeeDTO.getEducation() != null)
-    //         entity.setEducation(employeeDTO.getEducation());
-    //     if (employeeDTO.getExperience() != null)
-    //         entity.setExperience(employeeDTO.getExperience());
-    //     if (employeeDTO.getTeamName() != null)
-    //         entity.setTeamName(employeeDTO.getTeamName());
-    //     // Set User reference from userId if provided
-    //     if (employeeDTO.getUserId() != null) {
-    //         User user = userRepo.findById(employeeDTO.getUserId()).orElse(null);
-    //         entity.setUser(user);
-    //     }
-    //     employeeRepo.save(entity);
-    //     EmployeeDTO updatedDTO = toDTO(entity);
-    //     return ResponseEntity.ok(updatedDTO);
-    // }
+         if (employeeDTO.getFirstName() != null)
+             entity.setFirstName(employeeDTO.getFirstName());
+         if (employeeDTO.getLastName() != null)
+             entity.setLastName(employeeDTO.getLastName());
+         if (employeeDTO.getGender() != null)
+             entity.setGender(employeeDTO.getGender());
+         if (employeeDTO.getDob() != null)
+             entity.setDob(employeeDTO.getDob());
+         if (employeeDTO.getLocation() != null)
+             entity.setLocation(employeeDTO.getLocation());
+         if (employeeDTO.getSkills() != null)
+             entity.setSkills(employeeDTO.getSkills());
+         if (employeeDTO.getEducation() != null)
+             entity.setEducation(employeeDTO.getEducation());
+         if (employeeDTO.getExperience() != null)
+             entity.setExperience(employeeDTO.getExperience());
+         if (employeeDTO.getTeamName() != null)
+             entity.setTeamName(employeeDTO.getTeamName());
+
+         employeeRepo.save(entity);
+         EmployeeDTO updatedDTO = toDTO(entity);
+         return ResponseEntity.ok(updatedDTO);
+     }
 
     private EmployeeDTO toDTO(EmployeeEntity entity) {
         EmployeeDTO dto = new EmployeeDTO();

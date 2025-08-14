@@ -79,12 +79,12 @@ public class EmployeeController {
         return ResponseEntity.ok().build();
     }
 
-    // @PutMapping("/update/{id}")
-    // @PreAuthorize("hasRole('ADMIN')")
-    // public ResponseEntity<EmployeeDTO> updateEmployeeById(@PathVariable int id,
-    // @Valid @RequestBody EmployeeDTO employeeDTO) {
-    // return employeeService.updateUserById(id, employeeDTO);
-    // }
+    @PutMapping("/update/{id}")
+     @PreAuthorize("hasRole('USER')")
+     public ResponseEntity<EmployeeDTO> updateEmployeeById(@PathVariable int id,
+     @Valid @RequestBody EmployeeDTO employeeDTO) {
+     return employeeService.updateEmployeeById(id, employeeDTO);
+     }
 
     // @PutMapping("/self-update")
     // @PreAuthorize("hasRole('USER')")
@@ -96,21 +96,21 @@ public class EmployeeController {
     // employeeDTO);
     // }
 
-    @GetMapping("/profile")
-    @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<EmployeeDTO> getProfile(Authentication authentication) {
-        String username = authentication.getName();
-        User user = userRepo.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        Optional<EmployeeEntity> employee = employeeRepo.findByUser_Id(user.getId());
-        if (employee == null) {
-            return ResponseEntity.notFound().build();
-        }
-        EmployeeDTO dto = new EmployeeDTO();
-        BeanUtils.copyProperties(employee, dto);
-        dto.setUserId(user.getId());
-        return ResponseEntity.ok(dto);
-    }
+//    @GetMapping("/profile")
+//    @PreAuthorize("hasRole('USER')")
+//    public ResponseEntity<EmployeeDTO> getProfile(Authentication authentication) {
+//        String username = authentication.getName();
+//        User user = userRepo.findByUsername(username)
+//                .orElseThrow(() -> new RuntimeException("User not found"));
+//        Optional<EmployeeEntity> employee = employeeRepo.findByUser_Id(user.getId());
+//        if (employee == null) {
+//            return ResponseEntity.notFound().build();
+//        }
+//        EmployeeDTO dto = new EmployeeDTO();
+//        BeanUtils.copyProperties(employee, dto);
+//        dto.setUserId(user.getId());
+//        return ResponseEntity.ok(dto);
+//    }
 
     // @PutMapping("/profile")
     // @PreAuthorize("hasRole('USER')")

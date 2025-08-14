@@ -13,7 +13,7 @@ public interface EmployeeService {
     // ResponseEntity<EmployeeDTO> updateProfileFields(int id, EmployeeDTO employeeDTO);
     // ResponseEntity<EmployeeDTO> getUserById(int id);
     void deleteEmployeeByUserId(Long id);
-    // ResponseEntity<EmployeeDTO> updateUserById(int id, EmployeeDTO employeeDTO);
+    ResponseEntity<EmployeeDTO> updateEmployeeById(int id, EmployeeDTO employeeDTO);
     // String getEmployeeNameById(int id);
     EmployeeDTO getEmployeeByUserId(Long userId);
 }
