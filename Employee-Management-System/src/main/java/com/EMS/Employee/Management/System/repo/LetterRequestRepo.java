@@ -5,5 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface LetterRequestRepo extends JpaRepository<LetterRequest, Long> {
-    List<LetterRequest> findByRequestedBy(String requestedBy);
+    List<LetterRequest> findByEmployee_EmployeeId(int employeeId);
+    List<LetterRequest> findByEmployee_Department_Id(Long departmentId);
 }

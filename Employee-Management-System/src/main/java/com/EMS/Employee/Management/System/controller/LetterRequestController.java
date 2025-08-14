@@ -20,17 +20,24 @@ public class LetterRequestController {
     }
 
     // User: Create a letter request
-    @PostMapping("/request")
+    @PostMapping("/add/{employeeId}")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<LetterRequestDto> createRequest(@RequestBody LetterRequestDto dto, Principal principal) {
-        return ResponseEntity.ok(letterRequestService.createRequest(dto, principal.getName()));
+    public ResponseEntity<LetterRequestDto> createRequest(@PathVariable int employeeId, @RequestBody LetterRequestDto dto) {
+        return ResponseEntity.ok(letterRequestService.createRequest(employeeId, dto));
     }
 
     // User: View own letter requests
-    @GetMapping("/my")
+    @GetMapping("/employee/{employeeId}")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<List<LetterRequestDto>> getUserRequests(Principal principal) {
-        return ResponseEntity.ok(letterRequestService.getUserRequests(principal.getName()));
+    public ResponseEntity<List<LetterRequestDto>> getByEmployeeId(@PathVariable int employeeId) {
+        return ResponseEntity.ok(letterRequestService.getByEmployeeId(employeeId));
+    }
+
+    // Admin: View letter requests for admin's department
+    @GetMapping("/admin/{adminUserId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<LetterRequestDto>> getRequestsForAdmin(@PathVariable Long adminUserId) {
+        return ResponseEntity.ok(letterRequestService.getRequestsForAdmin(adminUserId));
     }
 
     // Admin: View all letter requests
@@ -47,11 +54,25 @@ public class LetterRequestController {
         return ResponseEntity.ok(letterRequestService.generateLetter(id));
     }
 
-     // User: Delete own letter request
+    // User: Delete own letter request
     @DeleteMapping("/delete/{id}")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<Void> deleteRequest(@PathVariable Long id, Principal principal) {
-        letterRequestService.deleteRequest(id, principal.getName());
+    public ResponseEntity<Void> deleteRequest(@PathVariable Long id) {
+        letterRequestService.deleteRequest(id);
         return ResponseEntity.ok().build();
+    }
+
+    // Admin: Update letter request status
+    @PutMapping("/status/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<LetterRequestDto> updateStatus(@PathVariable Long id, @RequestParam String status) {
+        return ResponseEntity.ok(letterRequestService.updateStatus(id, status));
+    }
+
+    // User: Update letter request
+    @PutMapping("/update/{id}")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<LetterRequestDto> updateRequest(@PathVariable Long id, @RequestBody LetterRequestDto dto) {
+        return ResponseEntity.ok(letterRequestService.updateRequest(id, dto));
     }
 }

@@ -1,10 +1,11 @@
- 
 package com.EMS.Employee.Management.System.service.impl;
 
 import com.EMS.Employee.Management.System.dto.LetterRequestDto;
 import com.EMS.Employee.Management.System.entity.LetterRequest;
 import com.EMS.Employee.Management.System.entity.LetterRequestStatus;
 import com.EMS.Employee.Management.System.repo.LetterRequestRepo;
+import com.EMS.Employee.Management.System.repo.EmployeeRepo;
+import com.EMS.Employee.Management.System.repo.DepartmentRepo;
 import com.EMS.Employee.Management.System.service.AiLetterService;
 import com.EMS.Employee.Management.System.service.LetterRequestService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,11 +17,15 @@ import java.util.stream.Collectors;
 @Service
 public class LetterRequestServiceImpl implements LetterRequestService {
     private final LetterRequestRepo letterRequestRepo;
+    private final EmployeeRepo employeeRepo;
+    private final DepartmentRepo departmentRepo;
     private final AiLetterService aiLetterService;
     private final ObjectMapper objectMapper;
 
-    public LetterRequestServiceImpl(LetterRequestRepo letterRequestRepo, AiLetterService aiLetterService, ObjectMapper objectMapper) {
+    public LetterRequestServiceImpl(LetterRequestRepo letterRequestRepo, EmployeeRepo employeeRepo, DepartmentRepo departmentRepo, AiLetterService aiLetterService, ObjectMapper objectMapper) {
         this.letterRequestRepo = letterRequestRepo;
+        this.employeeRepo = employeeRepo;
+        this.departmentRepo = departmentRepo;
         this.aiLetterService = aiLetterService;
         this.objectMapper = objectMapper;
     }
@@ -30,18 +35,24 @@ public class LetterRequestServiceImpl implements LetterRequestService {
         dto.setId(entity.getId());
         dto.setLetterType(entity.getLetterType());
         dto.setStatus(entity.getStatus() != null ? entity.getStatus().name() : null);
-        dto.setRequestedBy(entity.getRequestedBy());
         dto.setGeneratedLetterHtml(entity.getGeneratedLetterHtml());
         try {
             dto.setFields(objectMapper.readValue(entity.getFieldsJson(), java.util.Map.class));
         } catch (Exception e) {
             dto.setFields(null);
         }
+        if (entity.getEmployee() != null) {
+            dto.setEmployeeId(entity.getEmployee().getEmployeeId());
+            dto.setDepartmentName(entity.getEmployee().getDepartment() != null ? entity.getEmployee().getDepartment().getName() : null);
+            dto.setEmployeeName(entity.getEmployee().getFirstName() != null ? entity.getEmployee().getFirstName() + " " + entity.getEmployee().getLastName() : null);
+        }
         return dto;
     }
 
     @Override
-    public LetterRequestDto createRequest(LetterRequestDto dto, String username) {
+    public LetterRequestDto createRequest(int employeeId, LetterRequestDto dto) {
+        var employee = employeeRepo.findById(employeeId)
+                .orElseThrow(() -> new RuntimeException("Employee not found"));
         LetterRequest entity = new LetterRequest();
         entity.setLetterType(dto.getLetterType());
         try {
@@ -49,16 +60,16 @@ public class LetterRequestServiceImpl implements LetterRequestService {
         } catch (Exception e) {
             throw new RuntimeException("Invalid fields", e);
         }
-        entity.setRequestedBy(username);
         entity.setRequestedAt(LocalDateTime.now());
         entity.setStatus(LetterRequestStatus.UNREAD);
+        entity.setEmployee(employee);
         LetterRequest saved = letterRequestRepo.save(entity);
         return toDto(saved);
     }
 
     @Override
-    public List<LetterRequestDto> getUserRequests(String username) {
-        return letterRequestRepo.findByRequestedBy(username)
+    public List<LetterRequestDto> getByEmployeeId(int employeeId) {
+        return letterRequestRepo.findByEmployee_EmployeeId(employeeId)
                 .stream().map(this::toDto).collect(Collectors.toList());
     }
 
@@ -79,6 +90,16 @@ public class LetterRequestServiceImpl implements LetterRequestService {
     }
 
     @Override
+    public List<LetterRequestDto> getRequestsForAdmin(Long adminUserId) {
+        var department = departmentRepo.findByAdmin_Id(adminUserId)
+                .stream().findFirst().orElse(null);
+        if (department == null)
+            return List.of();
+        return letterRequestRepo.findByEmployee_Department_Id(department.getId())
+                .stream().map(this::toDto).collect(Collectors.toList());
+    }
+
+    @Override
     public String generateLetter(Long requestId) {
         LetterRequest entity = letterRequestRepo.findById(requestId)
                 .orElseThrow(() -> new RuntimeException("Request not found"));
@@ -95,14 +116,37 @@ public class LetterRequestServiceImpl implements LetterRequestService {
             throw new RuntimeException("Failed to generate letter", e);
         }
     }
-       @Override
-    public void deleteRequest(Long id, String username) {
+
+    @Override
+    public void deleteRequest(Long id) {
         LetterRequest entity = letterRequestRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Request not found"));
-        // Only allow delete if the user is the owner (or add admin check if needed)
-        if (!entity.getRequestedBy().equals(username)) {
-            throw new RuntimeException("You are not authorized to delete this request");
+        letterRequestRepo.delete(entity);
+    }
+
+    @Override
+    public LetterRequestDto updateStatus(Long id, String status) {
+        LetterRequest entity = letterRequestRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Request not found"));
+        entity.setStatus(LetterRequestStatus.valueOf(status));
+        LetterRequest saved = letterRequestRepo.save(entity);
+        return toDto(saved);
+    }
+
+    @Override
+    public LetterRequestDto updateRequest(Long id, LetterRequestDto dto) {
+        LetterRequest entity = letterRequestRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Request not found"));
+        if (dto.getLetterType() != null) entity.setLetterType(dto.getLetterType());
+        if (dto.getFields() != null) {
+            try {
+                entity.setFieldsJson(objectMapper.writeValueAsString(dto.getFields()));
+            } catch (Exception e) {
+                throw new RuntimeException("Invalid fields", e);
+            }
         }
-        letterRequestRepo.deleteById(id);
+        if (dto.getStatus() != null) entity.setStatus(LetterRequestStatus.valueOf(dto.getStatus()));
+        LetterRequest saved = letterRequestRepo.save(entity);
+        return toDto(saved);
     }
 }
