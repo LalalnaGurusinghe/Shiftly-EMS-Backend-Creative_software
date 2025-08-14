@@ -2,28 +2,22 @@ package com.EMS.Employee.Management.System.service;
 
 import java.util.List;
 
+import com.EMS.Employee.Management.System.dto.ClaimDTO;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.EMS.Employee.Management.System.dto.ReferCandidateDTO;
 
 public interface ReferCandidateService {
-    ReferCandidateDTO createReferral(Long vacancyId, String applicantName, String applicantEmail, String message,
-            MultipartFile file, String status, String username) throws Exception;
+    ReferCandidateDTO create(int employeeId,Long vacancyId, String applicantName, String applicantEmail, String message,
+            MultipartFile file) throws Exception;
 
-    List<ReferCandidateDTO> getOwnReferrals(String username);
+    List<ReferCandidateDTO> getRefersForAdmin(Long adminUserId);
+    List<ReferCandidateDTO> getByEmployeeId(int employeeId);
+    List<ReferCandidateDTO> getAllRefers();
+    void deleteRefer(Long id);
+    ReferCandidateDTO updateStatus(Long id,String status);
 
-    ReferCandidateDTO updateOwnReferral(Long id, ReferCandidateDTO dto, String username);
+    ReferCandidateDTO updateRefer(Long id, Long vacancyId, String applicantName, String applicantEmail,
+            String message, MultipartFile file) throws Exception;
 
-    void deleteOwnReferral(Long id, String username);
-
-    List<ReferCandidateDTO> getAllReferrals();
-
-    ReferCandidateDTO updateReferralStatus(Long id, String status);
-
-    List<ReferCandidateDTO> getReferralsByUserId(Long userId);
-
-    ReferCandidateDTO updateReferral(Long id, Long vacancyId, String applicantName, String applicantEmail,
-            String message, org.springframework.web.multipart.MultipartFile file, String status) throws Exception;
-
-    void deleteReferral(Long id);
 }

@@ -12,6 +12,10 @@ public class ClaimEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "employee_id", nullable = false)
+    private EmployeeEntity employee;
+
     @Column(name = "claim_type", nullable = false, length = 100)
     private String claimType;
 
@@ -22,13 +26,10 @@ public class ClaimEntity {
     private String claimUrl;
 
     @Column(name = "claim_date")
-    private LocalDate claimDate;
+    private String claimDate;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private ClaimStatus status = ClaimStatus.PENDING;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
 }

@@ -8,5 +8,6 @@ import java.util.List;
 
 @Repository
 public interface ClaimRepo extends JpaRepository<ClaimEntity, Long> {
-    List<ClaimEntity> findByUser_Id(Long userId);
+    List<ClaimEntity> findByEmployee_EmployeeId(int employeeId);
+    List<ClaimEntity> findByEmployee_Department_Id(Long departmentId);
 }

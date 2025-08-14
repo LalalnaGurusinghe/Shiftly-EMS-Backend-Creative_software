@@ -6,24 +6,16 @@ import java.util.List;
 import java.time.LocalDate;
 
 public interface ClaimService {
-        ClaimDTO createClaim(String claimType, String description, MultipartFile file, String status, String username,
-                        LocalDate claimDate)
+        ClaimDTO create(int employeeId,String claimType, String description, MultipartFile file,
+                        String claimDate)
                         throws Exception;
 
-        List<ClaimDTO> getAllClaims(String username);
+        List<ClaimDTO> getClaimsForAdmin(Long adminUserId);
+        List<ClaimDTO> getByEmployeeId(int employeeId);
+        List<ClaimDTO> getAllClaims();
+        void deleteClaim(Long id);
+        ClaimDTO updateStatus(Long id,String status);
 
-        List<ClaimDTO> getClaimsByUserId(Long userId);
-
-        List<ClaimDTO> getOwnClaims(String username);
-
-        ClaimDTO updateClaim(Long id, String claimType, String description, MultipartFile file, String status,
-                        LocalDate claimDate, String username) throws Exception;
-
-        void deleteClaim(Long id, String username);
-
-        ClaimDTO getClaimById(Long id);
-
-        ClaimDTO approveClaim(Long id);
-
-        ClaimDTO rejectClaim(Long id);
+        ClaimDTO updateClaim(Long id, String claimType, String description, MultipartFile file,
+                             String claimDate) throws Exception;
 }

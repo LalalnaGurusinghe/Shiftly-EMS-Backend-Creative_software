@@ -11,10 +11,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ClaimDTO {
     private Long id;
+    private int employeeId;
     private String claimType;
     private String description;
     private String status;
-    private Long userId;
     private String claimUrl;
-    private LocalDate claimDate;
+    private String claimDate;
+    private String departmentName;
+    private String employeeName;
 }

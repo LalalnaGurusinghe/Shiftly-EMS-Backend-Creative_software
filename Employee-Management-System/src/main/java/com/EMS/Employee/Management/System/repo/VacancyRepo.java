@@ -7,5 +7,4 @@ import com.EMS.Employee.Management.System.entity.VacancyEntity;
 
 @Repository
 public interface VacancyRepo extends JpaRepository<VacancyEntity, Long> {
-    VacancyEntity findByName(String name);
 }

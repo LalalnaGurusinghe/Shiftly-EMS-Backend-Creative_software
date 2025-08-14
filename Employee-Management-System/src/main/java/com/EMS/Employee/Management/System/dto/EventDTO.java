@@ -10,11 +10,13 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class EventDTO {
     private Long id;
+    private int employeeId;
     private String title;
     private String eventType;
-    private LocalDate enableDate;
-    private LocalDate expireDate;
+    private String enableDate;
+    private String expireDate;
     private String status;
     private String imageUrl;
-    private Long userId;
+    private String departmentName;
+    private String employeeName;
 }

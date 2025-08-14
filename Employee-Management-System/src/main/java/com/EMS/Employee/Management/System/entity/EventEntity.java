@@ -16,6 +16,10 @@ public class EventEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "employee_id", nullable = false)
+    private EmployeeEntity employee;
+
     @Column(name = "title", nullable = false)
     private String title;
 
@@ -23,10 +27,10 @@ public class EventEntity {
     private String eventType;
 
     @Column(name = "enable_date", nullable = false)
-    private LocalDate enableDate;
+    private String enableDate;
 
     @Column(name = "expire_date", nullable = false)
-    private LocalDate expireDate;
+    private String expireDate;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
@@ -34,8 +38,4 @@ public class EventEntity {
 
     @Column(name = "image_url")
     private String imageUrl;
-
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
 }

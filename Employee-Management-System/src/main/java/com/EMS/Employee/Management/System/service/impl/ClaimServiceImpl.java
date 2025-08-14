@@ -1,10 +1,11 @@
 package com.EMS.Employee.Management.System.service.impl;
 
 import com.EMS.Employee.Management.System.dto.ClaimDTO;
-import com.EMS.Employee.Management.System.entity.ClaimEntity;
-import com.EMS.Employee.Management.System.entity.ClaimStatus;
-import com.EMS.Employee.Management.System.entity.User;
+import com.EMS.Employee.Management.System.dto.TimesheetDTO;
+import com.EMS.Employee.Management.System.entity.*;
 import com.EMS.Employee.Management.System.repo.ClaimRepo;
+import com.EMS.Employee.Management.System.repo.DepartmentRepo;
+import com.EMS.Employee.Management.System.repo.EmployeeRepo;
 import com.EMS.Employee.Management.System.repo.UserRepo;
 import com.EMS.Employee.Management.System.service.ClaimService;
 import org.springframework.stereotype.Service;
@@ -23,23 +24,25 @@ import java.util.stream.Collectors;
 @Service
 public class ClaimServiceImpl implements ClaimService {
     private final ClaimRepo claimRepo;
-    private final UserRepo userRepo;
+    private final EmployeeRepo employeeRepo;
+    private final DepartmentRepo departmentRepo;
 
-    public ClaimServiceImpl(ClaimRepo claimRepo, UserRepo userRepo) {
+    public ClaimServiceImpl(ClaimRepo claimRepo, EmployeeRepo employeeRepo, DepartmentRepo departmentRepo) {
         this.claimRepo = claimRepo;
-        this.userRepo = userRepo;
+        this.employeeRepo = employeeRepo;
+        this.departmentRepo = departmentRepo;
     }
 
     @Override
     @Transactional
-    public ClaimDTO createClaim(String claimType, String description, MultipartFile file, String status,
-            String username, LocalDate claimDate) throws Exception {
-        User user = userRepo.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
+    public ClaimDTO create(int employeeId,String claimType, String description, MultipartFile file, String claimDate) throws Exception {
+        EmployeeEntity employee = employeeRepo.findById(employeeId)
+                .orElseThrow(() -> new RuntimeException("Employee not found"));
         ClaimEntity entity = new ClaimEntity();
+        entity.setEmployee(employee);
         entity.setClaimType(claimType);
         entity.setDescription(description);
-        entity.setStatus(status != null ? ClaimStatus.valueOf(status) : ClaimStatus.PENDING);
-        entity.setUser(user);
+        entity.setStatus(ClaimStatus.PENDING);
         entity.setClaimDate(claimDate);
         if (file != null && !file.isEmpty()) {
             String projectRoot = System.getProperty("user.dir");
@@ -56,50 +59,53 @@ public class ClaimServiceImpl implements ClaimService {
     }
 
     @Override
-    public List<ClaimDTO> getAllClaims(String username) {
-        User currentUser = userRepo.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        List<ClaimEntity> claims;
-
-        // Role-based filtering
-        if (currentUser.getRoles() != null && currentUser.getRoles().contains("SUPER_ADMIN")) {
-            // Super admin can see all claims
-            claims = claimRepo.findAll();
-        } else {
-            // Non-admin users should not access this endpoint
-            throw new RuntimeException("Access denied: insufficient privileges");
-        }
-
-        return claims.stream().map(this::toDTO).collect(Collectors.toList());
+    public List<ClaimDTO> getClaimsForAdmin(Long adminUserId) {
+        DepartmentEntity department = departmentRepo.findByAdmin_Id(adminUserId)
+                .stream().findFirst().orElse(null);
+        if (department == null)
+            return List.of();
+        return claimRepo.findByEmployee_Department_Id(department.getId())
+                .stream().map(this::toDTO).toList();
     }
 
     @Override
-    public List<ClaimDTO> getClaimsByUserId(Long userId) {
-        return claimRepo.findByUser_Id(userId).stream().map(this::toDTO).collect(Collectors.toList());
+    public List<ClaimDTO> getAllClaims() {
+        return claimRepo.findAll().stream().map(this::toDTO).collect(Collectors.toList());
     }
-
     @Override
-    public List<ClaimDTO> getOwnClaims(String username) {
-        User user = userRepo.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
-        return claimRepo.findByUser_Id(user.getId()).stream().map(this::toDTO).collect(Collectors.toList());
+    public List<ClaimDTO> getByEmployeeId(int employeeId) {
+        return claimRepo.findByEmployee_EmployeeId(employeeId).stream().map(this::toDTO).collect(Collectors.toList());
     }
 
     @Override
     @Transactional
-    public ClaimDTO updateClaim(Long id, String claimType, String description, MultipartFile file, String status,
-            LocalDate claimDate, String username) throws Exception {
-        User user = userRepo.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
+    public void deleteClaim(Long id) {
+        ClaimEntity claim = claimRepo.findById(id).orElseThrow(() -> new
+                RuntimeException("Claim not found"));
+        claimRepo.delete(claim);
+    }
+
+    @Override
+    @Transactional
+    public ClaimDTO updateStatus(Long id, String status) {
+        ClaimEntity claim = claimRepo.findById(id).orElseThrow(() -> new
+                RuntimeException("Claim not found"));
+        claim.setStatus(ClaimStatus.valueOf(status));
+        ClaimEntity saved = claimRepo.save(claim);
+        return toDTO(saved);
+    }
+
+
+    @Override
+    @Transactional
+    public ClaimDTO updateClaim(Long id, String claimType, String description, MultipartFile file, String claimDate) throws Exception {
+
         ClaimEntity entity = claimRepo.findById(id).orElseThrow(() -> new RuntimeException("Claim not found"));
-        if (!entity.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("Unauthorized");
-        }
+
         if (claimType != null)
             entity.setClaimType(claimType);
         if (description != null)
             entity.setDescription(description);
-        if (status != null)
-            entity.setStatus(ClaimStatus.valueOf(status));
         if (claimDate != null)
             entity.setClaimDate(claimDate);
 
@@ -118,51 +124,21 @@ public class ClaimServiceImpl implements ClaimService {
         return toDTO(saved);
     }
 
-    @Override
-    @Transactional
-    public void deleteClaim(Long id, String username) {
-        User user = userRepo.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
-        ClaimEntity entity = claimRepo.findById(id).orElseThrow(() -> new RuntimeException("Claim not found"));
-        if (!entity.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("Unauthorized");
-        }
-        claimRepo.deleteById(id);
-    }
-
-    @Override
-    public ClaimDTO getClaimById(Long id) {
-        ClaimEntity entity = claimRepo.findById(id).orElseThrow(() -> new RuntimeException("Claim not found"));
-        return toDTO(entity);
-    }
-
-    @Override
-    @Transactional
-    public ClaimDTO approveClaim(Long id) {
-        ClaimEntity entity = claimRepo.findById(id).orElseThrow(() -> new RuntimeException("Claim not found"));
-        entity.setStatus(ClaimStatus.APPROVED);
-        ClaimEntity saved = claimRepo.save(entity);
-        return toDTO(saved);
-    }
-
-    @Override
-    @Transactional
-    public ClaimDTO rejectClaim(Long id) {
-        ClaimEntity entity = claimRepo.findById(id).orElseThrow(() -> new RuntimeException("Claim not found"));
-        entity.setStatus(ClaimStatus.REJECTED);
-        ClaimEntity saved = claimRepo.save(entity);
-        return toDTO(saved);
-    }
-
     private ClaimDTO toDTO(ClaimEntity entity) {
         ClaimDTO dto = new ClaimDTO();
+        if (entity.getEmployee() != null) {
+            dto.setEmployeeId(entity.getEmployee().getEmployeeId());
+            dto.setDepartmentName(
+                    entity.getEmployee().getDepartment() != null ? entity.getEmployee().getDepartment().getName()
+                            : null);
+            dto.setEmployeeName(entity.getEmployee().getFirstName() != null ? entity.getEmployee().getFirstName() + " " + entity.getEmployee().getLastName() : null);
+        }
         dto.setId(entity.getId());
         dto.setClaimType(entity.getClaimType());
         dto.setDescription(entity.getDescription());
-        dto.setStatus(entity.getStatus() != null ? entity.getStatus().name() : null);
-        dto.setUserId(entity.getUser() != null ? entity.getUser().getId() : null);
+        dto.setStatus(entity.getStatus().name());
         dto.setClaimUrl(entity.getClaimUrl());
         dto.setClaimDate(entity.getClaimDate());
-
         return dto;
     }
 }

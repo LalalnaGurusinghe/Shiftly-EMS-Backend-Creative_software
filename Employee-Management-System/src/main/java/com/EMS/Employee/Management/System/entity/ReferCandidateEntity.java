@@ -12,6 +12,10 @@ public class ReferCandidateEntity {
     private Long id;
 
     @ManyToOne(optional = false)
+    @JoinColumn(name = "employee_id", nullable = false)
+    private EmployeeEntity employee;
+
+    @ManyToOne(optional = false)
     @JoinColumn(name = "vacancy_id", nullable = false)
     private VacancyEntity vacancy;
 
@@ -31,7 +35,4 @@ public class ReferCandidateEntity {
     @Column(name = "status", nullable = false)
     private ReferStatus status = ReferStatus.UNREAD;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
 }
