@@ -85,22 +85,21 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<DetailUserDTO> getAllUsers() {
         return userRepo.findAll().stream()
-            // include users that have USER role
-            .filter(user -> user.getRoles() != null &&
-                    user.getRoles().stream().anyMatch(r -> "USER".equalsIgnoreCase(r)))
-            // exclude any that also have ADMIN or SUPER_ADMIN
-            .filter(user -> user.getRoles().stream()
-                    .noneMatch(r -> "ADMIN".equalsIgnoreCase(r) || "SUPER_ADMIN".equalsIgnoreCase(r)))
-            .map(user -> {
-                DetailUserDTO dto = new DetailUserDTO();
-                dto.setId(user.getId());
-                dto.setUsername(user.getUsername());
-                dto.setEmail(user.getEmail());
-                dto.setRoles(user.getRoles().stream().map(Object::toString).collect(Collectors.toList()));
+                // include users that have USER role
+                .filter(user -> user.getRoles() != null &&
+                        user.getRoles().stream().anyMatch(r -> "USER".equalsIgnoreCase(r)))
+                // exclude any that also have ADMIN or SUPER_ADMIN
+                .filter(user -> user.getRoles().stream()
+                        .noneMatch(r -> "ADMIN".equalsIgnoreCase(r) || "SUPER_ADMIN".equalsIgnoreCase(r)))
+                .map(user -> {
+                    DetailUserDTO dto = new DetailUserDTO();
+                    dto.setId(user.getId());
+                    dto.setUsername(user.getUsername());
+                    dto.setEmail(user.getEmail());
+                    dto.setRoles(user.getRoles().stream().map(Object::toString).collect(Collectors.toList()));
 
-                // enrich with employee details (if any)
-                EmployeeDTO employee = employeeService.getEmployeeByUserId(user.getId());
-                if (employee != null) {
+
+                    EmployeeDTO employee = employeeService.getEmployeeByUserId(user.getId());
                     dto.setDesignationId(employee.getDesignationId());
                     dto.setDesignationName(employee.getDesignationName());
                     dto.setDepartment(employee.getDepartment());
@@ -108,18 +107,20 @@ public class UserServiceImpl implements UserService {
                     dto.setReportingPerson(employee.getReportingPerson());
                     dto.setReportingPersonId(employee.getReportingPersonId());
                     dto.setReportingPersonEmail(employee.getReportingPersonEmail());
-                }
-                return dto;
-            })
-            .collect(Collectors.toList());
+
+                    return dto;
+                })
+                .collect(Collectors.toList());
     }
+
+
 
     @Override
     public List<DetailUserDTO> getAllAdmins() {
         List<User> adminUsers = userRepo.findByRolesContaining("ADMIN").stream()
         .filter(user -> user.getRoles().stream()
             .noneMatch(role -> role.equalsIgnoreCase("SUPER_ADMIN")))
-        .collect(Collectors.toList());
+        .toList();
 
         return adminUsers.stream().map(user -> {
             DetailUserDTO dto = new DetailUserDTO();
@@ -128,18 +129,18 @@ public class UserServiceImpl implements UserService {
             dto.setEmail(user.getEmail());
             dto.setRoles(user.getRoles().stream().map(Object::toString).collect(Collectors.toList()));
 
-            EmployeeDTO employee = employeeService.getEmployeeByUserId(user.getId());
-            if (employee != null) {
-                dto.setDesignationId(employee.getDesignationId());
-                dto.setDesignationName(employee.getDesignationName());
-                dto.setDepartment(employee.getDepartment());
-                dto.setDepartmentId(employee.getDepartmentId());
-                dto.setReportingPerson(employee.getReportingPerson());
-                dto.setReportingPersonId(employee.getReportingPersonId());
-                dto.setReportingPersonEmail(employee.getReportingPersonEmail());
-            }
-            return dto;
-        }).collect(Collectors.toList());
+                    EmployeeDTO employee = employeeService.getEmployeeByUserId(user.getId());
+                    dto.setDesignationId(employee.getDesignationId());
+                    dto.setDesignationName(employee.getDesignationName());
+                    dto.setDepartment(employee.getDepartment());
+                    dto.setDepartmentId(employee.getDepartmentId());
+                    dto.setReportingPerson(employee.getReportingPerson());
+                    dto.setReportingPersonId(employee.getReportingPersonId());
+                    dto.setReportingPersonEmail(employee.getReportingPersonEmail());
+
+                    return dto;
+                })
+                .collect(Collectors.toList());
     }
 
     // @Override

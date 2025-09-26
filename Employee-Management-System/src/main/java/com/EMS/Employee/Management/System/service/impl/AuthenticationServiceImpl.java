@@ -127,8 +127,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         message.setText(emailContent);
 
         try {
-            logger.info("Preparing verification email: to={}, username={}, role={}, designation={}, department={}, content={}",
-                    user.getEmail(), user.getUsername(), displayRole, designation, departmentName, emailContent);
+            logger.info("Preparing verification email: to={}, username={}, role={}, content={}",
+                    user.getEmail(), user.getUsername(), displayRole, emailContent);
             mailSender.send(message);
             logger.info("Verification email sent to {}", user.getEmail());
         } catch (Exception e) {

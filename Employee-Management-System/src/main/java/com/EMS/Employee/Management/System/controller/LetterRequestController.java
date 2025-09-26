@@ -11,7 +11,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/shiftly/ems/letters")
-@CrossOrigin(origins = "http://localhost:3000")
 public class LetterRequestController {
     private final LetterRequestService letterRequestService;
 

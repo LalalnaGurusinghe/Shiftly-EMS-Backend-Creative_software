@@ -20,7 +20,6 @@ import com.EMS.Employee.Management.System.service.DepartmentService;
 
 @RestController
 @RequestMapping("/api/v1/shiftly/ems/departments")
-@CrossOrigin(origins = "http://localhost:3000")
 public class DepartmentController {
 
     private DepartmentService departmentService;

@@ -16,7 +16,6 @@ import com.EMS.Employee.Management.System.repo.DepartmentRepo;
 
 @RestController
 @RequestMapping("/api/v1/shiftly/ems/teams")
-@CrossOrigin(origins = "http://localhost:3000")
 public class TeamController {
     @Autowired
     private TeamService teamService;

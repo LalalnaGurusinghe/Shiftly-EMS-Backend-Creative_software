@@ -29,19 +29,11 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/v1/shiftly/ems/employee")
-@CrossOrigin(origins = "http://localhost:3000")
 public class EmployeeController {
     private final EmployeeService employeeService;
-    private final UserService userService;
-    private final UserRepo userRepo;
-    private final EmployeeRepo employeeRepo;
 
-    public EmployeeController(EmployeeService employeeService, UserService userService, UserRepo userRepo,
-            EmployeeRepo employeeRepo) {
+    public EmployeeController(EmployeeService employeeService) {
         this.employeeService = employeeService;
-        this.userService = userService;
-        this.userRepo = userRepo;
-        this.employeeRepo = employeeRepo;
     }
 
     @PostMapping("/add/{userId}")
@@ -60,17 +52,6 @@ public class EmployeeController {
     ResponseEntity.ok(employeeService.getEmployeesByDepartment(departmentId));
     }
 
-    // @GetMapping("/all")
-    // @PreAuthorize("hasRole('ADMIN')")
-    // public ResponseEntity<List<EmployeeDTO>> getAllEmployees() {
-    // return ResponseEntity.ok(employeeService.getAll());
-    // }
-
-    // @GetMapping("/{id}")
-    // @PreAuthorize("hasRole('ADMIN')")
-    // public ResponseEntity<EmployeeDTO> getEmployeeById(@PathVariable int id) {
-    // return employeeService.getUserById(id);
-    // }
 
     @DeleteMapping("/delete/{id}")
     @PreAuthorize("hasRole('ADMIN')")
@@ -86,87 +67,22 @@ public class EmployeeController {
      return employeeService.updateEmployeeById(id, employeeDTO);
      }
 
-    // @PutMapping("/self-update")
-    // @PreAuthorize("hasRole('USER')")
-    // public ResponseEntity<EmployeeDTO> updateOwnInfo(@RequestBody EmployeeDTO
-    // employeeDTO) {
-    // // Assume employeeId is set in DTO and userId is validated by security
-    // context in real implementation
-    // return employeeService.updateUserById(employeeDTO.getEmployeeId(),
-    // employeeDTO);
-    // }
-
-//    @GetMapping("/profile")
-//    @PreAuthorize("hasRole('USER')")
-//    public ResponseEntity<EmployeeDTO> getProfile(Authentication authentication) {
-//        String username = authentication.getName();
-//        User user = userRepo.findByUsername(username)
-//                .orElseThrow(() -> new RuntimeException("User not found"));
-//        Optional<EmployeeEntity> employee = employeeRepo.findByUser_Id(user.getId());
-//        if (employee == null) {
-//            return ResponseEntity.notFound().build();
-//        }
-//        EmployeeDTO dto = new EmployeeDTO();
-//        BeanUtils.copyProperties(employee, dto);
-//        dto.setUserId(user.getId());
-//        return ResponseEntity.ok(dto);
-//    }
-
-    // @PutMapping("/profile")
-    // @PreAuthorize("hasRole('USER')")
-    // public ResponseEntity<EmployeeDTO> updateProfile(
-    // Authentication authentication,
-    // @RequestBody EmployeeDTO employeeDTO
-    // ) {
-    // String username = authentication.getName();
-    // User user = userRepo.findByUsername(username)
-    // .orElseThrow(() -> new RuntimeException("User not found"));
-    // EmployeeEntity employee = employeeRepo.findByUser_Id(user.getId());
-    // if (employee == null) {
-    // employee = new EmployeeEntity();
-    // employee.setUser(user);
-    // }
-    // BeanUtils.copyProperties(employeeDTO, employee, "employeeId", "user");
-    // employee.setUser(user);
-    // EmployeeEntity saved = employeeRepo.save(employee);
-    // EmployeeDTO dto = new EmployeeDTO();
-    // BeanUtils.copyProperties(saved, dto);
-    // dto.setUserId(user.getId());
-    // return ResponseEntity.ok(dto);
-    // }
-
-    // @GetMapping("/admins-by-department/{department}")
-    // @PreAuthorize("hasRole('ADMIN')")
-    // public ResponseEntity<AdminUserResponseDTO>
-    // getAdminUserByDepartment(@PathVariable int departmentId) {
-    // AdminUserResponseDTO adminUser =
-    // userService.getAdminUserByDepartment(departmentId);
-    // if (adminUser != null) {
-    // return ResponseEntity.ok(adminUser);
-    // } else {
-    // return ResponseEntity.notFound().build();
-    // }
-    // }
-
     @GetMapping("/{userId}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<EmployeeDTO> getEmployeeByUserId(@PathVariable Long userId) {
         EmployeeDTO employee = employeeService.getEmployeeByUserId(userId);
-        if (employee == null) {
-            return ResponseEntity.notFound().build();
-        }
         return ResponseEntity.ok(employee);
     }
 
-    // @GetMapping("/name/{id}")
-    // @PreAuthorize(" hasRole('USER')")
-    // public ResponseEntity<?> getEmployeeNameById(@PathVariable int id) {
-    //     String fullName = employeeService.getEmployeeNameById(id);
-    //     if (fullName == null) {
-    //         return ResponseEntity.notFound().build();
-    //     }
-    //     java.util.Map<String, String> result = new java.util.HashMap<>();
-    //     result.put("fullName", fullName);
-    //     return ResponseEntity.ok(result);
-    // }
+     @GetMapping("/name/{id}")
+     @PreAuthorize(" hasRole('USER')")
+     public ResponseEntity<?> getEmployeeNameById(@PathVariable int id) {
+         String fullName = employeeService.getEmployeeNameById(id);
+         if (fullName == null) {
+             return ResponseEntity.notFound().build();
+         }
+         java.util.Map<String, String> result = new java.util.HashMap<>();
+         result.put("fullName", fullName);
+         return ResponseEntity.ok(result);
+     }
 }

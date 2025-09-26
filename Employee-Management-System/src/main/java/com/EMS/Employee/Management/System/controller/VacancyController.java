@@ -19,7 +19,6 @@ import com.EMS.Employee.Management.System.service.VacancyService;
 
 @RestController
 @RequestMapping("/api/v1/shiftly/ems/vacancies")
-@CrossOrigin(origins = "http://localhost:3000")
 @PreAuthorize("hasRole('ADMIN')")
 public class VacancyController {
 

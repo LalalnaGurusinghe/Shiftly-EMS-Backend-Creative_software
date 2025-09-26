@@ -11,7 +11,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/shiftly/ems/leaves")
-@CrossOrigin(origins = "http://localhost:3000")
 public class LeaveController {
     @Autowired
     private LeaveService leaveService;

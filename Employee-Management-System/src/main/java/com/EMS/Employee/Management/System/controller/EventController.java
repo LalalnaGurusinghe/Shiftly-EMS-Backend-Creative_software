@@ -21,7 +21,6 @@ import java.security.Principal;
 
 @RestController
 @RequestMapping("/api/v1/shiftly/ems/events")
-@CrossOrigin(origins = "http://localhost:3000")
 public class EventController {
     private final EventService eventService;
 
@@ -58,7 +57,7 @@ public class EventController {
     }
 
     @GetMapping("/all")
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<List<EventDTO>> getAllEvents() {
         return ResponseEntity.ok(eventService.getAllEvents());
     }

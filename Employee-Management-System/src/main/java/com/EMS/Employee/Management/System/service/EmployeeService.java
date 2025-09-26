@@ -9,11 +9,10 @@ public interface EmployeeService {
     ResponseEntity<EmployeeDTO> addEmployee(Long userId, EmployeeDTO employeeDTO);
     ResponseEntity<EmployeeDTO> updateEmployee(Long userId, EmployeeDTO employeeDTO);
     List<EmployeeDTO> getEmployeesByDepartment(Long departmentId);
-    // List<EmployeeDTO> getAll();
     // ResponseEntity<EmployeeDTO> updateProfileFields(int id, EmployeeDTO employeeDTO);
     // ResponseEntity<EmployeeDTO> getUserById(int id);
     void deleteEmployeeByUserId(Long id);
     ResponseEntity<EmployeeDTO> updateEmployeeById(int id, EmployeeDTO employeeDTO);
-    // String getEmployeeNameById(int id);
+    String getEmployeeNameById(int id);
     EmployeeDTO getEmployeeByUserId(Long userId);
 }

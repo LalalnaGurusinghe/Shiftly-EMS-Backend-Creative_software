@@ -11,7 +11,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/shiftly/ems/timesheets")
-@CrossOrigin(origins = "http://localhost:3000")
 public class TimesheetController {
     
     private final TimesheetService timesheetService;

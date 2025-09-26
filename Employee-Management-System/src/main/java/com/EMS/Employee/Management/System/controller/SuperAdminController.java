@@ -18,7 +18,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/superadmin")
 @PreAuthorize("hasRole('ROLE_SUPER_ADMIN')")
-@CrossOrigin(origins = "http://localhost:3000")
 public class SuperAdminController {
 
     private final UserService userService;

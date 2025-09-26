@@ -14,7 +14,6 @@ import java.security.Principal;
 
 @RestController
 @RequestMapping("/api/v1/shiftly/ems/claims")
-@CrossOrigin(origins = "http://localhost:3000")
 public class ClaimController {
     private final ClaimService claimService;
 

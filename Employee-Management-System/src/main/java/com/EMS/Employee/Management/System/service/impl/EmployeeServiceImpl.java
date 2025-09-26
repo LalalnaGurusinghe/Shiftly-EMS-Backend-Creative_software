@@ -92,31 +92,16 @@ public class EmployeeServiceImpl implements EmployeeService {
     .collect(Collectors.toList());
     }
 
-    // @Override
-    // public List<EmployeeDTO> getAll() {
-    //     return employeeRepo.findAll()
-    //             .stream()
-    //             .map(this::toDTO)
-    //             .collect(Collectors.toList());
-    // }
 
-    // @Override
-    // public ResponseEntity<EmployeeDTO> getUserById(int id) {
-    //     EmployeeEntity entity = employeeRepo.findById(id)
-    //             .orElseThrow(() -> new RuntimeException("Employee not found"));
-    //     return ResponseEntity.ok(toDTO(entity));
-    // }
-
-
-    // @Override
-    // public String getEmployeeNameById(int id) {
-    //     EmployeeEntity employee = employeeRepo.findById(id).orElse(null);
-    //     if (employee == null)
-    //         return null;
-    //     String firstName = employee.getFirstName() != null ? employee.getFirstName() : "";
-    //     String lastName = employee.getLastName() != null ? employee.getLastName() : "";
-    //     return (firstName + " " + lastName).trim();
-    // }
+     @Override
+     public String getEmployeeNameById(int id) {
+         EmployeeEntity employee = employeeRepo.findById(id).orElse(null);
+         if (employee == null)
+             return null;
+         String firstName = employee.getFirstName() != null ? employee.getFirstName() : "";
+         String lastName = employee.getLastName() != null ? employee.getLastName() : "";
+         return (firstName + " " + lastName).trim();
+     }
 
     @Transactional
     @Override
@@ -152,6 +137,66 @@ public class EmployeeServiceImpl implements EmployeeService {
          EmployeeDTO updatedDTO = toDTO(entity);
          return ResponseEntity.ok(updatedDTO);
      }
+
+    // @Override
+    // public ResponseEntity<EmployeeDTO> updateProfileFields(int id, EmployeeDTO
+    // employeeDTO) {
+    // EmployeeEntity entity = employeeRepo.findById(id)
+    // .orElseThrow(() -> new RuntimeException("Employee not found"));
+
+    // // Example: update only profile fields (customize as needed)
+    // if (employeeDTO.getFirstName() != null)
+    // entity.setFirstName(employeeDTO.getFirstName());
+    // if (employeeDTO.getLastName() != null)
+    // entity.setLastName(employeeDTO.getLastName());
+    // if (employeeDTO.getGender() != null)
+    // entity.setGender(employeeDTO.getGender());
+    // if (employeeDTO.getDob() != null) entity.setDob(employeeDTO.getDob());
+    // if (employeeDTO.getLocation() != null)
+    // entity.setLocation(employeeDTO.getLocation());
+
+    // employeeRepo.save(entity);
+    // EmployeeDTO updatedDTO = toDTO(entity);
+    // return ResponseEntity.ok(updatedDTO);
+    // }
+
+    @Override
+    public EmployeeDTO getEmployeeByUserId(Long userId) {
+        return employeeRepo.findAll().stream()
+                .filter(emp -> emp.getUser() != null && emp.getUser().getId().equals(userId))
+                .findFirst()
+                .map(this::toDTO)
+                .orElseGet(EmployeeDTO::new); // return empty DTO instead of Optional or null
+    }
+
+    // Add this new method
+    @Override
+    @Transactional
+    public ResponseEntity<EmployeeDTO> updateEmployee(Long userId, EmployeeDTO employeeDTO) {
+        EmployeeEntity entity = employeeRepo.findByUser_Id(userId)
+                .orElseThrow(() -> new RuntimeException("Employee not found for userId: " + userId));
+
+        if (employeeDTO.getDepartmentId() != null) {
+            DepartmentEntity department = departmentRepo.findById(employeeDTO.getDepartmentId())
+                    .orElseThrow(() -> new RuntimeException("Department not found"));
+            entity.setDepartment(department);
+        }
+
+        if (employeeDTO.getDesignationId() != null) {
+            DesignationEntity designation = designationRepo.findById(employeeDTO.getDesignationId())
+                    .orElseThrow(() -> new RuntimeException("Designation not found"));
+            entity.setDesignation(designation);
+        }
+
+        if (employeeDTO.getReportingPersonId() != null) {
+            User reportingPerson = userRepo.findById(employeeDTO.getReportingPersonId())
+                    .orElseThrow(() -> new RuntimeException("Reporting person not found"));
+            entity.setReportPerson(reportingPerson);
+        }
+
+        EmployeeEntity saved = employeeRepo.save(entity);
+        return ResponseEntity.ok(toDTO(saved));
+    }
 
     private EmployeeDTO toDTO(EmployeeEntity entity) {
         EmployeeDTO dto = new EmployeeDTO();
@@ -211,65 +256,5 @@ public class EmployeeServiceImpl implements EmployeeService {
         }
 
         return dto;
-    }
-
-    // @Override
-    // public ResponseEntity<EmployeeDTO> updateProfileFields(int id, EmployeeDTO
-    // employeeDTO) {
-    // EmployeeEntity entity = employeeRepo.findById(id)
-    // .orElseThrow(() -> new RuntimeException("Employee not found"));
-
-    // // Example: update only profile fields (customize as needed)
-    // if (employeeDTO.getFirstName() != null)
-    // entity.setFirstName(employeeDTO.getFirstName());
-    // if (employeeDTO.getLastName() != null)
-    // entity.setLastName(employeeDTO.getLastName());
-    // if (employeeDTO.getGender() != null)
-    // entity.setGender(employeeDTO.getGender());
-    // if (employeeDTO.getDob() != null) entity.setDob(employeeDTO.getDob());
-    // if (employeeDTO.getLocation() != null)
-    // entity.setLocation(employeeDTO.getLocation());
-
-    // employeeRepo.save(entity);
-    // EmployeeDTO updatedDTO = toDTO(entity);
-    // return ResponseEntity.ok(updatedDTO);
-    // }
-
-    @Override
-    public EmployeeDTO getEmployeeByUserId(Long userId) {
-        return employeeRepo.findAll().stream()
-            .filter(emp -> emp.getUser() != null && emp.getUser().getId().equals(userId))
-            .findFirst()
-            .map(this::toDTO)
-            .orElse(null);
-    }
-
-    // Add this new method
-    @Override
-    @Transactional
-    public ResponseEntity<EmployeeDTO> updateEmployee(Long userId, EmployeeDTO employeeDTO) {
-        EmployeeEntity entity = employeeRepo.findByUser_Id(userId)
-                .orElseThrow(() -> new RuntimeException("Employee not found for userId: " + userId));
-
-        if (employeeDTO.getDepartmentId() != null) {
-            DepartmentEntity department = departmentRepo.findById(employeeDTO.getDepartmentId())
-                    .orElseThrow(() -> new RuntimeException("Department not found"));
-            entity.setDepartment(department);
-        }
-
-        if (employeeDTO.getDesignationId() != null) {
-            DesignationEntity designation = designationRepo.findById(employeeDTO.getDesignationId())
-                    .orElseThrow(() -> new RuntimeException("Designation not found"));
-            entity.setDesignation(designation);
-        }
-
-        if (employeeDTO.getReportingPersonId() != null) {
-            User reportingPerson = userRepo.findById(employeeDTO.getReportingPersonId())
-                    .orElseThrow(() -> new RuntimeException("Reporting person not found"));
-            entity.setReportPerson(reportingPerson);
-        }
-
-        EmployeeEntity saved = employeeRepo.save(entity);
-        return ResponseEntity.ok(toDTO(saved));
     }
 }
